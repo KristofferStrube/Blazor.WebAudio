@@ -14,7 +14,7 @@ else
 @code {
     OscillatorNode? oscillator;
 
-    async Task PlaySound()
+    public async Task PlaySound()
     {
         AudioContext context = await AudioContext.CreateAsync(JSRuntime);
         AudioDestinationNode destination = await context.GetDestinationAsync();
@@ -30,7 +30,7 @@ else
         await oscillator.StartAsync();
     }
 
-    async Task StopSound()
+    public async Task StopSound()
     {
         if (oscillator is null) return;
         await oscillator.StopAsync();

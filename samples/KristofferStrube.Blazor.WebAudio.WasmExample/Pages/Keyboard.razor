@@ -1,0 +1,114 @@
+﻿@page "/Keyboard"
+@inject IJSRuntime JSRuntime
+<PageTitle>Playing Sound</PageTitle>
+
+<svg @onpointerup="PointerUp"
+     @onpointerout="PointerOut"
+     @onpointerenter="PointerUp"
+     width="100%"
+     height="40vh"
+     viewBox="0 0 @(keys.Count(k => k.Color == "white")*100) 600">
+    @for (int i = 0; i < keys.Count; i++)
+    {
+        var k = i;
+        <rect @onpointerdown="() => PointerDown(keys[k].Octave, keys[k].Pitch)"
+          @onpointermove="() => PointerMove(keys[k].Octave, keys[k].Pitch)"
+              x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100-(keys[i].Color == "black" ? 35 : 0))"
+              y="0"
+              width="@(keys[i].Color == "white" ? 100 : 70)"
+              height="@(keys[i].Color == "white" ? 600 : 400)"
+              fill="@(keys[i].Color == "white" ? "transparent" : "black")"
+              stroke="black"
+              stroke-width="1"></rect>
+    }
+</svg>
+
+@code {
+    OscillatorNode? oscillator;
+    bool keyDown = false;
+    int? currentOctave;
+    int? currentPitch;
+
+    List<(string Name, int Octave, int Pitch, string Color)> keys = new();
+
+    protected override void OnInitialized()
+    {
+        var letters = new List<string>() { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+        keys = Enumerable
+            .Range(3, 3)
+            .SelectMany(octave =>
+                Enumerable
+                .Range(1, 12)
+                .Select(pitch => (letters[pitch - 1], octave, pitch, letters[pitch - 1].Contains('#') ? "black" : "white"))
+            )
+            .ToList();
+    }
+
+    SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
+    public async Task PointerDown(int octave, int pitch)
+    {
+        await semaphoreSlim.WaitAsync();
+        if (currentOctave != octave || currentPitch != pitch || !keyDown)
+        {
+            await StopSound();
+            currentOctave = octave;
+            currentPitch = pitch;
+            keyDown = true;
+
+            AudioContext context = await AudioContext.CreateAsync(JSRuntime);
+            AudioDestinationNode destination = await context.GetDestinationAsync();
+
+            OscillatorOptions oscillatorOptions = new()
+                {
+                    Type = OscillatorType.Sawtooth,
+                    Frequency = (float)Frequency(octave, pitch)
+                };
+            oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, oscillatorOptions);
+
+            await oscillator.ConnectAsync(destination);
+            await oscillator.StartAsync();
+            Console.WriteLine("Started");
+        }
+        semaphoreSlim.Release();
+    }
+
+    public async Task PointerMove(int octave, int pitch)
+    {
+        if (keyDown)
+        {
+            await PointerDown(octave, pitch);
+        }
+    }
+
+    public async Task PointerUp()
+    {
+        keyDown = false;
+        await StopSound();
+    }
+
+    public async Task PointerOut()
+    {
+        await StopSound();
+    }
+
+    public async Task StopSound()
+    {
+        if (oscillator is null) return;
+        await oscillator.StopAsync();
+        await oscillator.DisconnectAsync();
+        Console.WriteLine("Stopped");
+        oscillator = null;
+    }
+
+    private double Frequency(int octave, int pitch)
+    {
+        var noteIndex = octave * 12 + pitch;
+        var a = Math.Pow(2, 1.0 / 12);
+        var A4 = 440;
+        var A4Index = 4 * 12 + 10;
+        var halfStepDifference = noteIndex - A4Index;
+        return A4 * Math.Pow(a, halfStepDifference);
+    }
+}
+
+

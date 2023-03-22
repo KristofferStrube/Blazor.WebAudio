@@ -23,4 +23,9 @@ public class AudioNode : EventTarget
         var jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("connect", destinationNode.JSReference, output, input);
         return await CreateAsync(JSRuntime, jSInstance);
     }
+
+    public async Task DisconnectAsync()
+    {
+        await JSReference.InvokeVoidAsync("disconnect");
+    }
 }
