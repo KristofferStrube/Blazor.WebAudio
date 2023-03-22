@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KristofferStrube.Blazor.WebAudio", "src\KristofferStrube.Blazor.WebAudio\KristofferStrube.Blazor.WebAudio.csproj", "{9DA08632-6225-41D3-8DB6-C8D103DA308B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KristofferStrube.Blazor.WebAudio.WasmExample", "samples\KristofferStrube.Blazor.WebAudio.WasmExample\KristofferStrube.Blazor.WebAudio.WasmExample.csproj", "{B0FCE7ED-FCC5-4140-B732-2ABEC4848441}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9DA08632-6225-41D3-8DB6-C8D103DA308B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DA08632-6225-41D3-8DB6-C8D103DA308B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DA08632-6225-41D3-8DB6-C8D103DA308B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DA08632-6225-41D3-8DB6-C8D103DA308B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0FCE7ED-FCC5-4140-B732-2ABEC4848441}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0FCE7ED-FCC5-4140-B732-2ABEC4848441}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0FCE7ED-FCC5-4140-B732-2ABEC4848441}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0FCE7ED-FCC5-4140-B732-2ABEC4848441}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E26435BB-DA9F-4DB2-BDD3-194062FCBB71}
+	EndGlobalSection
+EndGlobal

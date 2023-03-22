@@ -1,0 +1,41 @@
+﻿@page "/"
+@inject IJSRuntime JSRuntime
+<PageTitle>Playing Sound</PageTitle>
+
+@if (oscillator is null)
+{
+    <button class="btn btn-success" @onclick=PlaySound>Play Sound 🔊</button>
+}
+else
+{
+    <button class="btn btn-warning" @onclick=StopSound>Stop Sound 🔊</button>
+}
+
+@code {
+    OscillatorNode? oscillator;
+
+    async Task PlaySound()
+    {
+        AudioContext context = await AudioContext.CreateAsync(JSRuntime);
+        AudioDestinationNode destination = await context.GetDestinationAsync();
+
+        OscillatorOptions oscillatorOptions = new()
+            {
+                Type = OscillatorType.Sawtooth,
+                Frequency = Random.Shared.Next(100, 600)
+            };
+        oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, oscillatorOptions);
+
+        await oscillator.ConnectAsync(destination);
+        await oscillator.StartAsync();
+    }
+
+    async Task StopSound()
+    {
+        if (oscillator is null) return;
+        await oscillator.StopAsync();
+        oscillator = null;
+    }
+}
+
+
