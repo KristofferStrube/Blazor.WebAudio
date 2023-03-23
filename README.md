@@ -4,7 +4,7 @@ This Web API standardizes methods for processing and synthesizing audio in web a
 
 **This wrapper is still being developed so ideas are still being tested and experimented with.**
 
-# Demo
+## Demo
 The sample project can be demoed at https://kristofferstrube.github.io/Blazor.WebAudio/
 
 ## Research
