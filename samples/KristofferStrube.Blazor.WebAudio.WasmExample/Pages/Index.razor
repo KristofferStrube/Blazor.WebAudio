@@ -12,13 +12,16 @@ else
 }
 
 @code {
+    AudioContext context = default!;
     OscillatorNode? oscillator;
+
+    protected override async Task OnInitializedAsync()
+    {
+        context = await AudioContext.CreateAsync(JSRuntime);
+    }
 
     public async Task PlaySound()
     {
-        AudioContext context = await AudioContext.CreateAsync(JSRuntime);
-        AudioDestinationNode destination = await context.GetDestinationAsync();
-
         OscillatorOptions oscillatorOptions = new()
             {
                 Type = OscillatorType.Sawtooth,
@@ -26,6 +29,7 @@ else
             };
         oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, oscillatorOptions);
 
+        AudioDestinationNode destination = await context.GetDestinationAsync();
         await oscillator.ConnectAsync(destination);
         await oscillator.StartAsync();
     }

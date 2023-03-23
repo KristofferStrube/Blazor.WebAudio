@@ -24,6 +24,7 @@
 </svg>
 
 @code {
+    AudioContext context = default!;
     OscillatorNode? oscillator;
     bool keyDown = false;
     int? currentOctave;
@@ -31,8 +32,10 @@
 
     List<(string Name, int Octave, int Pitch, string Color)> keys = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        context = await AudioContext.CreateAsync(JSRuntime);
+
         var letters = new List<string>() { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
         keys = Enumerable
             .Range(3, 3)
@@ -55,7 +58,6 @@
             currentPitch = pitch;
             keyDown = true;
 
-            AudioContext context = await AudioContext.CreateAsync(JSRuntime);
             AudioDestinationNode destination = await context.GetDestinationAsync();
 
             OscillatorOptions oscillatorOptions = new()
