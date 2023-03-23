@@ -60,7 +60,7 @@
 
             OscillatorOptions oscillatorOptions = new()
                 {
-                    Type = OscillatorType.Sawtooth,
+                    Type = OscillatorType.Triangle,
                     Frequency = (float)Frequency(octave, pitch)
                 };
             oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, oscillatorOptions);
