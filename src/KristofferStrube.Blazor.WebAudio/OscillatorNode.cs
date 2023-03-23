@@ -9,8 +9,8 @@ public class OscillatorNode : AudioScheduledSourceNode
     {
         var helper = await jSRuntime.GetHelperAsync();
         var jSInstance = options is null
-            ? await helper.InvokeAsync<IJSObjectReference>("constructOcillatorNote", context.JSReference)
-            : await helper.InvokeAsync<IJSObjectReference>("constructOcillatorNote", context.JSReference,
+            ? await helper.InvokeAsync<IJSObjectReference>("constructOcillatorNode", context.JSReference)
+            : await helper.InvokeAsync<IJSObjectReference>("constructOcillatorNode", context.JSReference,
             new
             {
                 type = options!.Type.AsString(),

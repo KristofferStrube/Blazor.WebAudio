@@ -3,34 +3,67 @@
 <PageTitle>Playing Sound</PageTitle>
 
 <svg @onpointerup="PointerUp"
-     @onpointerout="PointerOut"
-     @onpointerenter="PointerUp"
      width="100%"
      height="40vh"
-     viewBox="0 0 @(keys.Count(k => k.Color == "white")*100) 600">
-    @for (int i = 0; i < keys.Count; i++)
+     viewBox="0 0 @(keys.Count(k => k.Color == "white")*100) 600"
+     style="user-select:none;touch-action:none;">
+    @foreach (var i in whiteKeyIndices)
     {
         var k = i;
         <rect @onpointerdown="() => PointerDown(keys[k].Octave, keys[k].Pitch)"
           @onpointermove="() => PointerMove(keys[k].Octave, keys[k].Pitch)"
-              x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100-(keys[i].Color == "black" ? 35 : 0))"
+          @onpointerenter="() => PointerMove(keys[k].Octave, keys[k].Pitch)"
+          @onpointerleave="PointerOut"
+              x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100)"
               y="0"
-              width="@(keys[i].Color == "white" ? 100 : 70)"
-              height="@(keys[i].Color == "white" ? 600 : 400)"
-              fill="@(keys[i].Color == "white" ? "transparent" : "black")"
+              width="100"
+              height="600"
+              fill="white"
+              stroke="black"
+              stroke-width="1"></rect>
+        <text>
+            <text x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100+20)"
+                  y="580"
+                  width="100"
+                  height="600"
+            fill="white"
+            stroke="black"
+            stroke-width="4"
+            style="font-size:80px;pointer-events:none;">
+                @keys[i].Name
+            </text>
+        </text>
+    }
+    @foreach (var i in blackKeyIndices)
+    {
+        var k = i;
+        <rect @onpointerdown="() => PointerDown(keys[k].Octave, keys[k].Pitch)"
+          @onpointermove="() => PointerMove(keys[k].Octave, keys[k].Pitch)"
+          @onpointerenter="() => PointerMove(keys[k].Octave, keys[k].Pitch)"
+          @onpointerleave="PointerOut"
+              x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100-35)"
+              y="0"
+              width="70"
+              height="400"
+              fill="black"
               stroke="black"
               stroke-width="1"></rect>
     }
 </svg>
+<label for="gain">Volume</label>
+<input id="gain" type="range" min="0" max="1" step="0.01" style="width:min(200px, 100%);" @bind-value=gain>
 
 @code {
     AudioContext context = default!;
     OscillatorNode? oscillator;
+    GainNode? gainNode;
+    float gain = 0.1f;
     bool keyDown = false;
     int? currentOctave;
     int? currentPitch;
-
     List<(string Name, int Octave, int Pitch, string Color)> keys = new();
+    int[] whiteKeyIndices = Array.Empty<int>();
+    int[] blackKeyIndices = Array.Empty<int>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -45,6 +78,8 @@
                 .Select(pitch => (letters[pitch - 1], octave, pitch, letters[pitch - 1].Contains('#') ? "black" : "white"))
             )
             .ToList();
+        whiteKeyIndices = keys.Where(key => key.Color == "white").Select(key => keys.IndexOf(key)).ToArray();
+        blackKeyIndices = keys.Where(key => key.Color == "black").Select(key => keys.IndexOf(key)).ToArray();
     }
 
     SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
@@ -60,6 +95,9 @@
 
             AudioDestinationNode destination = await context.GetDestinationAsync();
 
+            gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = gain });
+            await gainNode.ConnectAsync(destination);
+
             OscillatorOptions oscillatorOptions = new()
                 {
                     Type = OscillatorType.Triangle,
@@ -67,9 +105,8 @@
                 };
             oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, oscillatorOptions);
 
-            await oscillator.ConnectAsync(destination);
+            await oscillator.ConnectAsync(gainNode);
             await oscillator.StartAsync();
-            Console.WriteLine("Started");
         }
         semaphoreSlim.Release();
     }
@@ -95,11 +132,12 @@
 
     public async Task StopSound()
     {
-        if (oscillator is null) return;
-        await oscillator.StopAsync();
-        await oscillator.DisconnectAsync();
-        Console.WriteLine("Stopped");
+        if (oscillator is null || gainNode is null) return;
+        var currentTime = await context.GetCurrentTimeAsync();
+        var audioParam = await gainNode.GetGainAsync();
+        await audioParam.LinearRampToValueAtTimeAsync(0, currentTime + 0.3);
         oscillator = null;
+        gainNode = null;
     }
 
     private double Frequency(int octave, int pitch)
