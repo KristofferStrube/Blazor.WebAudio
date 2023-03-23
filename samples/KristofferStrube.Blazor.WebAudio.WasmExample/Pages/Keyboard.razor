@@ -2,7 +2,9 @@
 @inject IJSRuntime JSRuntime
 <PageTitle>Playing Sound</PageTitle>
 
-<svg @onpointerup="PointerUp"
+<svg @onpointerup="PointerOut"
+     @onpointerenter="PointerOut"
+     @onpointerleave="PointerOut"
      width="100%"
      height="40vh"
      viewBox="0 0 @(keys.Count(k => k.Color == "white")*100) 600"
@@ -12,8 +14,6 @@
         var k = i;
         <rect @onpointerdown="() => PointerDown(keys[k].Octave, keys[k].Pitch)"
           @onpointermove="() => PointerMove(keys[k].Octave, keys[k].Pitch)"
-          @onpointerenter="() => PointerMove(keys[k].Octave, keys[k].Pitch)"
-          @onpointerleave="PointerOut"
               x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100)"
               y="0"
               width="100"
@@ -39,8 +39,6 @@
         var k = i;
         <rect @onpointerdown="() => PointerDown(keys[k].Octave, keys[k].Pitch)"
           @onpointermove="() => PointerMove(keys[k].Octave, keys[k].Pitch)"
-          @onpointerenter="() => PointerMove(keys[k].Octave, keys[k].Pitch)"
-          @onpointerleave="PointerOut"
               x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100-35)"
               y="0"
               width="70"
@@ -119,14 +117,9 @@
         }
     }
 
-    public async Task PointerUp()
-    {
-        keyDown = false;
-        await StopSound();
-    }
-
     public async Task PointerOut()
     {
+        keyDown = false;
         await StopSound();
     }
 
