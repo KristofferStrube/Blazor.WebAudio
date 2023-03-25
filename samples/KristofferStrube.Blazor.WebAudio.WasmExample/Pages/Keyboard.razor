@@ -2,9 +2,9 @@
 @inject IJSRuntime JSRuntime
 <PageTitle>Playing Sound</PageTitle>
 
-<svg @onpointerup="PointerOut"
-     @onpointerenter="PointerOut"
-     @onpointerleave="PointerOut"
+<svg @onpointerup="StopSound"
+     @onpointerenter="StopSound"
+     @onpointerleave="StopSound"
      width="100%"
      height="40vh"
      viewBox="0 0 @(keys.Count(k => k.Color == "white")*100) 600"
@@ -12,8 +12,8 @@
     @foreach (var i in whiteKeyIndices)
     {
         var k = i;
-        <rect @onpointerdown="() => PointerDown(keys[k].Octave, keys[k].Pitch)"
-          @onpointermove="() => PointerMove(keys[k].Octave, keys[k].Pitch)"
+        <rect @onpointerdown="(e) => PointerMove(keys[k].Octave, keys[k].Pitch, e)"
+          @onpointermove="(e) => PointerMove(keys[k].Octave, keys[k].Pitch, e)"
               x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100)"
               y="0"
               width="100"
@@ -37,8 +37,8 @@
     @foreach (var i in blackKeyIndices)
     {
         var k = i;
-        <rect @onpointerdown="() => PointerDown(keys[k].Octave, keys[k].Pitch)"
-          @onpointermove="() => PointerMove(keys[k].Octave, keys[k].Pitch)"
+        <rect @onpointerdown="(e) => PointerMove(keys[k].Octave, keys[k].Pitch, e)"
+          @onpointermove="(e) => PointerMove(keys[k].Octave, keys[k].Pitch, e)"
               x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100-35)"
               y="0"
               width="70"
@@ -56,7 +56,6 @@
     OscillatorNode? oscillator;
     GainNode? gainNode;
     float gain = 0.1f;
-    bool keyDown = false;
     int? currentOctave;
     int? currentPitch;
     List<(string Name, int Octave, int Pitch, string Color)> keys = new();
@@ -80,16 +79,27 @@
         blackKeyIndices = keys.Where(key => key.Color == "black").Select(key => keys.IndexOf(key)).ToArray();
     }
 
+    public async Task PointerMove(int octave, int pitch, MouseEventArgs e)
+    {
+        if ((e.Buttons & 1) == 1)
+        {
+            await StartSound(octave, pitch);
+        }
+        else
+        {
+            await StopSound();
+        }
+    }
+
     SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
-    public async Task PointerDown(int octave, int pitch)
+    public async Task StartSound(int octave, int pitch)
     {
         await semaphoreSlim.WaitAsync();
-        if (currentOctave != octave || currentPitch != pitch || !keyDown)
+        if (currentOctave != octave || currentPitch != pitch)
         {
             await StopSound();
             currentOctave = octave;
             currentPitch = pitch;
-            keyDown = true;
 
             AudioDestinationNode destination = await context.GetDestinationAsync();
 
@@ -109,20 +119,6 @@
         semaphoreSlim.Release();
     }
 
-    public async Task PointerMove(int octave, int pitch)
-    {
-        if (keyDown)
-        {
-            await PointerDown(octave, pitch);
-        }
-    }
-
-    public async Task PointerOut()
-    {
-        keyDown = false;
-        await StopSound();
-    }
-
     public async Task StopSound()
     {
         if (oscillator is null || gainNode is null) return;
@@ -131,6 +127,8 @@
         await audioParam.LinearRampToValueAtTimeAsync(0, currentTime + 0.3);
         oscillator = null;
         gainNode = null;
+        currentOctave = null;
+        currentPitch = null;
     }
 
     private double Frequency(int octave, int pitch)
