@@ -11,3 +11,7 @@ export function constructOcillatorNode(context, options = null) {
 export function constructGainNode(context, options = null) {
     return new GainNode(context, options);
 }
+
+export function constructAnalyzerNode(context, options = null) {
+    return new AnalyserNode(context, options);
+}
