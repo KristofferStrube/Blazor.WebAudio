@@ -16,4 +16,19 @@ public class AudioContext : BaseAudioContext
     protected AudioContext(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
     {
     }
+
+    public async Task ResumeAsync()
+    {
+        await JSReference.InvokeVoidAsync("resume");
+    }
+
+    public async Task SuspendAsync()
+    {
+        await JSReference.InvokeVoidAsync("suspend");
+    }
+
+    public async Task CloseAsync()
+    {
+        await JSReference.InvokeVoidAsync("close");
+    }
 }

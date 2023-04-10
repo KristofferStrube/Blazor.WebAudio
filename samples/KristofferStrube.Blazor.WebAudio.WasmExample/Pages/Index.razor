@@ -1,23 +1,50 @@
 ﻿@page "/"
+@using KristofferStrube.Blazor.DOM
+
+@implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
 <PageTitle>WebAudio - Playing Sound</PageTitle>
 
-@if (oscillator is null)
-{
-    <button class="btn btn-success" @onclick=PlaySound>Play Sound 🔊</button>
-}
-else
-{
-    <button class="btn btn-warning" @onclick=StopSound>Stop Sound 🔊</button>
-}
+Status:
+<span class="badge @(state switch { AudioContextState.Closed => "bg-danger", AudioContextState.Suspended => "bg-warning", _ => "bg-success" })">
+    @state
+</span>
+<div style="display:flex; flex-direction:row; gap:5px;">
+    @if (state is AudioContextState.Suspended)
+    {
+        <button class="btn btn-success" @onclick="() => context.ResumeAsync()">Resume</button>
+    }
+    else if (state is AudioContextState.Running)
+    {
+        <button class="btn btn-warning" @onclick="() => context.SuspendAsync()">Suspend</button>
+        <button class="btn btn-danger" @onclick="() => context.CloseAsync()">Close</button>
+
+        @if (oscillator is null)
+        {
+            <button class="btn btn-success" @onclick=PlaySound>Play Sound 🔊</button>
+        }
+        else
+        {
+            <button class="btn btn-warning" @onclick=StopSound>Stop Sound 🔊</button>
+        }
+    }
+</div>
 
 @code {
     AudioContext context = default!;
+    EventListener<Event> stateChangeListener = default!;
+    AudioContextState state = AudioContextState.Closed;
     OscillatorNode? oscillator;
 
     protected override async Task OnInitializedAsync()
     {
         context = await AudioContext.CreateAsync(JSRuntime);
+        stateChangeListener = await context.AddOnStateChangeEventListener(async (e) =>
+        {
+            state = await context.GetStateAsync();
+            StateHasChanged();
+        });
+        state = await context.GetStateAsync();
     }
 
     public async Task PlaySound()
@@ -39,6 +66,11 @@ else
         if (oscillator is null) return;
         await oscillator.StopAsync();
         oscillator = null;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await context.RemoveOnStateChangeEventListener(stateChangeListener);
     }
 }
 
