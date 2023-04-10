@@ -79,7 +79,7 @@ else
         measurements.Clear();
         for (int i = 0; i < bufferLength; i++)
         {
-            measurements.Add(await dataArray.AtAsync((ulong)i));
+            measurements.Add(await dataArray.AtAsync(i));
         }
     }
 
