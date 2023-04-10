@@ -13,6 +13,18 @@ public class AudioParam : BaseJSWrapper
     {
     }
 
+    public async Task<float> GetValueAsync()
+    {
+        var helper = await helperTask.Value;
+        return await helper.InvokeAsync<float>("getAttribute", JSReference, "value");
+    }
+
+    public async Task SetValueAsync(float value)
+    {
+        var helper = await helperTask.Value;
+        await helper.InvokeVoidAsync("setAttribute", JSReference, "value", value);
+    }
+
     /// <summary>
     /// Changes the gain <paramref name="value"/> linearly starting at the previous event and ending at <paramref name="endTime"/>.
     /// </summary>

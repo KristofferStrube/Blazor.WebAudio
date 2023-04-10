@@ -6,6 +6,11 @@ namespace KristofferStrube.Blazor.WebAudio;
 
 public class GainNode : AudioNode
 {
+    public new static Task<GainNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    {
+        return Task.FromResult(new GainNode(jSRuntime, jSReference));
+    }
+
     public static async Task<GainNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, GainOptions? options = null)
     {
         var helper = await jSRuntime.GetHelperAsync();
@@ -13,9 +18,7 @@ public class GainNode : AudioNode
         return new GainNode(jSRuntime, jSInstance);
     }
 
-    protected GainNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
-    {
-    }
+    protected GainNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
 
     public async Task<AudioParam> GetGainAsync()
     {

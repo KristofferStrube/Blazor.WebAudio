@@ -55,7 +55,7 @@
     AudioContext context = default!;
     OscillatorNode? oscillator;
     GainNode? gainNode;
-    float gain = 0.1f;
+    float gain = 0.05f;
     int? currentOctave;
     int? currentPitch;
     List<(string Name, int Octave, int Pitch, string Color)> keys = new();
@@ -103,7 +103,8 @@
 
             AudioDestinationNode destination = await context.GetDestinationAsync();
 
-            gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = gain });
+            gainNode = await context.CreateGainAsync();
+            await (await gainNode.GetGainAsync()).SetValueAsync(gain);
             await gainNode.ConnectAsync(destination);
 
             OscillatorOptions oscillatorOptions = new()

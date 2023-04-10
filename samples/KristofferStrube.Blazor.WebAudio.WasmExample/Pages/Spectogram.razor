@@ -1,0 +1,94 @@
+﻿@page "/Spectogram"
+@using KristofferStrube.Blazor.WebIDL
+
+@inject IJSRuntime JSRuntime
+<PageTitle>WebAudio - Spectogram</PageTitle>
+
+<h2>Spectogram</h2>
+<p>
+    On this page we create a spectogram by passing the sound of a random <code>OscillatorNode</code> through a <code>AnalyserNode</code>.
+</p>
+
+@if (oscillator is null)
+{
+    <button class="btn btn-success" @onclick=PlaySound>Play Sound 🔊</button>
+}
+else
+{
+    <button class="btn btn-warning" @onclick=StopSound>Stop Sound 🔊</button>
+}
+<br />
+<label for="gain">Volume</label>
+<input id="gain" type="range" min="0" max="1" step="0.01" style="width:min(200px, 100%);" @bind-value=gain>
+@if (frequency is not 0)
+{
+    <div>
+        frequency: @frequency Hz
+        <br />
+        type: @type
+    </div>
+}
+<svg width="100%" height="60vh" viewBox="0 -5 @measurements.Count 261">
+    @for (int i = 1; i < measurements.Count; i++)
+    {
+        if (measurements[i] is not null)
+        {
+            <line x1="@(i-1)" x2="@i" y1="@measurements[i-1]" y2="@measurements[i]" stroke="red" stroke-width="2"></line>
+        }
+    }
+</svg>
+
+@code {
+    AudioContext context = default!;
+    OscillatorNode? oscillator;
+    float gain = 0.05f;
+    List<byte?> measurements = new();
+    float frequency;
+    OscillatorType type;
+
+    protected override async Task OnInitializedAsync()
+    {
+        context = await AudioContext.CreateAsync(JSRuntime);
+    }
+
+    public async Task PlaySound()
+    {
+        type = (OscillatorType)Random.Shared.Next(0, 4);
+        frequency = Random.Shared.Next(100, 500);
+
+
+        AudioDestinationNode destination = await context.GetDestinationAsync();
+
+        GainNode gainNode = await context.CreateGainAsync();
+        await (await gainNode.GetGainAsync()).SetValueAsync(gain);
+        await gainNode.ConnectAsync(destination);
+
+        AnalyserNode analyser = await context.CreateAnalyserAsync();
+        await analyser.ConnectAsync(gainNode);
+
+        oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Type = type, Frequency = frequency });
+        await oscillator.ConnectAsync(analyser);
+        await oscillator.StartAsync();
+
+        await Task.Delay(200);
+
+        int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
+        var dataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+        await analyser.GetByteTimeDomainDataAsync(dataArray);
+
+        measurements.Clear();
+        for (int i = 0; i < bufferLength; i++)
+        {
+            measurements.Add(await dataArray.AtAsync((ulong)i));
+        }
+    }
+
+    public async Task StopSound()
+    {
+        if (oscillator is null) return;
+        await oscillator.StopAsync();
+        oscillator = null;
+    }
+}
+
+

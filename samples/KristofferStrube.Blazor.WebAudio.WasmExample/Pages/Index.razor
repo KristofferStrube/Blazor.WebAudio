@@ -29,12 +29,15 @@ Status:
         }
     }
 </div>
+<label for="gain">Volume</label>
+<input id="gain" type="range" min="0" max="1" step="0.01" style="width:min(200px, 100%);" @bind-value=gain>
 
 @code {
     AudioContext context = default!;
     EventListener<Event> stateChangeListener = default!;
     AudioContextState state = AudioContextState.Closed;
     OscillatorNode? oscillator;
+    float gain = 0.05f;
 
     protected override async Task OnInitializedAsync()
     {
@@ -49,15 +52,19 @@ Status:
 
     public async Task PlaySound()
     {
+        AudioDestinationNode destination = await context.GetDestinationAsync();
+
+        GainNode gainNode = await context.CreateGainAsync();
+        await (await gainNode.GetGainAsync()).SetValueAsync(gain);
+        await gainNode.ConnectAsync(destination);
+
         OscillatorOptions oscillatorOptions = new()
             {
                 Type = OscillatorType.Sawtooth,
-                Frequency = Random.Shared.Next(100, 600)
+                Frequency = Random.Shared.Next(100, 500)
             };
         oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, oscillatorOptions);
-
-        AudioDestinationNode destination = await context.GetDestinationAsync();
-        await oscillator.ConnectAsync(destination);
+        await oscillator.ConnectAsync(gainNode);
         await oscillator.StartAsync();
     }
 

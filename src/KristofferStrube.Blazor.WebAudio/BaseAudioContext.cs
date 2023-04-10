@@ -58,4 +58,16 @@ public class BaseAudioContext : EventTarget
     {
         await RemoveEventListenerAsync("statechange", eventListener, options);
     }
+
+    public async Task<AnalyserNode> CreateAnalyserAsync()
+    {
+        var jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createAnalyser");
+        return await AnalyserNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    public async Task<GainNode> CreateGainAsync()
+    {
+        var jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createGain");
+        return await GainNode.CreateAsync(JSRuntime, jSInstance);
+    }
 }
