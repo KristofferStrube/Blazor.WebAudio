@@ -16,10 +16,4 @@ public class AudioContext : BaseAudioContext
     protected AudioContext(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
     {
     }
-
-    public async Task<double> GetCurrentTimeAsync()
-    {
-        var helper = await webAudioHelperTask.Value;
-        return await helper.InvokeAsync<double>("getAttribute", JSReference, "currentTime");
-    }
 }

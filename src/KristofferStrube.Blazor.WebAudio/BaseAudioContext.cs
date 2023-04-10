@@ -18,4 +18,10 @@ public class BaseAudioContext : EventTarget
         var jSIntance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "destination");
         return await AudioDestinationNode.CreateAsync(JSRuntime, jSIntance);
     }
+
+    public async Task<double> GetCurrentTimeAsync()
+    {
+        var helper = await webAudioHelperTask.Value;
+        return await helper.InvokeAsync<double>("getAttribute", JSReference, "currentTime");
+    }
 }
