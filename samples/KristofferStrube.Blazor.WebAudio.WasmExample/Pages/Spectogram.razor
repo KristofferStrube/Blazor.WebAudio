@@ -1,6 +1,6 @@
 ﻿@page "/Spectogram"
 @using KristofferStrube.Blazor.WebIDL
-
+@implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
 <PageTitle>WebAudio - Spectogram</PageTitle>
 
@@ -18,8 +18,7 @@ else
     <button class="btn btn-warning" @onclick=StopSound>Stop Sound 🔊</button>
 }
 <br />
-<label for="gain">Volume</label>
-<input id="gain" type="range" min="0" max="1" step="0.01" style="width:min(200px, 100%);" @bind-value=gain>
+<GainSlider GainNode="gainNode" />
 @if (frequency is not 0)
 {
     <div>
@@ -40,8 +39,8 @@ else
 
 @code {
     AudioContext context = default!;
+    GainNode gainNode = default!;
     OscillatorNode? oscillator;
-    float gain = 0.05f;
     List<byte?> measurements = new();
     float frequency;
     OscillatorType type;
@@ -49,19 +48,16 @@ else
     protected override async Task OnInitializedAsync()
     {
         context = await AudioContext.CreateAsync(JSRuntime);
+        gainNode = await context.CreateGainAsync();
+
+        AudioDestinationNode destination = await context.GetDestinationAsync();
+        await gainNode.ConnectAsync(destination);
     }
 
     public async Task PlaySound()
     {
         type = (OscillatorType)Random.Shared.Next(0, 4);
         frequency = Random.Shared.Next(100, 500);
-
-
-        AudioDestinationNode destination = await context.GetDestinationAsync();
-
-        GainNode gainNode = await context.CreateGainAsync();
-        await (await gainNode.GetGainAsync()).SetValueAsync(gain);
-        await gainNode.ConnectAsync(destination);
 
         AnalyserNode analyser = await context.CreateAnalyserAsync();
         await analyser.ConnectAsync(gainNode);
@@ -80,6 +76,7 @@ else
         for (int i = 0; i < bufferLength; i++)
         {
             measurements.Add(await dataArray.AtAsync(i));
+            await Task.Yield();
         }
     }
 
@@ -88,6 +85,11 @@ else
         if (oscillator is null) return;
         await oscillator.StopAsync();
         oscillator = null;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await StopSound();
     }
 }
 

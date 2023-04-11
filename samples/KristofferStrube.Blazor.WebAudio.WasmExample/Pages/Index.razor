@@ -1,6 +1,5 @@
 ﻿@page "/"
 @using KristofferStrube.Blazor.DOM
-
 @implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
 <PageTitle>WebAudio - Playing Sound</PageTitle>
@@ -29,11 +28,11 @@ Status:
         }
     }
 </div>
-<label for="gain">Volume</label>
-<input id="gain" type="range" min="0" max="1" step="0.01" style="width:min(200px, 100%);" @bind-value=gain>
+<GainSlider GainNode=gainNode />
 
 @code {
     AudioContext context = default!;
+    GainNode gainNode = default!;
     EventListener<Event> stateChangeListener = default!;
     AudioContextState state = AudioContextState.Closed;
     OscillatorNode? oscillator;
@@ -42,6 +41,11 @@ Status:
     protected override async Task OnInitializedAsync()
     {
         context = await AudioContext.CreateAsync(JSRuntime);
+
+        AudioDestinationNode destination = await context.GetDestinationAsync();
+        gainNode = await context.CreateGainAsync();
+        await gainNode.ConnectAsync(destination);
+
         stateChangeListener = await context.AddOnStateChangeEventListener(async (e) =>
         {
             state = await context.GetStateAsync();
@@ -52,11 +56,6 @@ Status:
 
     public async Task PlaySound()
     {
-        AudioDestinationNode destination = await context.GetDestinationAsync();
-
-        GainNode gainNode = await context.CreateGainAsync();
-        await (await gainNode.GetGainAsync()).SetValueAsync(gain);
-        await gainNode.ConnectAsync(destination);
 
         OscillatorOptions oscillatorOptions = new()
             {
@@ -78,6 +77,7 @@ Status:
     public async ValueTask DisposeAsync()
     {
         await context.RemoveOnStateChangeEventListener(stateChangeListener);
+        await StopSound();
     }
 }
 

@@ -103,8 +103,7 @@
 
             AudioDestinationNode destination = await context.GetDestinationAsync();
 
-            gainNode = await context.CreateGainAsync();
-            await (await gainNode.GetGainAsync()).SetValueAsync(gain);
+            gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = gain });
             await gainNode.ConnectAsync(destination);
 
             OscillatorOptions oscillatorOptions = new()
