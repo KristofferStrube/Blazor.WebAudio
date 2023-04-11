@@ -14,12 +14,10 @@
     private float gain = 0.05f;
 
     [Parameter, EditorRequired]
-    public GainNode GainNode { get; set; } = default!;
+    public GainNode? GainNode { get; set; }
 
-    protected override async Task OnParametersSetAsync()
-    {
+    protected override async Task OnParametersSetAsync() =>
         await GainUpdatedAsync();
-    }
 
     public async Task GainUpdatedAsync()
     {
