@@ -20,6 +20,11 @@ public class AnalyserNode : AudioNode
 
     protected AnalyserNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
 
+    public async Task GetByteFrequencyDataAsync(Uint8Array array)
+    {
+        await JSReference.InvokeVoidAsync("getByteFrequencyData", array.JSReference);
+    }
+
     public async Task GetByteTimeDomainDataAsync(Uint8Array array)
     {
         await JSReference.InvokeVoidAsync("getByteTimeDomainData", array.JSReference);

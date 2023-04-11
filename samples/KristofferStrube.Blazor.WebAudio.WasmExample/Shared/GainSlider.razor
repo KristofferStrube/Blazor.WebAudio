@@ -1,5 +1,5 @@
 ﻿<label for=@inputId>Gain</label>
-<input @bind-value=gain
+<input @bind-value=Gain
        @bind-value:event="oninput"
        @bind-value:after=GainUpdatedAsync
        id=@inputId
@@ -11,18 +11,21 @@
 
 @code {
     private string inputId = $"gain_{Guid.NewGuid()}"[..9];
-    private float gain = 0.05f;
 
     [Parameter, EditorRequired]
     public GainNode? GainNode { get; set; }
 
-    protected override async Task OnParametersSetAsync() =>
+    public float Gain { get; private set; } = 0.05f;
+
+    protected override async Task OnParametersSetAsync()
+    {
         await GainUpdatedAsync();
+    }
 
     public async Task GainUpdatedAsync()
     {
         if (GainNode is null) return;
         var audioParam = await GainNode.GetGainAsync();
-        await audioParam.SetValueAsync(gain);
+        await audioParam.SetValueAsync(Gain);
     }
 }
