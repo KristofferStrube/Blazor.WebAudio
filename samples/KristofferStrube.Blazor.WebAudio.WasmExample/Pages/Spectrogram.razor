@@ -1,12 +1,12 @@
-﻿@page "/Spectogram"
+﻿@page "/Spectrogram"
 @using KristofferStrube.Blazor.WebIDL
 @implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
-<PageTitle>WebAudio - Spectogram</PageTitle>
+<PageTitle>WebAudio - Spectrogram</PageTitle>
 
-<h2>Spectogram</h2>
+<h2>Spectrogram</h2>
 <p>
-    On this page we create a spectogram by passing the sound of a random <code>OscillatorNode</code> through a <code>AnalyserNode</code>.
+    On this page we create a Spectrogram by passing the sound of a random <code>OscillatorNode</code> through a <code>AnalyserNode</code>.
 </p>
 
 @if (oscillator is null)
