@@ -7,7 +7,8 @@
        min="0"
        max="1"
        step="0.01"
-       style="width:min(200px, 100%);">
+       style="width:min(200px, 100%);"/>
+<span class="badge bg-primary">@Math.Round(Gain*100, 0)%</span>
 
 @code {
     private string inputId = $"gain_{Guid.NewGuid()}"[..9];
