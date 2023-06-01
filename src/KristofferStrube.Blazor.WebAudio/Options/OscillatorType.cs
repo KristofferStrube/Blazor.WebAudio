@@ -11,8 +11,9 @@ public enum OscillatorType
 
 public static class OscillatorTypeExtensions
 {
-    public static string AsString(this OscillatorType type) =>
-        type switch
+    public static string AsString(this OscillatorType type)
+    {
+        return type switch
         {
             OscillatorType.Sine => "sine",
             OscillatorType.Square => "square",
@@ -21,4 +22,5 @@ public static class OscillatorTypeExtensions
             OscillatorType.Custom => "custom",
             _ => throw new ArgumentException($"Value '{type}' was not a valid OscillatorType.")
         };
+    }
 }

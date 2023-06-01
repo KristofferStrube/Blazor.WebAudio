@@ -20,7 +20,7 @@ public class AudioNode : EventTarget
 
     public async Task<AudioNode> ConnectAsync(AudioNode destinationNode, ulong output = 0, ulong input = 0)
     {
-        var jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("connect", destinationNode.JSReference, output, input);
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("connect", destinationNode.JSReference, output, input);
         return await CreateAsync(JSRuntime, jSInstance);
     }
 

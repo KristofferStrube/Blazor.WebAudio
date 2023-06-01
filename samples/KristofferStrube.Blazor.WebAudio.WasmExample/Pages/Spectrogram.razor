@@ -31,19 +31,9 @@ else
     </div>
 }
 <h3>Time Domain Data</h3>
-<svg width="100%" height="30vh" viewBox="0 -5 @timeDomainMeasurements.Length 261">
-    @for (int i = 1; i < timeDomainMeasurements.Length; i++)
-    {
-        <line x1="@(i-1)" x2="@i" y1="@timeDomainMeasurements[i-1]" y2="@timeDomainMeasurements[i]" stroke="red" stroke-width="2"></line>
-    }
-</svg>
+<Plot Data="timeDomainMeasurements" />
 <h3>Frequency Data</h3>
-<svg width="100%" height="30vh" viewBox="0 -5 @frequencyMeasurements.Length 261">
-    @for (int i = 1; i < frequencyMeasurements.Length; i++)
-    {
-        <line x1="@(i-1)" x2="@i" y1="@frequencyMeasurements[i-1]" y2="@frequencyMeasurements[i]" stroke="red" stroke-width="2"></line>
-    }
-</svg>
+<Plot Data="frequencyMeasurements" />
 
 @code {
     AudioContext context = default!;

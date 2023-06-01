@@ -9,11 +9,14 @@ public enum AudioContextState
 
 public static class AudioContextStateExtensions
 {
-    public static AudioContextState Parse(string state) => state switch
+    public static AudioContextState Parse(string state)
     {
-        "suspended" => AudioContextState.Suspended,
-        "running" => AudioContextState.Running,
-        "closed" => AudioContextState.Closed,
-        _ => throw new ArgumentException($"'{state}' was not a valid {nameof(AudioContextState)}")
-    };
+        return state switch
+        {
+            "suspended" => AudioContextState.Suspended,
+            "running" => AudioContextState.Running,
+            "closed" => AudioContextState.Closed,
+            _ => throw new ArgumentException($"'{state}' was not a valid {nameof(AudioContextState)}")
+        };
+    }
 }

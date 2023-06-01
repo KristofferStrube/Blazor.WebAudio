@@ -14,34 +14,34 @@ public class BaseAudioContext : EventTarget
 
     public async Task<AudioDestinationNode> GetDestinationAsync()
     {
-        var helper = await helperTask.Value;
-        var jSIntance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "destination");
+        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference jSIntance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "destination");
         return await AudioDestinationNode.CreateAsync(JSRuntime, jSIntance);
     }
 
     public async Task<float> GetSampleRateAsync()
     {
-        var helper = await helperTask.Value;
+        IJSObjectReference helper = await helperTask.Value;
         return await helper.InvokeAsync<float>("getAttribute", JSReference, "sampleRate");
     }
 
     public async Task<double> GetCurrentTimeAsync()
     {
-        var helper = await webAudioHelperTask.Value;
+        IJSObjectReference helper = await webAudioHelperTask.Value;
         return await helper.InvokeAsync<double>("getAttribute", JSReference, "currentTime");
     }
 
     public async Task<AudioListener> GetListenerAsync()
     {
-        var helper = await helperTask.Value;
-        var jSIntance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "listener");
+        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference jSIntance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "listener");
         return await AudioListener.CreateAsync(JSRuntime, jSIntance);
     }
 
     public async Task<AudioContextState> GetStateAsync()
     {
-        var helper = await helperTask.Value;
-        var state = await helper.InvokeAsync<string>("getAttribute", JSReference, "state");
+        IJSObjectReference helper = await helperTask.Value;
+        string state = await helper.InvokeAsync<string>("getAttribute", JSReference, "state");
         return AudioContextStateExtensions.Parse(state);
     }
 
@@ -49,7 +49,7 @@ public class BaseAudioContext : EventTarget
 
     public async Task<EventListener<Event>> AddOnStateChangeEventListener(Func<Event, Task> eventHandler, AddEventListenerOptions? options = null)
     {
-        var eventListener = await EventListener<Event>.CreateAsync(JSRuntime, eventHandler);
+        EventListener<Event> eventListener = await EventListener<Event>.CreateAsync(JSRuntime, eventHandler);
         await AddEventListenerAsync("statechange", eventListener, options);
         return eventListener;
     }
@@ -61,13 +61,13 @@ public class BaseAudioContext : EventTarget
 
     public async Task<AnalyserNode> CreateAnalyserAsync()
     {
-        var jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createAnalyser");
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createAnalyser");
         return await AnalyserNode.CreateAsync(JSRuntime, jSInstance);
     }
 
     public async Task<GainNode> CreateGainAsync()
     {
-        var jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createGain");
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createGain");
         return await GainNode.CreateAsync(JSRuntime, jSInstance);
     }
 }

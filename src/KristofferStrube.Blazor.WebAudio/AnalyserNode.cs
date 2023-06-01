@@ -6,15 +6,15 @@ namespace KristofferStrube.Blazor.WebAudio;
 
 public class AnalyserNode : AudioNode
 {
-    public new static Task<AnalyserNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    public static new Task<AnalyserNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new AnalyserNode(jSRuntime, jSReference));
     }
 
     public static async Task<AnalyserNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, AnalyserOptions? options = null)
     {
-        var helper = await jSRuntime.GetHelperAsync();
-        var jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructAnalyzerNode", context.JSReference, options);
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructAnalyzerNode", context.JSReference, options);
         return new AnalyserNode(jSRuntime, jSInstance);
     }
 
@@ -32,7 +32,7 @@ public class AnalyserNode : AudioNode
 
     public async Task<ulong> GetFrequencyBinCountAsync()
     {
-        var helper = await helperTask.Value;
+        IJSObjectReference helper = await helperTask.Value;
         return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "frequencyBinCount");
     }
 }

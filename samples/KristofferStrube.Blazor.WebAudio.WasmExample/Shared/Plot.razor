@@ -1,0 +1,11 @@
+﻿<svg width="100%" height="30vh" viewBox="0 -5 @Data.Length 261">
+    @for (int i = 1; i < Data.Length; i++)
+    {
+        <line x1="@(i-1)" x2="@i" y1="@Data[i-1]" y2="@Data[i]" stroke="red" stroke-width="2"></line>
+    }
+</svg>
+
+@code {
+    [Parameter]
+    public byte[] Data { get; set; } = Array.Empty<byte>();
+}

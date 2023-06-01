@@ -6,15 +6,15 @@ namespace KristofferStrube.Blazor.WebAudio;
 
 public class GainNode : AudioNode
 {
-    public new static Task<GainNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    public static new Task<GainNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new GainNode(jSRuntime, jSReference));
     }
 
     public static async Task<GainNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, GainOptions? options = null)
     {
-        var helper = await jSRuntime.GetHelperAsync();
-        var jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructGainNode", context.JSReference, options);
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructGainNode", context.JSReference, options);
         return new GainNode(jSRuntime, jSInstance);
     }
 
@@ -22,8 +22,8 @@ public class GainNode : AudioNode
 
     public async Task<AudioParam> GetGainAsync()
     {
-        var helper = await webAudioHelperTask.Value;
-        var jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "gain");
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "gain");
         return await AudioParam.CreateAsync(JSRuntime, jSInstance);
     }
 }

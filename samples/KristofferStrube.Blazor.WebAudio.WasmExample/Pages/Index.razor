@@ -58,7 +58,7 @@ Status:
 
         OscillatorOptions oscillatorOptions = new()
             {
-                Type = OscillatorType.Sawtooth,
+                Type = OscillatorType.Sine,
                 Frequency = Random.Shared.Next(100, 500)
             };
         oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, oscillatorOptions);

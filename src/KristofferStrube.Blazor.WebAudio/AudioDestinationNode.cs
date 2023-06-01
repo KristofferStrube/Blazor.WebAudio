@@ -4,7 +4,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 
 public class AudioDestinationNode : AudioNode
 {
-    public new static Task<AudioDestinationNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    public static new Task<AudioDestinationNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new AudioDestinationNode(jSRuntime, jSReference));
     }

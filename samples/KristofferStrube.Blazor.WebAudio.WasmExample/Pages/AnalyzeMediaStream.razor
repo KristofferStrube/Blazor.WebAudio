@@ -1,0 +1,134 @@
+﻿@page "/AnalyzeMediaStream"
+@using KristofferStrube.Blazor.MediaCaptureStreams;
+@using KristofferStrube.Blazor.WebIDL
+@using KristofferStrube.Blazor.WebIDL.Exceptions;
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+@inject IMediaDevicesService MediaDevicesService
+<PageTitle>WebAudio - Analyze MediaStream</PageTitle>
+
+<h2>Analyze MediaStream</h2>
+<p>
+    On this page we open a MediaStream using the <a href="https://github.com/KristofferStrube/Blazor.MediaCaptureStreams">Blazor.MediaCaptureStreams</a> library
+    and construct a <code>MediaStreamAudioSourceNode</code> from this. We then feed it to an <code>AnalyzerNode</code> and plot graphs from its output.
+</p>
+
+@if (error is { } errorMessage)
+{
+    <p style="color: red;">@errorMessage</p>
+}
+else if (mediaStream is null)
+{
+    <button class="btn btn-primary" @onclick="OpenAudio">Load Audio</button>
+}
+else
+{
+    <h3>Time Domain Data</h3>
+    <Plot Data="timeDomainMeasurements" />
+    <h3>Frequency Data</h3>
+    <Plot Data="frequencyMeasurements" />
+
+    @if (audioOptions.Count > 0)
+    {
+        <label for="videoSource">Video Source</label>
+        <select id="videoSource" @bind=selectedAudioSource @bind:after="OpenAudio">
+            @foreach (var option in audioOptions)
+            {
+                <option value="@option.id" selected="@(option.id == selectedAudioSource)">@option.label</option>
+            }
+        </select>
+    }
+}
+
+@code {
+    AudioContext context = default!;
+    private MediaDevices mediaDevices = default!;
+    private string? error;
+    byte[] timeDomainMeasurements = Array.Empty<byte>();
+    byte[] frequencyMeasurements = Array.Empty<byte>();
+    bool makeMeasurements = false;
+    private MediaStream? mediaStream;
+    private List<(string label, string id)> audioOptions = new();
+    private string? selectedAudioSource;
+
+    protected override async Task OnInitializedAsync()
+    {
+        context = await AudioContext.CreateAsync(JSRuntime);
+        mediaDevices = await MediaDevicesService.GetMediaDevicesAsync();
+    }
+
+    async Task OpenAudio()
+    {
+        await StopAudioTrack();
+
+        try
+        {
+            var mediaTrackConstraints = new MediaTrackConstraints()
+                {
+                    EchoCancellation = false,
+                    NoiseSuppression = false,
+                    AutoGainControl = false,
+                    DeviceId = selectedAudioSource is null ? null : new ConstrainDomString(selectedAudioSource)
+                };
+            mediaStream = await mediaDevices.GetUserMediaAsync(new MediaStreamConstraints() { Audio = mediaTrackConstraints });
+
+            var deviceInfos = await mediaDevices.EnumerateDevicesAsync();
+            audioOptions.Clear();
+            foreach (var device in deviceInfos)
+            {
+                if (await device.GetKindAsync() is MediaDeviceKind.AudioInput)
+                {
+                    audioOptions.Add((await device.GetLabelAsync(), await device.GetDeviceIdAsync()));
+                }
+            }
+
+            AnalyserNode analyser = await context.CreateAnalyserAsync();
+            var mediaStreamAudioSourceNode = await context.CreateMediaStreamSourceAsync(mediaStream);
+            await mediaStreamAudioSourceNode.ConnectAsync(analyser);
+
+            await Task.Delay(200);
+
+            int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
+            var timeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+            var frequencyDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+
+            makeMeasurements = true;
+            while (makeMeasurements)
+            {
+                await analyser.GetByteTimeDomainDataAsync(timeDomainDataArray);
+                await analyser.GetByteFrequencyDataAsync(frequencyDataArray);
+
+                timeDomainMeasurements = await timeDomainDataArray.GetByteArrayAsync();
+                frequencyMeasurements = await frequencyDataArray.GetByteArrayAsync();
+                await Task.Delay(1);
+                StateHasChanged();
+            }
+        }
+        catch (WebIDLException ex)
+        {
+            error = $"{ex.GetType().Name}: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            error = $"An unexpected error of type '{ex.GetType().Name}' happened.";
+        }
+    }
+
+    async Task StopAudioTrack()
+        {
+            makeMeasurements = false;
+            if (mediaStream is null) return;
+            var audioTrack = (await mediaStream.GetAudioTracksAsync()).FirstOrDefault();
+            if (audioTrack is not null)
+            {
+                await audioTrack.StopAsync();
+            }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await StopAudioTrack();
+        }
+    }
+
+
