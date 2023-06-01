@@ -51,8 +51,9 @@ else
     private List<(string label, string id)> audioOptions = new();
     private string? selectedAudioSource;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender) return;
         context = await AudioContext.CreateAsync(JSRuntime);
         mediaDevices = await MediaDevicesService.GetMediaDevicesAsync();
     }
@@ -86,7 +87,7 @@ else
             var mediaStreamAudioSourceNode = await context.CreateMediaStreamSourceAsync(mediaStream);
             await mediaStreamAudioSourceNode.ConnectAsync(analyser);
 
-            await Task.Delay(200);
+            await Task.Delay(500);
 
             int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
             var timeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
@@ -112,6 +113,7 @@ else
         {
             error = $"An unexpected error of type '{ex.GetType().Name}' happened.";
         }
+        StateHasChanged();
     }
 
     async Task StopAudioTrack()
