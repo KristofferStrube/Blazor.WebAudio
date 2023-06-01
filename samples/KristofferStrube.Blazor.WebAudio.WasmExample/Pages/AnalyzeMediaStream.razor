@@ -41,12 +41,12 @@ else
 }
 
 @code {
-    AudioContext context = default!;
+    private AudioContext context = default!;
     private MediaDevices mediaDevices = default!;
     private string? error;
-    byte[] timeDomainMeasurements = Array.Empty<byte>();
-    byte[] frequencyMeasurements = Array.Empty<byte>();
-    bool makeMeasurements = false;
+    private byte[] timeDomainMeasurements = Array.Empty<byte>();
+    private byte[] frequencyMeasurements = Array.Empty<byte>();
+    private bool makeMeasurements = false;
     private MediaStream? mediaStream;
     private List<(string label, string id)> audioOptions = new();
     private string? selectedAudioSource;
@@ -66,7 +66,7 @@ else
             var mediaTrackConstraints = new MediaTrackConstraints()
                 {
                     EchoCancellation = false,
-                    NoiseSuppression = false,
+                    NoiseSuppression = true,
                     AutoGainControl = false,
                     DeviceId = selectedAudioSource is null ? null : new ConstrainDomString(selectedAudioSource)
                 };
@@ -115,20 +115,20 @@ else
     }
 
     async Task StopAudioTrack()
+    {
+        makeMeasurements = false;
+        if (mediaStream is null) return;
+        var audioTrack = (await mediaStream.GetAudioTracksAsync()).FirstOrDefault();
+        if (audioTrack is not null)
         {
-            makeMeasurements = false;
-            if (mediaStream is null) return;
-            var audioTrack = (await mediaStream.GetAudioTracksAsync()).FirstOrDefault();
-            if (audioTrack is not null)
-            {
-                await audioTrack.StopAsync();
-            }
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            await StopAudioTrack();
+            await audioTrack.StopAsync();
         }
     }
+
+    public async ValueTask DisposeAsync()
+    {
+        await StopAudioTrack();
+    }
+}
 
 
