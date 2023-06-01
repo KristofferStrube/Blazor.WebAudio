@@ -41,8 +41,8 @@ else
 }
 
 @code {
-    private AudioContext context = default!;
-    private MediaDevices mediaDevices = default!;
+    private AudioContext? context;
+    private MediaDevices? mediaDevices;
     private string? error;
     private byte[] timeDomainMeasurements = Array.Empty<byte>();
     private byte[] frequencyMeasurements = Array.Empty<byte>();
@@ -51,12 +51,6 @@ else
     private List<(string label, string id)> audioOptions = new();
     private string? selectedAudioSource;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender) return;
-        context = await AudioContext.CreateAsync(JSRuntime);
-        mediaDevices = await MediaDevicesService.GetMediaDevicesAsync();
-    }
 
     async Task OpenAudio()
     {
@@ -64,6 +58,15 @@ else
 
         try
         {
+            if (context is null)
+            {
+                context = await AudioContext.CreateAsync(JSRuntime);
+            }
+            if (mediaDevices is null)
+            {
+                mediaDevices = await MediaDevicesService.GetMediaDevicesAsync();
+            }
+
             var mediaTrackConstraints = new MediaTrackConstraints()
                 {
                     EchoCancellation = false,
