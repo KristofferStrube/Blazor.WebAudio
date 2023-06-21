@@ -8,7 +8,7 @@ public class AudioNode : EventTarget
 {
     protected readonly Lazy<Task<IJSObjectReference>> webAudioHelperTask;
 
-    public static Task<AudioNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    public static new Task<AudioNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new AudioNode(jSRuntime, jSReference));
     }
