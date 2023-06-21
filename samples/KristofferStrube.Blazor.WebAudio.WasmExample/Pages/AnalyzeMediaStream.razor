@@ -30,8 +30,8 @@ else
 
     @if (audioOptions.Count > 0)
     {
-        <label for="videoSource">Video Source</label>
-        <select id="videoSource" @bind=selectedAudioSource @bind:after="OpenAudio">
+        <label for="audioSource">Audio Source</label>
+        <select id="audioSource" @bind=selectedAudioSource @bind:after="OpenAudio">
             @foreach (var option in audioOptions)
             {
                 <option value="@option.id" selected="@(option.id == selectedAudioSource)">@option.label</option>
