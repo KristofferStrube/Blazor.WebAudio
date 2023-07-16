@@ -6,7 +6,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// This interface represents a processing node which positions / spatializes an incoming audio stream in three-dimensional space.
 /// The spatialization is in relation to the <see cref="BaseAudioContext"/>'s <see cref="AudioListener"/> (listener attribute).
 /// </summary>
-/// <remarks><see href="https://webaudio.github.io/web-audio-api/#PannerNode">See the API definition here</see>.</remarks>
+/// <remarks><see href="https://www.w3.org/TR/webaudio/#PannerNode">See the API definition here</see>.</remarks>
 public class PannerNode : AudioNode
 {
     /// <summary>
