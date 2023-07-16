@@ -71,17 +71,16 @@ public class AudioNode : EventTarget
     /// <remarks>
     /// It is possible to connect an <see cref="AudioNode"/> output to more than one <see cref="AudioParam"/> with multiple calls to <see cref="ConnectAsync(AudioNode, ulong, ulong)"/>. Thus, "fan-out" is supported.<br />
     /// It is possible to connect more than one <see cref="AudioNode"/> output to a single <see cref="AudioParam"/> with multiple calls to <see cref="ConnectAsync(AudioNode, ulong, ulong)"/>. Thus, "fan-in" is supported.<br />
-    /// If the <paramref name="destinationNode"/> parameter is an <see cref="AudioNode"/> that has been created using another <see cref="AudioContext"/>, an <see cref="NotSupportedErrorException"/> will be thrown. That is, <see cref="AudioNode"/>s cannot be shared between <see cref="AudioContext"/>s.<br />
     /// If the <paramref name="output"/> parameter is out-of-bounds, an <see cref="RangeErrorException"/> exception will be thrown.<br />
     /// </remarks>
-    /// <param name="destinationNode">The destination parameter is the <see cref="AudioNode"/> to connect to.</param>
+    /// <param name="destinationParam">The destination parameter is the <see cref="AudioParam"/> to connect to.</param>
     /// <param name="output">The output parameter is an index describing which output of the <see cref="AudioNode"/> from which to connect.</param>
     /// <exception cref="NotSupportedErrorException" />
     /// <exception cref="RangeErrorException" />
     /// <returns>This method returns destination AudioNode object.</returns>
-    public async Task ConnectAsync(AudioNode destinationNode, ulong output = 0)
+    public async Task ConnectAsync(AudioParam destinationParam, ulong output = 0)
     {
-        await JSReference.InvokeVoidAsync("connect", destinationNode.JSReference, output);
+        await JSReference.InvokeVoidAsync("connect", destinationParam.JSReference, output);
     }
 
     /// <summary>
