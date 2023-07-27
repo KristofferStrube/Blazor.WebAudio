@@ -47,6 +47,6 @@ public class AudioBuffer : BaseJSWrapper
     public async Task<double> GetDuration()
     {
         IJSObjectReference helper = await helperTask.Value;
-        return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "duration");
+        return await helper.InvokeAsync<double>("getAttribute", JSReference, "duration");
     }
 }

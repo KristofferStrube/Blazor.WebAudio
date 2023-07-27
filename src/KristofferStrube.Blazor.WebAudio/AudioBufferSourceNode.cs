@@ -61,6 +61,78 @@ public class AudioBufferSourceNode : AudioScheduledSourceNode
     public async Task<AudioParam> GetPlaybackRate() => default!;
 
     /// <summary>
+    /// Indicates if the region of audio data designated by <see cref="GetLoopStartAsync"/> and <see cref="GetLoopEndAsync"/> should be played continuously in a loop.
+    /// The default value is <see langword="false"/>.
+    /// </summary>
+    public async Task<bool> GetLoopAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        return await helper.InvokeAsync<bool>("getAttribute", JSReference, "loop");
+    }
+
+    /// <summary>
+    /// Sets whether the region of audio data designated by <see cref="GetLoopStartAsync"/> and <see cref="GetLoopEndAsync"/> should be played continuously in a loop.
+    /// The default value is <see langword="false"/>.
+    /// </summary>
+    public async Task SetLoopAsync(bool value)
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        await helper.InvokeVoidAsync("setAttribute", JSReference, "loop", value);
+    }
+
+    /// <summary>
+    /// An optional playhead position where looping should begin if <see cref="GetLoopAsync"/> is <see langword="true"/>.
+    /// Its default value is <c>0</c>.
+    /// If loopStart is less than <c>0</c>, looping will begin at <c>0</c>.
+    /// If loopStart is greater than the duration of the buffer, looping will begin at the end of the buffer.
+    /// </summary>
+    public async Task<double> GetLoopStartAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        return await helper.InvokeAsync<double>("getAttribute", JSReference, "loopStart");
+    }
+
+    /// <summary>
+    /// An optional playhead position where looping should begin if <see cref="GetLoopAsync"/> is <see langword="true"/>.
+    /// Its default value is <c>0</c>, and it may usefully be set to any value between <c>0</c> and the duration of the buffer.
+    /// If loopStart is less than <c>0</c>, looping will begin at <c>0</c>.
+    /// If loopStart is greater than the duration of the buffer, looping will begin at the end of the buffer.
+    /// </summary>
+    /// <param name="value">The new loopStart value.</param>
+    /// <returns></returns>
+    public async Task SetLoopStartAsync(double value)
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        await helper.InvokeVoidAsync("setAttribute", JSReference, "loopStart", value);
+    }
+
+    /// <summary>
+    /// An optional playhead position where looping should end if <see cref="GetLoopAsync"/> is <see langword="true"/>.
+    /// Its value is exclusive of the content of the loop.
+    /// Its default value is <c>0</c>, and it may usefully be set to any value between <c>0</c> and the duration of the buffer.
+    /// If loopEnd is less than or equal to <c>0</c>, or if loopEnd is greater than the duration of the buffer, looping will end at the end of the buffer.
+    /// </summary>
+    public async Task<double> GetLoopEndAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        return await helper.InvokeAsync<double>("getAttribute", JSReference, "loopEnd");
+    }
+
+    /// <summary>
+    /// An optional playhead position where looping should end if <see cref="GetLoopAsync"/> is <see langword="true"/>.
+    /// Its value is exclusive of the content of the loop.
+    /// Its default value is <c>0</c>, and it may usefully be set to any value between <c>0</c> and the duration of the buffer.
+    /// If loopEnd is less than or equal to <c>0</c>, or if loopEnd is greater than the duration of the buffer, looping will end at the end of the buffer.
+    /// </summary>
+    /// <param name="value">The new loopEnd value.</param>
+    /// <returns></returns>
+    public async Task SetLoopEndAsync(double value)
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        await helper.InvokeVoidAsync("setAttribute", JSReference, "loopEnd", value);
+    }
+
+    /// <summary>
     /// Schedules a sound to playback at an exact time.
     /// </summary>
     /// <remarks>

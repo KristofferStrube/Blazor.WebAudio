@@ -1,4 +1,5 @@
 ﻿@page "/AudioPlayer"
+@using System.Globalization;
 @implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
 @inject HttpClient HttpClient
@@ -6,6 +7,7 @@
 
 <h2>Audio Player</h2>
 
+<button class="btn btn-secondary btn-lg" @onclick=PreivousTrack>⏮</button>
 @if (playing)
 {
     <button class="btn btn-warning btn-lg" @onclick=Pause>⏯</button>
@@ -14,16 +16,48 @@ else
 {
     <button class="btn btn-success btn-lg" @onclick=Play>⏯</button>
 }
+<button class="btn btn-secondary btn-lg" @onclick=NextTrack>⏭</button>
+<br />
+@if (trackDuration is not 0)
+{
+    @Math.Round(playTime, 0)
+    <svg width="60%" viewBox="0 0 1 0.02" style="margin-left:5px; margin-right:5px;">
+        <rect fill="#bbb" x="0" y="0" width="1" height="0.02"></rect>
+        <rect fill="#555" x="0" y="0" width="@((playTime/trackDuration).ToString(CultureInfo.InvariantCulture))" height="0.02"></rect>
+    </svg>
+    @Math.Round(trackDuration, 0)
+}
+<ol>
+    @for (int i = 0; i < tracks.Count; i++)
+    {
+        @if (i == currentTrack)
+        {
+            <li><u>@tracks[i][5..]</u></li>
+        }
+        else
+        {
+            <li>@tracks[i][5..]</li>
+        }
+    }
+</ol>
+
 
 @code {
     private bool playing;
     private bool currentTrackLoaded = false;
     private int currentTrack = 0;
-    private double startTime = 0;
+    private double playTime;
+    private double startTime;
     private double? pauseTime;
     private double offset;
     private double trackDuration;
-    private List<string> tracks = new() { "Data/file_example_MP3_700KB.mp3", "yamaha-psr-16-demo-music-25226.mp3" };
+    private int interactions;
+    private List<string> tracks = new() {
+        "Data/file_example_MP3_700KB.mp3",
+        "Data/yamaha-psr-16-demo-music-25226.mp3",
+        "Data/dream-sound-effect-downscale-7134.mp3",
+        "Data/drama-cue-synth-and-cello-114417.mp3",
+    };
 
     private AudioContext context = default!;
     private AudioDestinationNode destination = default!;
@@ -53,13 +87,12 @@ else
     {
         await EnsureInitialized();
         if (playing) return;
-
+        interactions++;
         await EnsureCurrentTrackLoaded();
 
         currentAudioBufferNode = await context.CreateBufferSourceAsync();
         await currentAudioBufferNode.SetBufferAsync(currentAudioBuffer);
         await currentAudioBufferNode.ConnectAsync(destination);
-        startTime = await context.GetCurrentTimeAsync();
         if (pauseTime is null)
         {
             await currentAudioBufferNode.StartAsync();
@@ -68,13 +101,26 @@ else
         {
             await currentAudioBufferNode.StartAsync(when: 0, offset: offset);
         }
+        startTime = await context.GetCurrentTimeAsync();
 
         playing = true;
+        var currentInteractions = interactions;
+        while (currentInteractions == interactions)
+        {
+            playTime = await context.GetCurrentTimeAsync() - startTime + offset;
+            StateHasChanged();
+            if (playTime >= trackDuration)
+            {
+                await NextTrack();
+            }
+            await Task.Delay(100);
+        }
     }
 
     public async Task Pause()
     {
         if (!playing) return;
+        interactions++;
 
         await currentAudioBufferNode.DisconnectAsync();
         await currentAudioBufferNode.StopAsync();
@@ -91,6 +137,29 @@ else
         }
 
         playing = false;
+    }
+
+    public Task PreivousTrack() => SwitchTrack(() => currentTrack = (currentTrack - 1 + tracks.Count) % tracks.Count);
+    public Task NextTrack() => SwitchTrack(() => currentTrack = (currentTrack + 1) % tracks.Count);
+
+    private async Task SwitchTrack(Action changeTrack)
+    {
+        await EnsureInitialized();
+
+        var wasPlaying = playing;
+        if (wasPlaying)
+        {
+            await Pause();
+        }
+        changeTrack();
+        currentTrackLoaded = false;
+        await EnsureCurrentTrackLoaded();
+        offset = 0;
+        playTime = 0;
+        if (wasPlaying)
+        {
+            await Play();
+        }
     }
 
     public async ValueTask DisposeAsync()
