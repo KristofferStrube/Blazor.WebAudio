@@ -1,5 +1,6 @@
 ﻿using KristofferStrube.Blazor.DOM;
 using KristofferStrube.Blazor.WebAudio.Extensions;
+using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
@@ -12,7 +13,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 public class BaseAudioContext : EventTarget
 {
     /// <summary>
-    /// A lazily evaluated task that gives access to helper methods for web Web Audio API.
+    /// A lazily evaluated task that gives access to helper methods for the Web Audio API.
     /// </summary>
     protected readonly Lazy<Task<IJSObjectReference>> webAudioHelperTask;
 
@@ -130,12 +131,44 @@ public class BaseAudioContext : EventTarget
     }
 
     /// <summary>
+    /// Factory method for an <see cref="AudioBufferSourceNode"/>.
+    /// </summary>
+    /// <returns>An <see cref="AudioBufferSourceNode"/>.</returns>
+    public async Task<AudioBufferSourceNode> CreateBufferSourceAsync()
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createBufferSource");
+        return await AudioBufferSourceNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
     /// Factory method for <see cref="GainNode"/>.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A <see cref="GainNode"/></returns>
     public async Task<GainNode> CreateGainAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createGain");
         return await GainNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// Factory method for <see cref="OscillatorNode"/>.
+    /// </summary>
+    /// <returns>An <see cref="OscillatorNode"/></returns>
+    public async Task<OscillatorNode> CreateOscillatorAsync()
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createOscillator");
+        return await OscillatorNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    public async Task<AudioBuffer> DecodeAudioDataAsync(
+        byte[] audioData
+        //Func<AudioBuffer, Task>? successCallback = null,
+        //Func<DOMException, Task>? errorCallbac = null)
+        )
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference arrayBuffer = await helper.InvokeAsync<IJSObjectReference>("toArrayBuffer", audioData);
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("decodeAudioData", arrayBuffer);
+        return await AudioBuffer.CreateAsync(JSRuntime, jSInstance);
     }
 }

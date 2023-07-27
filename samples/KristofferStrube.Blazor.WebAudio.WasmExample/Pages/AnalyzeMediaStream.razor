@@ -1,7 +1,7 @@
 ﻿@page "/AnalyzeMediaStream"
-@using KristofferStrube.Blazor.MediaCaptureStreams;
+@using KristofferStrube.Blazor.MediaCaptureStreams
 @using KristofferStrube.Blazor.WebIDL
-@using KristofferStrube.Blazor.WebIDL.Exceptions;
+@using KristofferStrube.Blazor.WebIDL.Exceptions
 @implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
 @inject IMediaDevicesService MediaDevicesService
@@ -67,9 +67,9 @@ else
                 mediaDevices = await MediaDevicesService.GetMediaDevicesAsync();
             }
 
-            var mediaTrackConstraints = new MediaTrackConstraints()
+            MediaTrackConstraints mediaTrackConstraints = new MediaTrackConstraints
                 {
-                    EchoCancellation = false,
+                    EchoCancellation = true,
                     NoiseSuppression = true,
                     AutoGainControl = false,
                     DeviceId = selectedAudioSource is null ? null : new ConstrainDomString(selectedAudioSource)
@@ -87,7 +87,7 @@ else
             }
 
             AnalyserNode analyser = await context.CreateAnalyserAsync();
-            var mediaStreamAudioSourceNode = await context.CreateMediaStreamSourceAsync(mediaStream);
+            MediaStreamAudioSourceNode mediaStreamAudioSourceNode = await context.CreateMediaStreamSourceAsync(mediaStream);
             await mediaStreamAudioSourceNode.ConnectAsync(analyser);
 
             await Task.Delay(500);

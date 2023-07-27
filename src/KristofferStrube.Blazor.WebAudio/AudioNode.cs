@@ -18,7 +18,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 public class AudioNode : EventTarget
 {
     /// <summary>
-    /// A lazily evaluated task that gives access to helper methods for web Web Audio API.
+    /// A lazily evaluated task that gives access to helper methods for the Web Audio API.
     /// </summary>
     protected readonly Lazy<Task<IJSObjectReference>> webAudioHelperTask;
 
@@ -44,7 +44,7 @@ public class AudioNode : EventTarget
     }
 
     /// <summary>
-    /// Connects the <see cref="AudioNode"/> to an <see cref="AudioParam"/>, controlling the parameter value with an a-rate signal.
+    /// Connects the <see cref="AudioNode"/> to a destination <see cref="AudioNode"/>. There can only be one connection between a given output of one specific node and a given input of another specific node. Multiple connections with the same termini are ignored.
     /// </summary>
     /// <remarks>
     /// It is possible to connect an <see cref="AudioNode"/> output to more than one <see cref="AudioParam"/> with multiple calls to <see cref="ConnectAsync(AudioNode, ulong, ulong)"/>. Thus, "fan-out" is supported.<br />

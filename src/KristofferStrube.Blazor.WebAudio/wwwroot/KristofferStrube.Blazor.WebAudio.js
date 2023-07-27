@@ -2,6 +2,10 @@ export function getAttribute(object, attribute) { return object[attribute]; }
 
 export function setAttribute(object, attribute, value) { object[attribute] = value; }
 
+export function toArrayBuffer(array) {
+    return array.buffer;
+}
+
 export function constructAudioContext(contextOptions = null) {
     return new AudioContext(contextOptions)
 }

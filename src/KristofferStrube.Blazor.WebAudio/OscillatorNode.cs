@@ -10,6 +10,17 @@ namespace KristofferStrube.Blazor.WebAudio;
 public class OscillatorNode : AudioScheduledSourceNode
 {
     /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of a <see cref="OscillatorNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="OscillatorNode"/>.</param>
+    /// <returns>A wrapper instance for a <see cref="OscillatorNode"/>.</returns>
+    public static new Task<OscillatorNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    {
+        return Task.FromResult(new OscillatorNode(jSRuntime, jSReference));
+    }
+
+    /// <summary>
     /// Creates an <see cref="OscillatorNode"/> using the standard constructor.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>

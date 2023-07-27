@@ -1,5 +1,5 @@
-﻿using Microsoft.JSInterop;
-using KristofferStrube.Blazor.MediaCaptureStreams;
+﻿using KristofferStrube.Blazor.MediaCaptureStreams;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
 

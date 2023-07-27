@@ -15,4 +15,10 @@
     <ProjectReference Include="..\..\src\KristofferStrube.Blazor.WebAudio\KristofferStrube.Blazor.WebAudio.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Pages\AnalyzeMediaStream.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
+
 </Project>

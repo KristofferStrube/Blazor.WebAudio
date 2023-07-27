@@ -12,11 +12,41 @@ namespace KristofferStrube.Blazor.WebAudio;
 public class AudioBuffer : BaseJSWrapper
 {
     /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioBuffer"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="AudioBuffer"/>.</param>
+    /// <returns>A wrapper instance for an <see cref="AudioBuffer"/>.</returns>
+    public static Task<AudioBuffer> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    {
+        return Task.FromResult(new AudioBuffer(jSRuntime, jSReference));
+    }
+
+    /// <summary>
     /// Constructs a wrapper instance for a given JS Instance of a <see cref="AudioBuffer"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="AudioBuffer"/>.</param>
     public AudioBuffer(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
     {
+    }
+
+    /// <summary>
+    /// Length of the PCM audio data in sample-frames.
+    /// </summary>
+    public async Task<ulong> GetLength()
+    {
+        IJSObjectReference helper = await helperTask.Value;
+        return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "length");
+    }
+
+    /// <summary>
+    /// Duration of the PCM audio data in seconds.
+    /// </summary>
+    /// <returns>The duration in seconds.</returns>
+    public async Task<double> GetDuration()
+    {
+        IJSObjectReference helper = await helperTask.Value;
+        return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "duration");
     }
 }

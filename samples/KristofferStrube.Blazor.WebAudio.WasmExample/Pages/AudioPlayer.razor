@@ -1,0 +1,100 @@
+﻿@page "/AudioPlayer"
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+@inject HttpClient HttpClient
+<PageTitle>WebAudio - Audio Player</PageTitle>
+
+<h2>Audio Player</h2>
+
+@if (playing)
+{
+    <button class="btn btn-warning btn-lg" @onclick=Pause>⏯</button>
+}
+else
+{
+    <button class="btn btn-success btn-lg" @onclick=Play>⏯</button>
+}
+
+@code {
+    private bool playing;
+    private bool currentTrackLoaded = false;
+    private int currentTrack = 0;
+    private double startTime = 0;
+    private double? pauseTime;
+    private double offset;
+    private double trackDuration;
+    private List<string> tracks = new() { "Data/file_example_MP3_700KB.mp3", "yamaha-psr-16-demo-music-25226.mp3" };
+
+    private AudioContext context = default!;
+    private AudioDestinationNode destination = default!;
+    private AudioBufferSourceNode currentAudioBufferNode = default!;
+    private AudioBuffer currentAudioBuffer = default!;
+
+    public async Task EnsureInitialized()
+    {
+        if (context is { }) return;
+
+        context = await AudioContext.CreateAsync(JSRuntime);
+        destination = await context.GetDestinationAsync();
+    }
+
+    public async Task EnsureCurrentTrackLoaded()
+    {
+        if (currentTrackLoaded) return;
+
+        byte[] trackData = await HttpClient.GetByteArrayAsync(tracks[currentTrack]);
+        currentAudioBuffer = await context.DecodeAudioDataAsync(trackData);
+        trackDuration = await currentAudioBuffer.GetDuration();
+
+        currentTrackLoaded = true;
+    }
+
+    public async Task Play()
+    {
+        await EnsureInitialized();
+        if (playing) return;
+
+        await EnsureCurrentTrackLoaded();
+
+        currentAudioBufferNode = await context.CreateBufferSourceAsync();
+        await currentAudioBufferNode.SetBufferAsync(currentAudioBuffer);
+        await currentAudioBufferNode.ConnectAsync(destination);
+        startTime = await context.GetCurrentTimeAsync();
+        if (pauseTime is null)
+        {
+            await currentAudioBufferNode.StartAsync();
+        }
+        else
+        {
+            await currentAudioBufferNode.StartAsync(when: 0, offset: offset);
+        }
+
+        playing = true;
+    }
+
+    public async Task Pause()
+    {
+        if (!playing) return;
+
+        await currentAudioBufferNode.DisconnectAsync();
+        await currentAudioBufferNode.StopAsync();
+
+        var currentTime = await context.GetCurrentTimeAsync();
+        pauseTime = await context.GetCurrentTimeAsync();
+        if (offset + currentTime - startTime > trackDuration)
+        {
+            offset = 0;
+        }
+        else
+        {
+            offset += currentTime - startTime;
+        }
+
+        playing = false;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await currentAudioBufferNode.StopAsync();
+    }
+}
