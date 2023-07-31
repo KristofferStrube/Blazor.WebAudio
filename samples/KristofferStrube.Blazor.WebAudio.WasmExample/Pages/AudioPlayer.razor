@@ -70,6 +70,20 @@
     private AudioBufferSourceNode currentAudioBufferNode = default!;
     private AudioBuffer currentAudioBuffer = default!;
 
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await EnsureInitialized();
+            await EnsureCurrentTrackLoaded();
+        }
+        catch
+        {
+            Console.WriteLine("Couldn't initialize yet.");
+        }
+    }
+
     public async Task EnsureInitialized()
     {
         if (context is { }) return;
