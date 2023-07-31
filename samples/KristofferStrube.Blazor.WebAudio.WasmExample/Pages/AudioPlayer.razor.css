@@ -1,0 +1,11 @@
+﻿.media-control {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    font-size:40px;
+    margin:2px;
+}

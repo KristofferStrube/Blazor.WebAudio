@@ -7,18 +7,18 @@
 
 <h2>Audio Player</h2>
 
-<div style="user-select: none;">
-    <span style="font-size:30px;" @onclick=RandomizeTracks>🎲</span>
-    <span style="font-size:30px;" @onclick=PreivousTrack>⏮</span>
+<div style="user-select: none;display:flex;flex-direction:row;" aria-label="Player controls">
+    <button class="media-control" aria-label="Randomize tracks" @onclick=RandomizeTracks>🔀</button>
+    <button class="media-control" aria-label="Previous track" @onclick=PreivousTrack>⏮</button>
     @if (playing)
     {
-        <span style="font-size:30px;" @onclick=Pause>⏯</span>
+        <button class="media-control" aria-label="Pause" @onclick=Pause>⏸</button>
     }
     else
     {
-        <span style="font-size:30px;" @onclick=Play>⏯</span>
+        <button class="media-control" aria-label="Play" @onclick=Play>⏯</button>
     }
-    <span style="font-size:30px;" @onclick=NextTrack>⏭</span>
+    <button class="media-control" aria-label="Next track" @onclick=NextTrack>⏭</button>
 </div>
 <span style="width:10%;">
     @Math.Round(playTime, 0)
