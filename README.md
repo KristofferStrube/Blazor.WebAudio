@@ -4,10 +4,14 @@ This Web API standardizes methods for processing and synthesizing audio in web a
 
 **This wrapper is still being developed so ideas are still being tested and experimented with.**
 
-## Demo
+# Demo
 The sample project can be demoed at https://kristofferstrube.github.io/Blazor.WebAudio/
 
-## Research
+On each page, you can find the corresponding code for the example in the top right corner.
+
+On the [API Coverage Status](https://kristofferstrube.github.io/Blazor.MediaCaptureStreams/Status) page, you can see how much of the WebIDL specs this wrapper has covered.
+
+# Research
 The preliminary analysis of what is needed to wrap this has begun and will be collected in this section before the real work begins.
 
 Seems like there is a lot of work with streams of data in the API. This might be a suitable playground for working with the [IJSUnmarshalledObjectReference](https://learn.microsoft.com/en-us/dotnet/api/microsoft.jsinterop.ijsunmarshalledobjectreference?view=aspnetcore-7.0) in the context of API wrappers.
