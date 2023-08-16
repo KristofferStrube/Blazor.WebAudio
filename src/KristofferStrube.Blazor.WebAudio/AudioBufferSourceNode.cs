@@ -58,7 +58,10 @@ public class AudioBufferSourceNode : AudioScheduledSourceNode
         await helper.InvokeVoidAsync("setAttribute", JSReference, "buffer", value?.JSReference);
     }
 
-    public async Task<AudioParam> GetPlaybackRate() => default!;
+    public async Task<AudioParam> GetPlaybackRate()
+    {
+        return default!;
+    }
 
     /// <summary>
     /// Indicates if the region of audio data designated by <see cref="GetLoopStartAsync"/> and <see cref="GetLoopEndAsync"/> should be played continuously in a loop.

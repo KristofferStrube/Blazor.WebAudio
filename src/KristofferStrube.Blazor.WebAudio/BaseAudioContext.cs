@@ -131,6 +131,16 @@ public class BaseAudioContext : EventTarget
     }
 
     /// <summary>
+    /// Factory method for a <see cref="BiquadFilterNode"/> representing a second order filter which can be configured as one of several common filter types.
+    /// </summary>
+    /// <returns>A <see cref="BiquadFilterNode"/>.</returns>
+    public async Task<BiquadFilterNode> CreateBiquadFilterAsync()
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createBiquadFilter");
+        return await BiquadFilterNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
     /// Factory method for an <see cref="AudioBufferSourceNode"/>.
     /// </summary>
     /// <returns>An <see cref="AudioBufferSourceNode"/>.</returns>
@@ -141,7 +151,55 @@ public class BaseAudioContext : EventTarget
     }
 
     /// <summary>
-    /// Factory method for <see cref="GainNode"/>.
+    /// Factory method for a <see cref="ChannelMergerNode"/> representing a channel merger.
+    /// </summary>
+    /// <remarks>
+    /// It will throw a <see cref="IndexSizeErrorException"/> if <paramref name="numberOfInputs"/> is less than 1 or is greater than the number of supported channels.
+    /// </remarks>
+    /// <exception cref="IndexSizeErrorException"></exception>
+    /// <returns>A <see cref="ChannelMergerNode"/>.</returns>
+    public async Task<ChannelMergerNode> CreateChannelMergerAsync(ulong numberOfInputs = 6)
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createChannelMerger", numberOfInputs);
+        return await ChannelMergerNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// Factory method for a <see cref="ChannelSplitterNode"/> representing a channel splitter.
+    /// </summary>
+    /// <remarks>
+    /// It will throw a <see cref="IndexSizeErrorException"/> if <paramref name="numberOfOutputs"/> is less than 1 or is greater than the number of supported channels.
+    /// </remarks>
+    /// <exception cref="IndexSizeErrorException"></exception>
+    /// <returns>A <see cref="ChannelSplitterNode"/>.</returns>
+    public async Task<ChannelSplitterNode> CreateChannelSplitterAsync(ulong numberOfOutputs = 6)
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createChannelSplitter", numberOfOutputs);
+        return await ChannelSplitterNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// Factory method for a <see cref="ConstantSourceNode"/>.
+    /// </summary>
+    /// <returns>An <see cref="ConstantSourceNode"/></returns>
+    public async Task<ConstantSourceNode> CreateConstantSourceAsync()
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createConstantSource");
+        return await ConstantSourceNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// Factory method for a <see cref="ConvolverNode"/>.
+    /// </summary>
+    /// <returns>An <see cref="ConvolverNode"/></returns>
+    public async Task<ConvolverNode> CreateConvolverAsync()
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createConvolver");
+        return await ConvolverNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// Factory method for a <see cref="GainNode"/>.
     /// </summary>
     /// <returns>A <see cref="GainNode"/></returns>
     public async Task<GainNode> CreateGainAsync()
@@ -151,7 +209,7 @@ public class BaseAudioContext : EventTarget
     }
 
     /// <summary>
-    /// Factory method for <see cref="OscillatorNode"/>.
+    /// Factory method for an <see cref="OscillatorNode"/>.
     /// </summary>
     /// <returns>An <see cref="OscillatorNode"/></returns>
     public async Task<OscillatorNode> CreateOscillatorAsync()
