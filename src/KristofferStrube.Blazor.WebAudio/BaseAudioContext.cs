@@ -199,6 +199,32 @@ public class BaseAudioContext : EventTarget
     }
 
     /// <summary>
+    /// Factory method for a <see cref="DelayNode"/>. The initial default delay time will be <c>0</c> seconds.
+    /// </summary>
+    /// <param name="maxDelayTime">
+    /// Specifies the maximum delay time in seconds allowed for the delay line.
+    /// If specified, this value must be greater than zero and less than three minutes or a <see cref="NotSupportedErrorException"/> exception will be thrown.
+    /// If not specified, then <c>1</c> will be used.
+    /// </param>
+    /// <exception cref="NotSupportedErrorException"></exception>
+    /// <returns>An <see cref="DelayNode"/></returns>
+    public async Task<DelayNode> CreateDelayAsync(double maxDelayTime = 1)
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createDelay", maxDelayTime);
+        return await DelayNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// Factory method for a <see cref="DynamicsCompressorNode"/>.
+    /// </summary>
+    /// <returns>An <see cref="DynamicsCompressorNode"/></returns>
+    public async Task<DynamicsCompressorNode> CreateDynamicsCompressorAsync()
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createDynamicsCompressor");
+        return await DynamicsCompressorNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
     /// Factory method for a <see cref="GainNode"/>.
     /// </summary>
     /// <returns>A <see cref="GainNode"/></returns>
@@ -209,6 +235,26 @@ public class BaseAudioContext : EventTarget
     }
 
     /// <summary>
+    /// Factory method for an <see cref="IIRFilterNode"/>.
+    /// </summary>
+    /// <param name="feedforward">
+    /// An array of the feedforward (numerator) coefficients for the transfer function of the IIR filter. The maximum length of this array is <c>20</c>.<br/>
+    /// If all of the values are zero, an <see cref="InvalidStateErrorException"/> will be thrown. A <see cref="NotSupportedErrorException"/> will be thrown if the array length is <c>0</c> or greater than <c>20</c>.
+    /// </param>
+    /// <param name="feedback">
+    /// An array of the feedback (denominator) coefficients for the transfer function of the IIR filter. The maximum length of this array is <c>20</c>.<br />
+    /// If the first element of the array is <c>0</c>, an <see cref="InvalidStateErrorException"/> will be thrown. A <see cref="NotSupportedErrorException"/> will be thrown if the array length is <c>0</c> or greater than <c>20</c>.
+    /// </param>
+    /// <exception cref="InvalidStateErrorException"></exception>
+    /// <exception cref="NotSupportedErrorException"></exception>
+    /// <returns>An <see cref="IIRFilterNode"/></returns>
+    public async Task<IIRFilterNode> CreateIIRFilterAsync(double[] feedforward, double[] feedback)
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createIIRFilter", feedforward, feedback);
+        return await IIRFilterNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
     /// Factory method for an <see cref="OscillatorNode"/>.
     /// </summary>
     /// <returns>An <see cref="OscillatorNode"/></returns>
@@ -216,6 +262,30 @@ public class BaseAudioContext : EventTarget
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createOscillator");
         return await OscillatorNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// Factory method for a <see cref="PannerNode"/>.
+    /// </summary>
+    /// <returns>A <see cref="PannerNode"/></returns>
+    public async Task<PannerNode> CreatePannerAsync()
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createPanner");
+        return await PannerNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// Factory method for a <see cref="PeriodicWave"/>.
+    /// </summary>
+    /// <param name="real">A sequence of cosine parameters. See its <see cref="PeriodicWaveOptions.Real"/> constructor argument for a more detailed description.</param>
+    /// <param name="imag">A sequence of sine parameters. See its <see cref="PeriodicWaveOptions.Imag"/> constructor argument for a more detailed description.</param>
+    /// <param name="constraints">If not given, the waveform is normalized. Otherwise, the waveform is normalized according the value given by <paramref name="constraints"/>.</param>
+    /// <returns>A <see cref="PeriodicWave"/></returns>
+    public async Task<PeriodicWave> CreatePeriodicWaveAsync(float[] real, float[] imag, PeriodicWaveConstraints constraints = default!)
+    {
+        constraints ??= new();
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createPeriodicWave", real, imag, constraints);
+        return await PeriodicWave.CreateAsync(JSRuntime, jSInstance);
     }
 
     public async Task<AudioBuffer> DecodeAudioDataAsync(

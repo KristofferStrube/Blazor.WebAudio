@@ -25,5 +25,8 @@ public class ConstantSourceNode : AudioScheduledSourceNode
     {
     }
 
-    public async Task<AudioParam> GetOffsetAsync() => default!;
+    public async Task<AudioParam> GetOffsetAsync()
+    {
+        return default!;
+    }
 }

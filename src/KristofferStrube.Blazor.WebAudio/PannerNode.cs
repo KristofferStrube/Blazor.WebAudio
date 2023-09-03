@@ -14,6 +14,17 @@ public class PannerNode : AudioNode
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="PannerNode"/>.</param>
+    /// <returns>A wrapper instance for a <see cref="PannerNode"/>.</returns>
+    public static new Task<PannerNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    {
+        return Task.FromResult(new PannerNode(jSRuntime, jSReference));
+    }
+
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of a <see cref="PannerNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="PannerNode"/>.</param>
     protected PannerNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
     {
     }
