@@ -288,6 +288,26 @@ public class BaseAudioContext : EventTarget
         return await PeriodicWave.CreateAsync(JSRuntime, jSInstance);
     }
 
+    /// <summary>
+    /// Factory method for a <see cref="StereoPannerNode"/>.
+    /// </summary>
+    /// <returns>A <see cref="StereoPannerNode"/></returns>
+    public async Task<StereoPannerNode> CreateStereoPannerAsync()
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createStereoPanner");
+        return await StereoPannerNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// Factory method for a <see cref="WaveShaperNode"/>.
+    /// </summary>
+    /// <returns>A <see cref="WaveShaperNode"/></returns>
+    public async Task<WaveShaperNode> CreateWaveShaperAsync()
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createWaveShaper");
+        return await WaveShaperNode.CreateAsync(JSRuntime, jSInstance);
+    }
+
     public async Task<AudioBuffer> DecodeAudioDataAsync(
         byte[] audioData
         //Func<AudioBuffer, Task>? successCallback = null,
