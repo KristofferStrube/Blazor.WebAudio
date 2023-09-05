@@ -313,13 +313,13 @@ public class BaseAudioContext : EventTarget
     /// Asynchronously decodes the audio file data contained in the <paramref name="audioData"/>.
     /// The <paramref name="audioData"/> can, for example, be loaded from a <see cref="HttpClient"/> by calling <see cref="HttpClient.GetByteArrayAsync(string?)"/>.
     /// Audio file data can be in any of the formats supported by the audio element.
-    /// The buffer passed to <see cref="DecodeAudioDataAsync"/> has its content-type determined by sniffing, as described in <see href="https://mimesniff.spec.whatwg.org/">MIME Sniffing Standard</see>.<br />
+    /// The buffer passed to <see cref="DecodeAudioDataAsync(byte[], Func{AudioBuffer, Task}?, Func{DOMException, Task}?)"/> has its content-type determined by sniffing, as described in <see href="https://mimesniff.spec.whatwg.org/">MIME Sniffing Standard</see>.<br />
     /// Although the primary method of interfacing with this function is via its <see cref="Task"/> return value, the callback parameters are provided for legacy reasons.
     /// </summary>
     /// <remarks>
     /// It throws an <see cref="InvalidStateErrorException"/> if the document was not fully loaded when this method is invoked.<br />
     /// It throws an <see cref="DataCloneErrorException"/> if the array is actually <see langword="null"/>.<br />
-    /// It throws an <see cref="EncodingErrorException"/> if <see href="https://mimesniff.spec.whatwg.org/#matching-an-audio-or-video-type-pattern">MIME Sniffing §6.2 Matching an audio or video type pattern</see> doesn't find a mime type or if it failed to decode it into a linear PCM (pulse code modulation).<br />
+    /// It throws an <see cref="EncodingErrorException"/> if <see href="https://mimesniff.spec.whatwg.org/#matching-an-audio-or-video-type-pattern">MIME Sniffing §6.2 Matching an audio or video type pattern</see> doesn't find a MIME type or if it failed to decode it into a linear PCM (pulse code modulation).<br />
     /// </remarks>
     /// <param name="audioData">An  <see cref="T:byte[]" /> containing compressed audio data.</param>
     /// <param name="successCallback">A callback function which will be invoked when the decoding is finished. The single argument to this callback is an <see cref="AudioBuffer"/> representing the decoded PCM audio data.</param>
@@ -331,16 +331,41 @@ public class BaseAudioContext : EventTarget
         Func<DOMException, Task>? errorCallback = null)
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference arrayBuffer = await helper.InvokeAsync<IJSObjectReference>("toArrayBuffer", audioData);
+
+        return await DecodeAudioDataAsync(arrayBuffer, successCallback, errorCallback);
+    }
+
+    /// <summary>
+    /// Asynchronously decodes the audio file data contained in the <paramref name="audioData"/>.
+    /// The <paramref name="audioData"/> can, for example, be loaded from a <see cref="HttpClient"/> by calling <see cref="HttpClient.GetByteArrayAsync(string?)"/>.
+    /// Audio file data can be in any of the formats supported by the audio element.
+    /// The buffer passed to <see cref="DecodeAudioDataAsync(IJSObjectReference, Func{AudioBuffer, Task}?, Func{DOMException, Task}?)"/> has its content-type determined by sniffing, as described in <see href="https://mimesniff.spec.whatwg.org/">MIME Sniffing Standard</see>.<br />
+    /// Although the primary method of interfacing with this function is via its <see cref="Task"/> return value, the callback parameters are provided for legacy reasons.
+    /// </summary>
+    /// <remarks>
+    /// It throws an <see cref="InvalidStateErrorException"/> if the document was not fully loaded when this method is invoked.<br />
+    /// It throws an <see cref="DataCloneErrorException"/> if the array is detached.<br />
+    /// It throws an <see cref="EncodingErrorException"/> if <see href="https://mimesniff.spec.whatwg.org/#matching-an-audio-or-video-type-pattern">MIME Sniffing §6.2 Matching an audio or video type pattern</see> doesn't find a MIME type or if it failed to decode it into a linear PCM (pulse code modulation).<br />
+    /// </remarks>
+    /// <param name="audioData">An <see cref="IJSObjectReference"/> to an existing AudioBuffer containing compressed audio data.</param>
+    /// <param name="successCallback">A callback function which will be invoked when the decoding is finished. The single argument to this callback is an <see cref="AudioBuffer"/> representing the decoded PCM audio data.</param>
+    /// <param name="errorCallback">A callback function which will be invoked if there is an error decoding the audio file.</param>
+    /// <returns>A new <see cref="AudioBuffer"/>.</returns>
+    public async Task<AudioBuffer> DecodeAudioDataAsync(
+        IJSObjectReference audioData,
+        Func<AudioBuffer, Task>? successCallback = null,
+        Func<DOMException, Task>? errorCallback = null)
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
         if (ErrorHandlingJSInterop.ErrorHandlingJSInteropHasBeenSetup)
         {
             helper = new ErrorHandlingJSObjectReference(JSRuntime, helper);
         }
 
-        IJSObjectReference arrayBuffer = await helper.InvokeAsync<IJSObjectReference>("toArrayBuffer", audioData);
-
         DotNetObjectReference<DecodeSuccessCallback>? successCallbackObjRef = successCallback is null ? null : DotNetObjectReference.Create(new DecodeSuccessCallback(JSRuntime, successCallback));
         DotNetObjectReference<DecodeErrorCallback>? errorCallbackObjRef = errorCallback is null ? null : DotNetObjectReference.Create(new DecodeErrorCallback(JSRuntime, errorCallback));
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("decodeAudioData", JSReference, arrayBuffer, successCallbackObjRef, errorCallbackObjRef);
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("decodeAudioData", JSReference, audioData, successCallbackObjRef, errorCallbackObjRef);
 
         return await AudioBuffer.CreateAsync(JSRuntime, jSInstance);
     }

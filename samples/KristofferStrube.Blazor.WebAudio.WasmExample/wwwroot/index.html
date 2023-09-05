@@ -40,6 +40,13 @@
             window.location.replace(window.location.origin + window.location.pathname + '/' + window.location.search);
         }
     </script>
+    <script>
+        function getDetachedArrayBuffer(array) {
+            var arrayBuffer = array.buffer;
+            structuredClone(arrayBuffer, { transfer: [arrayBuffer] });
+            return arrayBuffer;
+        }
+    </script>
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/app.css" rel="stylesheet" />
     <link rel="icon" type="image/png" href="favicon.png" />

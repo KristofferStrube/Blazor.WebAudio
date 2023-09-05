@@ -12,13 +12,14 @@
     <button class="btn btn-success" @onclick="LoadRealSoundByAwaitingTask">Load real sound by awaiting task</button>
     <button class="btn btn-warning" @onclick="LoadNonSoundWithCallback">Load data that isn't sound and use error callback</button>
     <button class="btn btn-warning" @onclick="LoadNonSoundAndCatchException">Load data that isn't sound and catch exception</button>
+    <button class="btn btn-warning" @onclick="LoadDetachedDataAndCatchException">Load null-data and catch exception</button>
 </div>
 <br />
 @if (message is not null)
 {
-    <span class="badge @(successful ? "bg-success": "bg-danger")">
+    <div class="rounded p-2 text-white @(successful ? "bg-success": "bg-danger")">
         @message
-    </span>
+    </div>
 }
 
 @code {
@@ -103,6 +104,27 @@
         {
             byte[] trackData = new byte[] { 0, 0, 0, 0, 0, 0, 1 };
             await context.DecodeAudioDataAsync(trackData);
+        }
+        catch (DOMException error)
+        {
+            successful = false;
+            message = $"From catch-block - {error.Name}: \"{error.Message}\"";
+        }
+    }
+
+    public async Task LoadDetachedDataAndCatchException()
+    {
+        message = null;
+        StateHasChanged();
+        if (context is null)
+        {
+            context = await AudioContext.CreateAsync(JSRuntime);
+        }
+        try
+        {
+            byte[] trackData = await HttpClient.GetByteArrayAsync("Data/file_example_MP3_700KB.mp3");
+            IJSObjectReference audioData = await JSRuntime.InvokeAsync<IJSObjectReference>("getDetachedArrayBuffer", trackData);
+            await context.DecodeAudioDataAsync(audioData);
         }
         catch (DOMException error)
         {
