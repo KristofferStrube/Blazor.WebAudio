@@ -4,7 +4,6 @@
 @inject IJSRuntime JSRuntime
 @inject HttpClient HttpClient
 <PageTitle>WebAudio - Audio Player</PageTitle>
-
 <h2>Audio Player</h2>
 
 <div style="user-select: none;display:flex;flex-direction:row;" aria-label="Player controls">
@@ -97,8 +96,8 @@
         if (currentTrackLoaded) return;
 
         byte[] trackData = await HttpClient.GetByteArrayAsync(tracks[currentTrack]);
-        currentAudioBuffer = await context.DecodeAudioDataAsync(trackData);
-        trackDuration = await currentAudioBuffer.GetDuration();
+        await context.DecodeAudioDataAsync(trackData, (audioBuffer) => { currentAudioBuffer = audioBuffer; return Task.CompletedTask; });
+        trackDuration = await currentAudioBuffer.GetDurationAsync();
 
         currentTrackLoaded = true;
     }

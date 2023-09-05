@@ -21,3 +21,17 @@ export function constructGainNode(context, options = null) {
 export function constructAnalyzerNode(context, options = null) {
     return new AnalyserNode(context, options);
 }
+
+export async function decodeAudioData(audioContext, audioData, successCallbackObjRef, errorCallbackObjRef) {
+    let successCallback = successCallbackObjRef == null ? null : async (decodedData) => await successCallbackObjRef.invokeMethodAsync('Invoke', DotNet.createJSObjectReference(decodedData));
+    let errorCallback = errorCallbackObjRef == null ? null : async (error) => await errorCallbackObjRef.invokeMethodAsync('Invoke', DOMExceptionInformation(error));
+    return audioContext.decodeAudioData(audioData, successCallback, errorCallback)
+}
+
+function DOMExceptionInformation(error) {
+    return {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+    };
+}

@@ -34,7 +34,7 @@ public class AudioBuffer : BaseJSWrapper
     /// <summary>
     /// Length of the PCM audio data in sample-frames.
     /// </summary>
-    public async Task<ulong> GetLength()
+    public async Task<ulong> GetLengthAsync()
     {
         IJSObjectReference helper = await helperTask.Value;
         return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "length");
@@ -44,7 +44,7 @@ public class AudioBuffer : BaseJSWrapper
     /// Duration of the PCM audio data in seconds.
     /// </summary>
     /// <returns>The duration in seconds.</returns>
-    public async Task<double> GetDuration()
+    public async Task<double> GetDurationAsync()
     {
         IJSObjectReference helper = await helperTask.Value;
         return await helper.InvokeAsync<double>("getAttribute", JSReference, "duration");

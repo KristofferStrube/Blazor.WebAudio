@@ -1,0 +1,115 @@
+﻿@page "/DecodeAudio"
+@using KristofferStrube.Blazor.WebIDL.Exceptions
+@inject IJSRuntime JSRuntime
+@inject HttpClient HttpClient
+<PageTitle>WebAudio - Decode Audio</PageTitle>
+<h2>Decode Audio</h2>
+<p>
+    On this page we use the <code>DecodeAudioDataAsync</code> method of the <code>AudioContext</code> in the API to decode audio files.
+</p>
+<div style="display:flex; flex-direction:column; gap:5px;">
+    <button class="btn btn-success" @onclick="LoadRealSoundWithSuccessCallback">Load real sound from successful callback</button>
+    <button class="btn btn-success" @onclick="LoadRealSoundByAwaitingTask">Load real sound by awaiting task</button>
+    <button class="btn btn-warning" @onclick="LoadNonSoundWithCallback">Load data that isn't sound and use error callback</button>
+    <button class="btn btn-warning" @onclick="LoadNonSoundAndCatchException">Load data that isn't sound and catch exception</button>
+</div>
+<br />
+@if (message is not null)
+{
+    <span class="badge @(successful ? "bg-success": "bg-danger")">
+        @message
+    </span>
+}
+
+@code {
+    AudioContext? context;
+    AudioBuffer? audioBuffer;
+    bool successful = false;
+    string? message = null;
+
+    public async Task LoadRealSoundWithSuccessCallback()
+    {
+        message = null;
+        StateHasChanged();
+        if (context is null)
+        {
+            context = await AudioContext.CreateAsync(JSRuntime);
+        }
+        byte[] trackData = await HttpClient.GetByteArrayAsync("Data/file_example_MP3_700KB.mp3");
+        await context.DecodeAudioDataAsync(
+            trackData,
+            successCallback: async (decodedData) =>
+            {
+                audioBuffer = decodedData;
+                var duration = await audioBuffer.GetDurationAsync();
+                successful = true;
+                message = $"From callback - sucessfully decoded audio data with duration {duration:0.##}";
+                StateHasChanged();
+            }
+        );
+    }
+
+    public async Task LoadRealSoundByAwaitingTask()
+    {
+        message = null;
+        StateHasChanged();
+        if (context is null)
+        {
+            context = await AudioContext.CreateAsync(JSRuntime);
+        }
+        byte[] trackData = await HttpClient.GetByteArrayAsync("Data/file_example_MP3_700KB.mp3");
+        audioBuffer = await context.DecodeAudioDataAsync(trackData);
+        var duration = await audioBuffer.GetDurationAsync();
+        successful = true;
+        message = $"After awaiting - sucessfully decoded audio data with duration {duration:0.##}";
+    }
+
+
+    public async Task LoadNonSoundWithCallback()
+    {
+        message = null;
+        StateHasChanged();
+        if (context is null)
+        {
+            context = await AudioContext.CreateAsync(JSRuntime);
+        }
+        try
+        {
+            byte[] trackData = new byte[] { 0, 0, 0, 0, 0, 0, 1 };
+            await context.DecodeAudioDataAsync(
+                trackData,
+                successCallback: null,
+                errorCallback: (error) =>
+                {
+                    successful = false;
+                    message = $"From callback - {error.Name}: \"{error.Message}\"";
+                    return Task.CompletedTask;
+                });
+        }
+        catch (Exception)
+        {
+        }
+    }
+
+    public async Task LoadNonSoundAndCatchException()
+    {
+        message = null;
+        StateHasChanged();
+        if (context is null)
+        {
+            context = await AudioContext.CreateAsync(JSRuntime);
+        }
+        try
+        {
+            byte[] trackData = new byte[] { 0, 0, 0, 0, 0, 0, 1 };
+            await context.DecodeAudioDataAsync(trackData);
+        }
+        catch (DOMException error)
+        {
+            successful = false;
+            message = $"From catch-block - {error.Name}: \"{error.Message}\"";
+        }
+    }
+}
+
+
