@@ -35,10 +35,13 @@ public class OscillatorNode : AudioScheduledSourceNode
             : await helper.InvokeAsync<IJSObjectReference>("constructOcillatorNode", context.JSReference,
             new
             {
-                type = options!.Type.AsString(),
-                frequency = options!.Frequency,
-                detune = options!.Detune,
-                // Missing periodicWave
+                channelCount = options.ChannelCount,
+                channelCountMode = options.ChannelCountMode,
+                channelInterpretation = options.ChannelInterpretation,
+                type = options.Type.AsString(),
+                frequency = options.Frequency,
+                detune = options.Detune,
+                periodicWave = options.PeriodicWave?.JSReference,
             });
         return new OscillatorNode(jSRuntime, jSInstance);
     }

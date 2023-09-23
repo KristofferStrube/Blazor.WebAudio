@@ -58,7 +58,12 @@ public class AudioBufferSourceNode : AudioScheduledSourceNode
         await helper.InvokeVoidAsync("setAttribute", JSReference, "buffer", value?.JSReference);
     }
 
-    public async Task<AudioParam> GetPlaybackRate()
+    public Task<AudioParam> GetPlaybackRateAsync()
+    {
+        return default!;
+    }
+
+    public Task<AudioParam> GetDetuneAsync()
     {
         return default!;
     }
@@ -145,7 +150,7 @@ public class AudioBufferSourceNode : AudioScheduledSourceNode
     /// </remarks>
     /// <param name="when">The when parameter describes at what time (in seconds) the sound should start playing. It is in the same time coordinate system as the AudioContext's currentTime attribute.</param>
     /// <param name="offset">The offset parameter supplies a playhead position where playback will begin. If <c>0</c> is passed in for this value, then playback will start from the beginning of the buffer.</param>
-    /// <param name="duration">The duration parameter describes the duration of sound to be played, expressed as seconds of total buffer content to be output, including any whole or partial loop iterations. The units of duration are independent of the effects of <see cref="GetPlaybackRate"/>. For example, a duration of <c>5</c> seconds with a playback rate of <c>0.5</c> will output <c>5</c> seconds of buffer content at half speed, producing <c>10</c> seconds of audible output.</param>
+    /// <param name="duration">The duration parameter describes the duration of sound to be played, expressed as seconds of total buffer content to be output, including any whole or partial loop iterations. The units of duration are independent of the effects of <see cref="GetPlaybackRateAsync"/>. For example, a duration of <c>5</c> seconds with a playback rate of <c>0.5</c> will output <c>5</c> seconds of buffer content at half speed, producing <c>10</c> seconds of audible output.</param>
     /// <exception cref="InvalidStateErrorException"></exception>
     public async Task StartAsync(double when = 0, double? offset = null, double? duration = null)
     {
