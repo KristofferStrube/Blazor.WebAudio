@@ -1,5 +1,5 @@
-﻿using System.Text.Json.Serialization;
-using KristofferStrube.Blazor.WebIDL.Exceptions;
+﻿using KristofferStrube.Blazor.WebIDL.Exceptions;
+using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.WebAudio;
 

@@ -20,7 +20,7 @@ public static class OscillatorTypeExtensions
             OscillatorType.Sawtooth => "sawtooth",
             OscillatorType.Triangle => "triangle",
             OscillatorType.Custom => "custom",
-            _ => throw new ArgumentException($"Value '{type}' was not a valid OscillatorType.")
+            _ => throw new ArgumentException($"Value '{type}' was not a valid {nameof(OscillatorType)}.")
         };
     }
 }
