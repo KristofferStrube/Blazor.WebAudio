@@ -1,4 +1,6 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebAudio.Converters;
+using Microsoft.JSInterop;
+using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -9,6 +11,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// For longer sounds, such as music soundtracks, streaming should be used with the audio element and <see cref="MediaElementAudioSourceNode"/>.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioBuffer">See the API definition here</see>.</remarks>
+[JsonConverter(typeof(IJSWrapperConverter<AudioBuffer>))]
 public class AudioBuffer : BaseJSWrapper
 {
     /// <summary>

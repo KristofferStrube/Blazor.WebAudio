@@ -22,6 +22,18 @@ export function constructAnalyzerNode(context, options = null) {
     return new AnalyserNode(context, options);
 }
 
+export function constructOfflineAudioContext(contextOptions) {
+    return new OfflineAudioContext(contextOptions)
+}
+
+export function constructOfflineAudioContextWithThreeParameters(numberOfChannels, length, sampleRate) {
+    return new OfflineAudioContext(numberOfChannels, length, sampleRate)
+}
+
+export function constructOfflineAudioCompletionEvent(type, eventInitDict) {
+    return new OfflineAudioCompletionEvent(type, eventInitDict)
+}
+
 export async function decodeAudioData(audioContext, audioData, successCallbackObjRef, errorCallbackObjRef) {
     let successCallback = successCallbackObjRef == null ? null : async (decodedData) => await successCallbackObjRef.invokeMethodAsync('Invoke', DotNet.createJSObjectReference(decodedData));
     let errorCallback = errorCallbackObjRef == null ? null : async (error) => await errorCallbackObjRef.invokeMethodAsync('Invoke', DOMExceptionInformation(error));
