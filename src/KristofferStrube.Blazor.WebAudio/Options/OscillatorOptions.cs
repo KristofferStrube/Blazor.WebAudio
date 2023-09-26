@@ -1,4 +1,5 @@
 ﻿using KristofferStrube.Blazor.WebIDL.Exceptions;
+using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -15,21 +16,26 @@ public class OscillatorOptions : AudioNodeOptions
     /// <remarks>
     /// It throws an <see cref="InvalidStateErrorException"/> if this is set to <see cref="OscillatorType.Custom"/> without a <see cref="PeriodicWave"/> being provided.
     /// </remarks>
+    [JsonPropertyName("type")]
     public OscillatorType Type { get; set; } = OscillatorType.Sine;
 
     /// <summary>
     /// The initial frequency for the <see cref="OscillatorNode"/>.
     /// </summary>
+    [JsonPropertyName("frequency")]
     public float Frequency { get; set; } = 440;
 
     /// <summary>
     /// The initial detune value for the <see cref="OscillatorNode"/>.
     /// </summary>
+    [JsonPropertyName("detune")]
     public float Detune { get; set; } = 0;
 
     /// <summary>
     /// The PeriodicWave for the <see cref="OscillatorNode"/>.
     /// If this is specified, then any valid value for <see cref="Type"/> is ignored; it is treated as if <see cref="OscillatorType.Custom"/> were specified.
     /// </summary>
+    [JsonPropertyName("periodicWave")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public PeriodicWave? PeriodicWave { get; set; }
 }

@@ -1,9 +1,13 @@
-﻿namespace KristofferStrube.Blazor.WebAudio;
+﻿using KristofferStrube.Blazor.WebAudio.Converters;
+using System.Text.Json.Serialization;
+
+namespace KristofferStrube.Blazor.WebAudio;
 
 /// <summary>
 /// Changing the gain of an audio signal is a fundamental operation in audio applications. This interface is an <see cref="AudioNode"/> with a single input and single output.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#enumdef-oscillatortype">See the API definition here</see>.</remarks>
+[JsonConverter(typeof(OscillatorTypeConverter))]
 public enum OscillatorType
 {
     /// <summary>
@@ -26,20 +30,4 @@ public enum OscillatorType
     /// A custom periodic wave
     /// </summary>
     Custom
-}
-
-internal static class OscillatorTypeExtensions
-{
-    public static string AsString(this OscillatorType type)
-    {
-        return type switch
-        {
-            OscillatorType.Sine => "sine",
-            OscillatorType.Square => "square",
-            OscillatorType.Sawtooth => "sawtooth",
-            OscillatorType.Triangle => "triangle",
-            OscillatorType.Custom => "custom",
-            _ => throw new ArgumentException($"Value '{type}' was not a valid {nameof(OscillatorType)}.")
-        };
-    }
 }

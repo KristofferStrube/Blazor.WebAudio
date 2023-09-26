@@ -1,9 +1,12 @@
-﻿using KristofferStrube.Blazor.WebAudio.Extensions;
+﻿using KristofferStrube.Blazor.WebAudio.Converters;
+using KristofferStrube.Blazor.WebAudio.Extensions;
 using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
+using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
+[JsonConverter(typeof(IJSWrapperConverter<BaseJSWrapper>))]
 public abstract class BaseJSWrapper : IJSWrapper, IAsyncDisposable
 {
     protected readonly Lazy<Task<IJSObjectReference>> helperTask;
