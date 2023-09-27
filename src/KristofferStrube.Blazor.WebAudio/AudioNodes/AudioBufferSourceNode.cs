@@ -1,4 +1,6 @@
-﻿using KristofferStrube.Blazor.WebIDL.Exceptions;
+﻿using KristofferStrube.Blazor.WebAudio.Extensions;
+using KristofferStrube.Blazor.WebAudio.Options;
+using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
@@ -12,20 +14,32 @@ namespace KristofferStrube.Blazor.WebAudio;
 public class AudioBufferSourceNode : AudioScheduledSourceNode
 {
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="AudioBufferSourceNode"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioBufferSourceNode"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="AudioBufferSourceNode"/>.</param>
-    /// <returns>A wrapper instance for a <see cref="AudioBufferSourceNode"/>.</returns>
+    /// <returns>A wrapper instance for an <see cref="AudioBufferSourceNode"/>.</returns>
     public static new Task<AudioBufferSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new AudioBufferSourceNode(jSRuntime, jSReference));
     }
 
-    //public static async Task<AudioBufferSourceNode> CreateAsync(BaseAudioContext context, AudioBufferSourceOptions? options = null)
+    /// <summary>
+    /// Creates an <see cref="AudioBufferSourceNode"/> using the standard constructor.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="AudioBufferSourceNode"/> will be associated with.</param>
+    /// <param name="options">Optional initial parameter value for this <see cref="AudioBufferSourceNode"/>.</param>
+    /// <returns></returns>
+    public static async Task<AudioBufferSourceNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, AudioBufferSourceOptions? options = null)
+    {
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructAudioBufferSourceNode", context, options);
+        return new(jSRuntime, jSInstance);
+    }
 
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="AudioBufferSourceNode"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioBufferSourceNode"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="AudioBufferSourceNode"/>.</param>
@@ -36,7 +50,7 @@ public class AudioBufferSourceNode : AudioScheduledSourceNode
     /// <summary>
     /// Represents the audio asset to be played.
     /// </summary>
-    /// <returns>A <see cref="AudioBuffer"/></returns>
+    /// <returns>An <see cref="AudioBuffer"/></returns>
     public async Task<AudioBuffer?> GetBufferAsync()
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
@@ -58,14 +72,38 @@ public class AudioBufferSourceNode : AudioScheduledSourceNode
         await helper.InvokeVoidAsync("setAttribute", JSReference, "buffer", value?.JSReference);
     }
 
-    public Task<AudioParam> GetPlaybackRateAsync()
+    /// <summary>
+    /// The speed at which to render the audio stream.
+    /// This is a compound parameter with <see cref="GetDetuneAsync"/> to form a computed playback rate.
+    /// </summary>
+    /// <remarks>
+    /// Default value: <c>1</c><br />
+    /// Min value: <see cref="float.MinValue"/><br />
+    /// Max value: <see cref="float.MaxValue"/><br />
+    /// Automation rate: <see cref="AutomationRate.KRate"/>
+    /// </remarks>
+    public async Task<AudioParam> GetPlaybackRateAsync()
     {
-        return default!;
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference jSIntance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "playbackRate");
+        return await AudioParam.CreateAsync(JSRuntime, jSIntance);
     }
 
-    public Task<AudioParam> GetDetuneAsync()
+    /// <summary>
+    /// An additional parameter, in cents, to modulate the speed at which is rendered the audio stream.
+    /// This parameter is a compound parameter with <see cref="GetPlaybackRateAsync"/> to form a computed playback rate.
+    /// </summary>
+    /// <remarks>
+    /// Default value: <c>0</c><br />
+    /// Min value: <see cref="float.MinValue"/><br />
+    /// Max value: <see cref="float.MaxValue"/><br />
+    /// Automation rate: <see cref="AutomationRate.KRate"/>
+    /// </remarks>
+    public async Task<AudioParam> GetDetuneAsync()
     {
-        return default!;
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference jSIntance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "detune");
+        return await AudioParam.CreateAsync(JSRuntime, jSIntance);
     }
 
     /// <summary>

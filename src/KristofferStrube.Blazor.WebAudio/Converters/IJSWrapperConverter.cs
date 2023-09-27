@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.WebAudio.Converters;
 
-public class IJSWrapperConverter<TWrapper> : JsonConverter<TWrapper> where TWrapper : IJSWrapper
+internal class IJSWrapperConverter<TWrapper> : JsonConverter<TWrapper> where TWrapper : IJSWrapper
 {
     public override TWrapper Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

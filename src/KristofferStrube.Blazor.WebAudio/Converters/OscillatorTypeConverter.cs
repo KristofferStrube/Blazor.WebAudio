@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.WebAudio.Converters;
 
-public class OscillatorTypeConverter : JsonConverter<OscillatorType>
+internal class OscillatorTypeConverter : JsonConverter<OscillatorType>
 {
     public override OscillatorType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

@@ -17,18 +17,18 @@ namespace KristofferStrube.Blazor.WebAudio;
 public class IIRFilterNode : AudioNode
 {
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="IIRFilterNode"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="IIRFilterNode"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="IIRFilterNode"/>.</param>
-    /// <returns>A wrapper instance for a <see cref="IIRFilterNode"/>.</returns>
+    /// <returns>A wrapper instance for an <see cref="IIRFilterNode"/>.</returns>
     public static new Task<IIRFilterNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new IIRFilterNode(jSRuntime, jSReference));
     }
 
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="IIRFilterNode"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="IIRFilterNode"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="IIRFilterNode"/>.</param>

@@ -6,12 +6,21 @@ using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
+/// <summary>
+/// Base class for wrapping objects in the Blazor.WebAudio library.
+/// </summary>
 [JsonConverter(typeof(IJSWrapperConverter<BaseJSWrapper>))]
 public abstract class BaseJSWrapper : IJSWrapper, IAsyncDisposable
 {
+    /// <summary>
+    /// A lazily evaluated task that gives access to helper methods.
+    /// </summary>
     protected readonly Lazy<Task<IJSObjectReference>> helperTask;
 
+    /// <inheritdoc/>
     public IJSRuntime JSRuntime { get; }
+
+    /// <inheritdoc/>
     public IJSObjectReference JSReference { get; }
 
     /// <summary>
@@ -26,6 +35,10 @@ public abstract class BaseJSWrapper : IJSWrapper, IAsyncDisposable
         JSRuntime = jSRuntime;
     }
 
+    /// <summary>
+    /// Disposes the underlying js object reference.
+    /// </summary>
+    /// <returns></returns>
     public async ValueTask DisposeAsync()
     {
         if (helperTask.IsValueCreated)

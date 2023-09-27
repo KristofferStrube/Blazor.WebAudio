@@ -10,11 +10,11 @@ namespace KristofferStrube.Blazor.WebAudio;
 public class OscillatorNode : AudioScheduledSourceNode
 {
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="OscillatorNode"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="OscillatorNode"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="OscillatorNode"/>.</param>
-    /// <returns>A wrapper instance for a <see cref="OscillatorNode"/>.</returns>
+    /// <returns>A wrapper instance for an <see cref="OscillatorNode"/>.</returns>
     public static new Task<OscillatorNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new OscillatorNode(jSRuntime, jSReference));
@@ -26,7 +26,7 @@ public class OscillatorNode : AudioScheduledSourceNode
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="OscillatorNode"/> will be associated with.</param>
     /// <param name="options">Optional initial parameter value for this <see cref="OscillatorNode"/>.</param>
-    /// <returns>A new instance of a <see cref="OscillatorNode"/>.</returns>
+    /// <returns>A new instance of an <see cref="OscillatorNode"/>.</returns>
     public static async Task<OscillatorNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, OscillatorOptions? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
@@ -35,7 +35,7 @@ public class OscillatorNode : AudioScheduledSourceNode
     }
 
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="OscillatorNode"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="OscillatorNode"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="OscillatorNode"/>.</param>

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.WebAudio.Converters;
 
-public class ChannelInterpretationConverter : JsonConverter<ChannelInterpretation>
+internal class ChannelInterpretationConverter : JsonConverter<ChannelInterpretation>
 {
     public override ChannelInterpretation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

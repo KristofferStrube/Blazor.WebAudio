@@ -155,7 +155,7 @@ public class BaseAudioContext : EventTarget
     /// Factory method for a <see cref="ChannelMergerNode"/> representing a channel merger.
     /// </summary>
     /// <remarks>
-    /// It will throw a <see cref="IndexSizeErrorException"/> if <paramref name="numberOfInputs"/> is less than 1 or is greater than the number of supported channels.
+    /// It will throw an <see cref="IndexSizeErrorException"/> if <paramref name="numberOfInputs"/> is less than 1 or is greater than the number of supported channels.
     /// </remarks>
     /// <exception cref="IndexSizeErrorException"></exception>
     /// <returns>A <see cref="ChannelMergerNode"/>.</returns>
@@ -169,7 +169,7 @@ public class BaseAudioContext : EventTarget
     /// Factory method for a <see cref="ChannelSplitterNode"/> representing a channel splitter.
     /// </summary>
     /// <remarks>
-    /// It will throw a <see cref="IndexSizeErrorException"/> if <paramref name="numberOfOutputs"/> is less than 1 or is greater than the number of supported channels.
+    /// It will throw an <see cref="IndexSizeErrorException"/> if <paramref name="numberOfOutputs"/> is less than 1 or is greater than the number of supported channels.
     /// </remarks>
     /// <exception cref="IndexSizeErrorException"></exception>
     /// <returns>A <see cref="ChannelSplitterNode"/>.</returns>

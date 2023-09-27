@@ -34,6 +34,14 @@ export function constructOfflineAudioCompletionEvent(type, eventInitDict) {
     return new OfflineAudioCompletionEvent(type, eventInitDict)
 }
 
+export function constructAudioBufferSourceNode(context, options) {
+    return new AudioBufferSourceNode(context, options);
+}
+
+export function constructAudioBuffer(options) {
+    return new AudioBuffer(options);
+}
+
 export async function decodeAudioData(audioContext, audioData, successCallbackObjRef, errorCallbackObjRef) {
     let successCallback = successCallbackObjRef == null ? null : async (decodedData) => await successCallbackObjRef.invokeMethodAsync('Invoke', DotNet.createJSObjectReference(decodedData));
     let errorCallback = errorCallbackObjRef == null ? null : async (error) => await errorCallbackObjRef.invokeMethodAsync('Invoke', DOMExceptionInformation(error));

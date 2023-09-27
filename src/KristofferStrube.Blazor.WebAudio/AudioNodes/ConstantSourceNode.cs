@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebAudio.Options;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -21,12 +22,29 @@ public class ConstantSourceNode : AudioScheduledSourceNode
         return Task.FromResult(new ConstantSourceNode(jSRuntime, jSReference));
     }
 
-    private ConstantSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of a <see cref="ConstantSourceNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="ConstantSourceNode"/>.</param>
+    protected ConstantSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
     {
     }
 
+    /// <summary>
+    /// The constant value of the source.
+    /// </summary>
+    /// <remarks>
+    /// Default value: <c>1</c><br />
+    /// Min value: <see cref="float.MinValue"/><br />
+    /// Max value: <see cref="float.MaxValue"/><br />
+    /// Automation rate: <see cref="AutomationRate.ARate"/>
+    /// </remarks>
+    /// <returns>An new <see cref="AudioParam"/>.</returns>
     public async Task<AudioParam> GetOffsetAsync()
     {
-        return default!;
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "offset");
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
     }
 }

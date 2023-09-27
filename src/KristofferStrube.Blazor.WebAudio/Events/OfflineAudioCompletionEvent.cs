@@ -17,11 +17,11 @@ public class OfflineAudioCompletionEvent : Event, IJSCreatable<OfflineAudioCompl
     protected readonly Lazy<Task<IJSObjectReference>> webAudioHelperTask;
 
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="OfflineAudioCompletionEvent"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="OfflineAudioCompletionEvent"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="OfflineAudioCompletionEvent"/>.</param>
-    /// <returns>A wrapper instance for a <see cref="OfflineAudioCompletionEvent"/>.</returns>
+    /// <returns>A wrapper instance for an <see cref="OfflineAudioCompletionEvent"/>.</returns>
     public static new Task<OfflineAudioCompletionEvent> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new OfflineAudioCompletionEvent(jSRuntime, jSReference));
@@ -43,7 +43,7 @@ public class OfflineAudioCompletionEvent : Event, IJSCreatable<OfflineAudioCompl
     }
 
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="OfflineAudioCompletionEvent"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="OfflineAudioCompletionEvent"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="OfflineAudioCompletionEvent"/>.</param>

@@ -21,11 +21,11 @@ public class OfflineAudioContext : BaseAudioContext
     protected IJSObjectReference ErrorHandlingJSReference { get; set; }
 
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="OfflineAudioContext"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="OfflineAudioContext"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="OfflineAudioContext"/>.</param>
-    /// <returns>A wrapper instance for a <see cref="OfflineAudioContext"/>.</returns>
+    /// <returns>A wrapper instance for an <see cref="OfflineAudioContext"/>.</returns>
     public static new Task<OfflineAudioContext> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new OfflineAudioContext(jSRuntime, jSReference));
@@ -72,7 +72,7 @@ public class OfflineAudioContext : BaseAudioContext
     }
 
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="OfflineAudioContext"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="OfflineAudioContext"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="OfflineAudioContext"/>.</param>

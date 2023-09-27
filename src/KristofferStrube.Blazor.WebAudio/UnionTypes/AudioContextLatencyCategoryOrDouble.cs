@@ -8,13 +8,13 @@ namespace KristofferStrube.Blazor.WebAudio;
 public class AudioContextLatencyCategoryOrDouble : UnionType
 {
     /// <summary>
-    /// Creates a <see cref="AudioContextLatencyCategoryOrDouble"/> from a <see cref="AudioContextLatencyCategory"/> explicitly instead of using the implicit converter.
+    /// Creates an <see cref="AudioContextLatencyCategoryOrDouble"/> from an <see cref="AudioContextLatencyCategory"/> explicitly instead of using the implicit converter.
     /// </summary>
     /// <param name="value">A <see cref="AudioContextLatencyCategory"/>.</param>
     public AudioContextLatencyCategoryOrDouble(AudioContextLatencyCategory value) : base(value) { }
 
     /// <summary>
-    /// Creates a <see cref="AudioContextLatencyCategoryOrDouble"/> from a <see cref="double"/> explicitly instead of using the implicit converter.
+    /// Creates an <see cref="AudioContextLatencyCategoryOrDouble"/> from a <see cref="double"/> explicitly instead of using the implicit converter.
     /// </summary>
     /// <param name="value">A <see cref="double"/>.</param>
     public AudioContextLatencyCategoryOrDouble(double value) : base(value) { }
@@ -22,16 +22,16 @@ public class AudioContextLatencyCategoryOrDouble : UnionType
     internal AudioContextLatencyCategoryOrDouble(object value) : base(value) { }
 
     /// <summary>
-    /// Creates a <see cref="AudioContextLatencyCategoryOrDouble"/> from a <see cref="AudioContextLatencyCategory"/>.
+    /// Creates an <see cref="AudioContextLatencyCategoryOrDouble"/> from an <see cref="AudioContextLatencyCategory"/>.
     /// </summary>
-    /// <param name="value">A <see cref="AudioContextLatencyCategory"/>.</param>
+    /// <param name="value">An <see cref="AudioContextLatencyCategory"/>.</param>
     public static implicit operator AudioContextLatencyCategoryOrDouble(AudioContextLatencyCategory value)
     {
         return new(value);
     }
 
     /// <summary>
-    /// Creates a <see cref="AudioContextLatencyCategoryOrDouble"/> from a <see cref="double"/>.
+    /// Creates an <see cref="AudioContextLatencyCategoryOrDouble"/> from a <see cref="double"/>.
     /// </summary>
     /// <param name="value">A <see cref="double"/>.</param>
     public static implicit operator AudioContextLatencyCategoryOrDouble(double value)

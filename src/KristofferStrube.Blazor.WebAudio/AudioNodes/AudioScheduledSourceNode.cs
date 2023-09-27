@@ -12,7 +12,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 public class AudioScheduledSourceNode : AudioNode
 {
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="AudioScheduledSourceNode"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioScheduledSourceNode"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="AudioScheduledSourceNode"/>.</param>

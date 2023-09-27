@@ -3,7 +3,7 @@
 namespace KristofferStrube.Blazor.WebAudio;
 
 /// <summary>
-/// This specifies options for constructing a <see cref="AudioBufferSourceNode"/>.
+/// This specifies options for constructing an <see cref="AudioBufferSourceNode"/>.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioBufferSourceOptions">See the API definition here</see>.</remarks>
 public class AudioBufferSourceOptions

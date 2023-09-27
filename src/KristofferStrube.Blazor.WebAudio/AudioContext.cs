@@ -18,7 +18,7 @@ public class AudioContext : BaseAudioContext
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="contextOptions">User-specified options controlling how the <see cref="AudioContext"/> should be constructed.</param>
-    /// <returns>A new instance of a <see cref="AudioContext"/>.</returns>
+    /// <returns>A new instance of an <see cref="AudioContext"/>.</returns>
     public static async Task<AudioContext> CreateAsync(IJSRuntime jSRuntime, AudioContextOptions? contextOptions = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
@@ -27,7 +27,7 @@ public class AudioContext : BaseAudioContext
     }
 
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="AudioContext"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioContext"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="AudioContext"/>.</param>

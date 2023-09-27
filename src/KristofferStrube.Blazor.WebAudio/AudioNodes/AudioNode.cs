@@ -23,18 +23,18 @@ public class AudioNode : EventTarget
     protected readonly Lazy<Task<IJSObjectReference>> webAudioHelperTask;
 
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="AudioNode"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioNode"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="AudioNode"/>.</param>
-    /// <returns>A wrapper instance for a <see cref="AudioNode"/>.</returns>
+    /// <returns>A wrapper instance for an <see cref="AudioNode"/>.</returns>
     public static new Task<AudioNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new AudioNode(jSRuntime, jSReference));
     }
 
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="AudioNode"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioNode"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="AudioNode"/>.</param>
@@ -81,6 +81,18 @@ public class AudioNode : EventTarget
     public async Task ConnectAsync(AudioParam destinationParam, ulong output = 0)
     {
         await JSReference.InvokeVoidAsync("connect", destinationParam.JSReference, output);
+    }
+
+    /// <summary>
+    /// channelCount is the number of channels used when up-mixing and down-mixing connections to any inputs to the node.
+    /// The default value is 2 except for specific nodes where its value is specially determined.
+    /// This attribute has no effect for nodes with no inputs.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<ulong> GetChannelCountAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "channelCount");
     }
 
     /// <summary>

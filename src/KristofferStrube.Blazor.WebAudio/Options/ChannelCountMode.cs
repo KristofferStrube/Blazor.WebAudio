@@ -10,7 +10,18 @@ namespace KristofferStrube.Blazor.WebAudio;
 [JsonConverter(typeof(ChannelCountModeConverter))]
 public enum ChannelCountMode
 {
+    /// <summary>
+    /// The computed number of channels is the maximum of the number of channels of all connections to an input. In this mode <see cref="AudioNode.GetChannelCountAsync"/> is ignored.
+    /// </summary>
     Max,
+
+    /// <summary>
+    /// The computed number of channels is determined as for <see cref="Max"/> and then clamped to a maximum value of <see cref="AudioNode.GetChannelCountAsync"/>.
+    /// </summary>
     ClampedMax,
+
+    /// <summary>
+    /// The computed number of channels is the exact value as specified by <see cref="AudioNode.GetChannelCountAsync"/>.
+    /// </summary>
     Explicit
 }

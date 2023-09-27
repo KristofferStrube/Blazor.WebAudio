@@ -9,18 +9,18 @@ namespace KristofferStrube.Blazor.WebAudio;
 public class AudioListener : BaseJSWrapper
 {
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="AudioListener"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioListener"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="AudioListener"/>.</param>
-    /// <returns>A wrapper instance for a <see cref="AudioListener"/>.</returns>
+    /// <returns>A wrapper instance for an <see cref="AudioListener"/>.</returns>
     public static Task<AudioListener> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new AudioListener(jSRuntime, jSReference));
     }
 
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="AudioListener"/>.
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioListener"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="AudioListener"/>.</param>
