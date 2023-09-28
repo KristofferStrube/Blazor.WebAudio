@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace KristofferStrube.Blazor.WebAudio.Options;
+namespace KristofferStrube.Blazor.WebAudio;
 
 /// <summary>
 /// This specifies the options to use in constructing an <see cref="OfflineAudioContext"/>.

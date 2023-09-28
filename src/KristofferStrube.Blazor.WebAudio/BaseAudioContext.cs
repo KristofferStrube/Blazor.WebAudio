@@ -142,6 +142,19 @@ public class BaseAudioContext : EventTarget
     }
 
     /// <summary>
+    /// Factory method for an <see cref="AudioBuffer"/>.
+    /// </summary>
+    /// <param name="numberOfChannels">Determines how many channels the buffer will have. An implementation will support at least 32 channels.</param>
+    /// <param name="length">Determines the size of the buffer in sample-frames. This must be at least 1.</param>
+    /// <param name="sampleRate">Describes the sample-rate of the linear PCM audio data in the buffer in sample-frames per second. An implementation will support sample rates in at least the range <c>8000</c> to <c>96000</c>.</param>
+    /// <returns>An <see cref="AudioBuffer"/>.</returns>
+    public async Task<AudioBuffer> CreateBufferAsync(ulong numberOfChannels, ulong length, float sampleRate)
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createBuffer", numberOfChannels, length, sampleRate);
+        return await AudioBuffer.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
     /// Factory method for an <see cref="AudioBufferSourceNode"/>.
     /// </summary>
     /// <returns>An <see cref="AudioBufferSourceNode"/>.</returns>

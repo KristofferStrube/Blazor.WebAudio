@@ -1,0 +1,45 @@
+﻿@using System.Globalization;
+<label for=@inputId>@Label</label>
+<input @bind-value=value
+       @bind-value:event="oninput"
+       @bind-value:after=AudioParamUpdatedAsync
+       id=@inputId
+       type="range"
+       min="@Min"
+       max="@Max"
+       step="@(StepSize.ToString(CultureInfo.InvariantCulture))"
+       style="width:min(200px, 100%);"/>
+<span class="badge bg-primary">@value</span>
+
+@code {
+    private string inputId = $"audioParam_{Guid.NewGuid()}"[..9];
+    private float value = 0;
+
+    [Parameter, EditorRequired]
+    public required AudioParam AudioParam { get; set; }
+
+    [Parameter, EditorRequired]
+    public required string Label { get; set; }
+
+    [Parameter,]
+    public float Min { get; set; } = 0;
+
+    [Parameter]
+    public float Max { get; set; } = 100;
+
+    [Parameter]
+    public float StepSize { get; set; } = 0.01f;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        if (AudioParam is null) return;
+        value = await AudioParam.GetValueAsync();
+    }
+
+    public async Task AudioParamUpdatedAsync()
+    {
+        if (AudioParam is null) return;
+        await AudioParam.SetValueAsync(value);
+    }
+}

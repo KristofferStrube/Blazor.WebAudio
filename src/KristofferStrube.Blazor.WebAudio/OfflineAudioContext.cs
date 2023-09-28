@@ -1,7 +1,6 @@
 ﻿using KristofferStrube.Blazor.DOM;
 using KristofferStrube.Blazor.WebAudio.Events;
 using KristofferStrube.Blazor.WebAudio.Extensions;
-using KristofferStrube.Blazor.WebAudio.Options;
 using KristofferStrube.Blazor.WebIDL;
 using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
@@ -45,7 +44,7 @@ public class OfflineAudioContext : BaseAudioContext
     public static async Task<OfflineAudioContext> CreateAsync(IJSRuntime jSRuntime, OfflineAudioContextOptions contextOptions)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        ErrorHandlingJSObjectReference errorHandlingHelper = new (jSRuntime, helper);
+        ErrorHandlingJSObjectReference errorHandlingHelper = new(jSRuntime, helper);
         IJSObjectReference jSInstance = await errorHandlingHelper.InvokeAsync<IJSObjectReference>("constructOfflineAudioContext", contextOptions);
         return new OfflineAudioContext(jSRuntime, jSInstance);
     }

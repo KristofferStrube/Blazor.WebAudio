@@ -1,0 +1,159 @@
+﻿@page "/ApplyFilter"
+@using KristofferStrube.Blazor.DOM
+@using KristofferStrube.Blazor.MediaCaptureStreams;
+@using KristofferStrube.Blazor.WebIDL;
+@using KristofferStrube.Blazor.WebIDL.Exceptions;
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+@inject IMediaDevicesService MediaDevicesService
+<PageTitle>WebAudio - Apply Filter</PageTitle>
+<h2>Apply Filter</h2>
+
+<p>
+    On this page we first chain a <code>MediaStreamAudioSourceNode</code> through a <code>DelayNode</code> of 1 second and a <code>Highpass</code> <code>BiquadFilterNode</code> before connecting to the <code>AudioDestinationNode</code> of the <code>AudioContext</code> to output an echo.
+</p>
+<p>
+    After this we can see a frequency diagram that shows the <u style="color:blue">original media stream</u> and the <u style="color:red">filtered media stream</u>. You can also change the frequency cut off with a slider to see how it influences the filtered sound.
+</p>
+
+
+@if (error is { } errorMessage)
+{
+    <p style="color: red;">@errorMessage</p>
+}
+else if (mediaStreamAudioSourceNode is null)
+{
+    <button class="btn btn-primary" @onclick="OpenAudio">Load Audio</button>
+}
+else
+{
+    <DoublePlot Data1="filteredFrequencies" Data2="frequencies" />
+
+    @if (BiquadFrecuencyParam is not null)
+    {
+        <AudioParamSlider AudioParam=BiquadFrecuencyParam Label="Frequency Cut Off" Min="0" Max="3000" StepSize="1" /><br />
+    }
+
+    @if (audioOptions.Count > 0)
+    {
+        <label for="audioSource">Audio Source</label>
+        <select id="audioSource" @bind=selectedAudioSource @bind:after="OpenAudio">
+            @foreach (var option in audioOptions)
+            {
+                <option value="@option.id" selected="@(option.id == selectedAudioSource)">@option.label</option>
+            }
+        </select>
+    }
+}
+
+@code {
+    AudioContext audioContext = default!;
+    string? error;
+    bool stopped;
+
+    private byte[] filteredFrequencies = Array.Empty<byte>();
+    private byte[] frequencies = Array.Empty<byte>();
+
+    bool recorded;
+
+    MediaDevices? mediaDevices;
+    MediaStreamAudioSourceNode? mediaStreamAudioSourceNode;
+    List<(string label, string id)> audioOptions = new();
+    string? selectedAudioSource;
+
+    AudioParam? BiquadFrecuencyParam;
+
+    async Task OpenAudio()
+    {
+        await StopAudioTrack();
+
+        try
+        {
+            if (audioContext is null)
+            {
+                audioContext = await AudioContext.CreateAsync(JSRuntime);
+            }
+            if (mediaDevices is null)
+            {
+                mediaDevices = await MediaDevicesService.GetMediaDevicesAsync();
+            }
+
+            MediaTrackConstraints mediaTrackConstraints = new MediaTrackConstraints
+                {
+                    EchoCancellation = true,
+                    NoiseSuppression = true,
+                    AutoGainControl = false,
+                    DeviceId = selectedAudioSource is null ? null : new ConstrainDomString(selectedAudioSource)
+                };
+            MediaStream mediaStream = await mediaDevices.GetUserMediaAsync(new MediaStreamConstraints() { Audio = mediaTrackConstraints });
+
+            var deviceInfos = await mediaDevices.EnumerateDevicesAsync();
+            audioOptions.Clear();
+            foreach (var device in deviceInfos)
+            {
+                if (await device.GetKindAsync() is MediaDeviceKind.AudioInput)
+                {
+                    audioOptions.Add((await device.GetLabelAsync(), await device.GetDeviceIdAsync()));
+                }
+            }
+
+            mediaStreamAudioSourceNode = await audioContext.CreateMediaStreamSourceAsync(mediaStream);
+
+            BiquadFilterOptions options = new()
+            {
+                Type = BiquadFilterType.Highpass,
+                Frequency = 350
+            };
+
+            var destination = await audioContext.GetDestinationAsync();
+            var delayNode = await DelayNode.CreateAsync(JSRuntime, audioContext, new() { DelayTime = 1, MaxDelayTime = 1 });
+            var filterNode = await BiquadFilterNode.CreateAsync(JSRuntime, audioContext, options);
+            var filteredAnalyserNode = await audioContext.CreateAnalyserAsync();
+            var analyserNode = await audioContext.CreateAnalyserAsync();
+
+            BiquadFrecuencyParam = await filterNode.GetFrequencyAsync();
+
+            await mediaStreamAudioSourceNode.ConnectAsync(delayNode);
+            await delayNode.ConnectAsync(filterNode);
+            await delayNode.ConnectAsync(analyserNode);
+            await filterNode.ConnectAsync(destination);
+            await filterNode.ConnectAsync(filteredAnalyserNode);
+
+            await Task.Delay(500);
+
+            int bufferLength = (int)await analyserNode.GetFrequencyBinCountAsync();
+            var dataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+
+            int filteredBufferLength = (int)await filteredAnalyserNode.GetFrequencyBinCountAsync();
+            var filteredDataArray = await Uint8Array.CreateAsync(JSRuntime, filteredBufferLength);
+
+            stopped = false;
+            while (!stopped)
+            {
+                await analyserNode.GetByteFrequencyDataAsync(dataArray);
+                await filteredAnalyserNode.GetByteFrequencyDataAsync(filteredDataArray);
+
+                frequencies = await dataArray.GetByteArrayAsync();
+                filteredFrequencies = await filteredDataArray.GetByteArrayAsync();
+                await Task.Delay(1);
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            error = $"{ex.GetType().Name}: {ex.Message}";
+        }
+    }
+
+    async Task StopAudioTrack()
+    {
+        stopped = true;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await StopAudioTrack();
+    }
+}
+
+

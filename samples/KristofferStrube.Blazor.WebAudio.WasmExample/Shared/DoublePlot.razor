@@ -1,0 +1,18 @@
+﻿<svg width="100%" height="30vh" viewBox="0 -5 @Data1.Length 261">
+    @for (int i = 1; i < Data1.Length; i++)
+    {
+        <line x1="@(i-1)" x2="@i" y1="@Data1[i-1]" y2="@Data1[i]" stroke="red" stroke-width="2"></line>
+    }
+    @for (int i = 1; i < Data2.Length; i++)
+    {
+        <line x1="@(i-1)" x2="@i" y1="@Data2[i-1]" y2="@Data2[i]" stroke="blue" stroke-width="2"></line>
+    }
+</svg>
+
+@code {
+    [Parameter]
+    public byte[] Data1 { get; set; } = Array.Empty<byte>();
+
+    [Parameter]
+    public byte[] Data2 { get; set; } = Array.Empty<byte>();
+}

@@ -38,8 +38,16 @@ export function constructAudioBufferSourceNode(context, options) {
     return new AudioBufferSourceNode(context, options);
 }
 
+export function constructBiquadFilterNode(context, options) {
+    return new BiquadFilterNode(context, options);
+}
+
 export function constructAudioBuffer(options) {
     return new AudioBuffer(options);
+}
+
+export function constructDelayNode(context, options) {
+    return new DelayNode(context, options);
 }
 
 export async function decodeAudioData(audioContext, audioData, successCallbackObjRef, errorCallbackObjRef) {

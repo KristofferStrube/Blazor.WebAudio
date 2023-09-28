@@ -1,5 +1,4 @@
-﻿using KristofferStrube.Blazor.WebAudio.Options;
-using KristofferStrube.Blazor.WebIDL.Exceptions;
+﻿using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;

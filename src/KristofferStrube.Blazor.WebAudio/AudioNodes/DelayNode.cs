@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebAudio.Extensions;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -22,6 +23,20 @@ public class DelayNode : AudioNode
     public static new Task<DelayNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new DelayNode(jSRuntime, jSReference));
+    }
+
+    /// <summary>
+    /// Creates an <see cref="DelayNode"/> using the standard constructor.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="DelayNode"/> will be associated with.</param>
+    /// <param name="options">Optional initial parameter value for this <see cref="DelayNode"/>.</param>
+    /// <returns>A new instance of an <see cref="DelayNode"/>.</returns>
+    public static async Task<DelayNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, DelayOptions? options = null)
+    {
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructDelayNode", context.JSReference, options);
+        return new DelayNode(jSRuntime, jSInstance);
     }
 
     /// <summary>

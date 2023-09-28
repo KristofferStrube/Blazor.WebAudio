@@ -1,5 +1,4 @@
-﻿using KristofferStrube.Blazor.WebAudio.Options;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.WebAudio.Converters;
