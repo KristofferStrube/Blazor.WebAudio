@@ -168,7 +168,7 @@ public class BaseAudioContext : EventTarget
     /// Factory method for a <see cref="ChannelMergerNode"/> representing a channel merger.
     /// </summary>
     /// <remarks>
-    /// It will throw an <see cref="IndexSizeErrorException"/> if <paramref name="numberOfInputs"/> is less than 1 or is greater than the number of supported channels.
+    /// It will throw an <see cref="IndexSizeErrorException"/> if <paramref name="numberOfInputs"/> is less than 1 or is greater than the number of supported channels. The browser will support at least 32 channels.
     /// </remarks>
     /// <exception cref="IndexSizeErrorException"></exception>
     /// <returns>A <see cref="ChannelMergerNode"/>.</returns>

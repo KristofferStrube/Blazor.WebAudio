@@ -54,9 +54,8 @@ else
     private byte[] filteredFrequencies = Array.Empty<byte>();
     private byte[] frequencies = Array.Empty<byte>();
 
-    bool recorded;
-
     MediaDevices? mediaDevices;
+    MediaStream? mediaStream;
     MediaStreamAudioSourceNode? mediaStreamAudioSourceNode;
     List<(string label, string id)> audioOptions = new();
     string? selectedAudioSource;
@@ -85,7 +84,7 @@ else
                     AutoGainControl = false,
                     DeviceId = selectedAudioSource is null ? null : new ConstrainDomString(selectedAudioSource)
                 };
-            MediaStream mediaStream = await mediaDevices.GetUserMediaAsync(new MediaStreamConstraints() { Audio = mediaTrackConstraints });
+            mediaStream = await mediaDevices.GetUserMediaAsync(new MediaStreamConstraints() { Audio = mediaTrackConstraints });
 
             var deviceInfos = await mediaDevices.EnumerateDevicesAsync();
             audioOptions.Clear();
@@ -148,6 +147,12 @@ else
     async Task StopAudioTrack()
     {
         stopped = true;
+        if (mediaStream is null) return;
+        var audioTrack = (await mediaStream.GetAudioTracksAsync()).FirstOrDefault();
+        if (audioTrack is not null)
+        {
+            await audioTrack.StopAsync();
+        }
     }
 
     public async ValueTask DisposeAsync()

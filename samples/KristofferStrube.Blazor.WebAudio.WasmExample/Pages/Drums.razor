@@ -1,0 +1,101 @@
+﻿@page "/Drums"
+@using KristofferStrube.Blazor.DOM
+@using KristofferStrube.Blazor.WebIDL;
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+<PageTitle>WebAudio - Drums</PageTitle>
+<h2>Drums</h2>
+
+<p>Different drums are essentially just a combination of different enharmonic modes each with different frequencies, amplitudes, and decay times + some noice from the kick.</p>
+
+<p>
+    Here we have a button that we can use to make a Bass Drum kick. An approximation of it is <code>OscillatorNode</code>s with the frequencies 50, 86, 136, 182, 225, 273 each with the same decay time (0.2 seconds) but with decreasing amplitude the higher the frequency gets.<br />
+    <small class="text-muted">I still havn't added the noise from the kick as I'm still figuring out how to do that in the simplest way.</small>
+</p>
+
+<buttton class="btn btn-primary btn-lg" @onclick=PlaySound>🥁</buttton>
+
+@code {
+    static readonly float[] bassDrumFrecuencies = new float[] { 50, 118, 86, 93, 136, 182, 225, 273 };
+
+    AudioContext? context;
+    OscillatorNode[]? oscillatorNodes;
+    AudioBufferSourceNode? noiseNode;
+    ChannelMergerNode? channelMergerNode;
+    ChannelSplitterNode? channelSplitterNode;
+    GainNode? gainNode;
+    DynamicsCompressorNode? compressorNode;
+    AudioDestinationNode? destinationNode;
+
+    public async Task PlaySound()
+    {
+        if (context is null || gainNode is null)
+        {
+            // We create our context and all the nodes we need.
+            context = await AudioContext.CreateAsync(JSRuntime);
+            oscillatorNodes = new OscillatorNode[bassDrumFrecuencies.Length];
+            for (int i = 0; i < bassDrumFrecuencies.Length; i++)
+            {
+                OscillatorOptions options = new() { Type = OscillatorType.Sine, Frequency = bassDrumFrecuencies[i] };
+                oscillatorNodes[i] = await OscillatorNode.CreateAsync(JSRuntime, context, options);
+            }
+            channelMergerNode = await context.CreateChannelMergerAsync(numberOfInputs: (ulong)bassDrumFrecuencies.Length);
+            channelSplitterNode = await context.CreateChannelSplitterAsync(numberOfOutputs: 2);
+            gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
+            compressorNode = await context.CreateDynamicsCompressorAsync();
+            destinationNode = await context.GetDestinationAsync();
+
+            // We add a local gain for each of the oscillators and connect them to the merger.
+            for (int i = 0; i < bassDrumFrecuencies.Length; i++)
+            {
+                var oscillatorNode = oscillatorNodes[i];
+                GainNode localModeGain = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 1.0f - (i / (float)bassDrumFrecuencies.Length) });
+                await oscillatorNode.ConnectAsync(localModeGain);
+                await localModeGain.ConnectAsync(channelMergerNode);
+                await oscillatorNode.StartAsync();
+            }
+
+            // We then add some noise to the mix as well simulating the kick when the stick hits the drum.
+            // int bufferSize = (int)await context.GetSampleRateAsync();
+            // AudioBuffer buffer = await context.DecodeAudioDataAsync(Enumerable.Range(0, bufferSize).Select(i => (byte)(i % 2)).ToArray());
+            // noiseNode = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new() { Buffer = buffer });
+            // await noiseNode.ConnectAsync(channelMergerNode);
+
+            // We seperate the merged channels out to stereo channels
+            // and then through a gain node we use to control when the sound is audible before finally normalising the sound.
+            await channelMergerNode.ConnectAsync(channelSplitterNode);
+            await channelSplitterNode.ConnectAsync(gainNode);
+            await gainNode.ConnectAsync(compressorNode);
+            await compressorNode.ConnectAsync(destinationNode);
+        }
+
+        // When the button is clicked we only change the gain of the output.
+        // We start of with getting the current value of the gain and the time.
+        AudioParam gainAudioParam = await gainNode.GetGainAsync();
+        double currentTime = await context.GetCurrentTimeAsync();
+        float currentValue = await gainAudioParam.GetValueAsync();
+        // Then we hold the value that it has right now for 0.05 seconds.
+        await gainAudioParam.CancelAndHoldAtTimeAsync(currentTime);
+        await gainAudioParam.SetValueAtTimeAsync(currentValue, currentTime + 0.05);
+        // And the we ramp up the amplitude to 1 over 0.05 seconds before ramping down to 0 again over 0.2 seconds.
+        await gainAudioParam.LinearRampToValueAtTimeAsync(1, currentTime + 0.1);
+        await gainAudioParam.LinearRampToValueAtTimeAsync(0, currentTime + 0.3);
+    }
+
+    public async Task StopSound()
+    {
+        if (oscillatorNodes is null) return;
+
+        foreach (OscillatorNode oscillatorNode in oscillatorNodes)
+        {
+            await oscillatorNode.StopAsync();
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await StopSound();
+    }
+}
+
+
