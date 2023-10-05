@@ -23,12 +23,7 @@
               fill="@SVGElement.Fill"
               style="filter:brightness(@(SVGElement.Selected ? "0.8" : "1"))">
         </rect>
-        <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, false)) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
-            <circle cx=@((SVGElement.X+SVGElement.Width).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
-
-            </circle>
-        </ContextMenuTrigger>
-        <foreignObject @onpointerdown:stopPropagation=true x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="80" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2">
+        <foreignObject @onpointermove:stopPropagation=!SVGElement.Selected x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="80" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2;pointer-events:@(SVGElement.Selected ? "none" : "inherit");touch-action:@(SVGElement.Selected ? "none" : "inherit");">
             Oscillator
             <br />
             @if (FrequencyAudioParam is not null)
@@ -36,6 +31,11 @@
                 <AudioParamSlider AudioParam="FrequencyAudioParam" Label="Frequency" Min="1" Max="2000" StepSize="1" UpdateCallback="f => SVGElement.Frequency = f" />
             }
         </foreignObject>
+        <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, false)) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
+            <circle cx=@((SVGElement.X+SVGElement.Width).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
+
+            </circle>
+        </ContextMenuTrigger>
     </g>
 </ContextMenuTrigger>
 

@@ -26,6 +26,10 @@ public abstract class Node : Rect, ITaskQueueable
         }
     }
 
+    public new float Width => 250;
+
+    public new float Height => 100;
+
     public abstract Func<AudioContext, Task<AudioNode>> AudioNode { get; }
 
     public HashSet<(Connector connector, ulong port)> IngoingConnectors { get; } = new();

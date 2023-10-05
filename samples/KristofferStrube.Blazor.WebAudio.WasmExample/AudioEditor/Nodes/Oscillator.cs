@@ -56,9 +56,7 @@ public class Oscillator : Node
         {
             Changed = SVG.UpdateInput,
             Stroke = "#28B6F6",
-            StrokeWidth = "2",
-            Height = 100,
-            Width = 250,
+            StrokeWidth = "2"
         };
 
         (node.X, node.Y) = SVG.LocalDetransform(SVG.LastRightClick);

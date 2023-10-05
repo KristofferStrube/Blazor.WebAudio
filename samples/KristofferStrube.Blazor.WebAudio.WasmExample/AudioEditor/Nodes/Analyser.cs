@@ -1,6 +1,5 @@
 ﻿using AngleSharp.Dom;
 using KristofferStrube.Blazor.WebAudio.WasmExample.AudioEditor.NodeEditors;
-using KristofferStrube.Blazor.WebIDL;
 namespace KristofferStrube.Blazor.WebAudio.WasmExample.AudioEditor;
 
 public class Analyser : Node
@@ -32,9 +31,7 @@ public class Analyser : Node
         {
             Changed = SVG.UpdateInput,
             Stroke = "#9CCC66",
-            StrokeWidth = "2",
-            Height = 100,
-            Width = 250,
+            StrokeWidth = "2"
         };
 
         (node.X, node.Y) = SVG.LocalDetransform(SVG.LastRightClick);
