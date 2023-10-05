@@ -24,7 +24,9 @@ public class AudioDestination : Node
         {
             Changed = SVG.UpdateInput,
             Stroke = "#EC407A",
-            StrokeWidth = "2"
+            StrokeWidth = "2",
+            Height = 100,
+            Width = 250,
         };
 
         (node.X, node.Y) = SVG.LocalDetransform(SVG.LastRightClick);

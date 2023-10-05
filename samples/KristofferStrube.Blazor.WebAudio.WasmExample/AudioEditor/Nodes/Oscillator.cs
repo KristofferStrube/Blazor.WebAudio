@@ -56,7 +56,9 @@ public class Oscillator : Node
         {
             Changed = SVG.UpdateInput,
             Stroke = "#28B6F6",
-            StrokeWidth = "2"
+            StrokeWidth = "2",
+            Height = 100,
+            Width = 250,
         };
 
         (node.X, node.Y) = SVG.LocalDetransform(SVG.LastRightClick);
@@ -64,5 +66,13 @@ public class Oscillator : Node
         SVG.ClearSelectedShapes();
         SVG.SelectShape(node);
         SVG.AddElement(node);
+    }
+
+    public override async void BeforeBeingRemoved()
+    {
+        if (audioNode is OscillatorNode { } oscillator)
+        {
+            await oscillator.StopAsync();
+        }
     }
 }

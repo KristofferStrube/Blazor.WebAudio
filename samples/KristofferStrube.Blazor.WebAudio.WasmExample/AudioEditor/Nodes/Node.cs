@@ -26,9 +26,23 @@ public abstract class Node : Rect, ITaskQueueable
         }
     }
 
-    public new float Width => 250;
+    public new float Width
+    {
+        get => 250;
+        set
+        {
+            base.Width = 250;
+        }
+    }
 
-    public new float Height => 100;
+    public new float Height
+    {
+        get => 100;
+        set
+        {
+            base.Height = 100;
+        }
+    }
 
     public abstract Func<AudioContext, Task<AudioNode>> AudioNode { get; }
 
