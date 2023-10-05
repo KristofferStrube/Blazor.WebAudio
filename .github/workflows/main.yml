@@ -20,6 +20,10 @@ jobs:
           with:
             dotnet-version: '8.0.x'
             include-prerelease: true
+            
+        # Added Ahead-Of-Time workload
+        - name: Add AOT Workload
+          run: dotnet workload install wasm-tools
 
         # Generate the website
         - name: Publish
