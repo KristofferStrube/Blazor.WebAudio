@@ -14,8 +14,15 @@
 </div>
 
 @code {
-    string Input = "";
     AudioEditor AudioEditor = default!;
+
+    [Parameter, SupplyParameterFromQuery(Name = "input")]
+    public string? Input { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Input ??= "";
+    }
 
     public async ValueTask DisposeAsync()
     {

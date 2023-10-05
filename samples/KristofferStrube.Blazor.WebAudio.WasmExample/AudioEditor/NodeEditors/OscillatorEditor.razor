@@ -21,7 +21,7 @@
               stroke-dasharray="@SVGElement.StrokeDasharray"
               stroke-dashoffset="@SVGElement.StrokeDashoffset.AsString()"
               fill="@SVGElement.Fill"
-              style="backdrop-filter:brightness(@(SVGElement.Selected ? "0.8" : "1"))">
+              style="filter:brightness(@(SVGElement.Selected ? "0.8" : "1"))">
         </rect>
         <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, false)) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
             <circle cx=@((SVGElement.X+SVGElement.Width).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
@@ -45,11 +45,11 @@
     [CascadingParameter]
     public required AudioContext AudioContext { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await base.OnInitializedAsync();
+        await base.OnAfterRenderAsync(firstRender);
 
-        if (FrequencyAudioParam is null)
+        if (FrequencyAudioParam is null && AudioContext is not null)
         {
             FrequencyAudioParam = await ((OscillatorNode)(await SVGElement.AudioNode(AudioContext))).GetFrequencyAsync();
             StateHasChanged();
