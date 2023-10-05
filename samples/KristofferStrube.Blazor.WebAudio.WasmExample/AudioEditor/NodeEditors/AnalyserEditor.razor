@@ -1,0 +1,82 @@
+﻿@using BlazorContextMenu
+@using KristofferStrube.Blazor.SVGEditor.Extensions
+@using KristofferStrube.Blazor.WebIDL;
+@inherits NodeEditor<Analyser>
+
+<ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@SVGElement MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
+    <g transform="translate(@SVGElement.SVG.Translate.x.AsString() @SVGElement.SVG.Translate.y.AsString()) scale(@SVGElement.SVG.Scale.AsString())">
+        <rect @ref=ElementReference
+              @onfocusin="FocusElement"
+              @onfocusout="UnfocusElement"
+              @onpointerdown="SelectAsync"
+              @onkeyup="KeyUp"
+              tabindex="@(SVGElement.IsChildElement ? -1 : 0)"
+              x=@SVGElement.X.AsString()
+              y=@SVGElement.Y.AsString()
+              width=@SVGElement.Width.AsString()
+              height=@SVGElement.Height.AsString()
+              stroke="@SVGElement.Stroke"
+              stroke-width="@SVGElement.StrokeWidth"
+              stroke-linecap="@SVGElement.StrokeLinecap.AsString()"
+              stroke-linejoin="@SVGElement.StrokeLinejoin.AsString()"
+              stroke-dasharray="@SVGElement.StrokeDasharray"
+              stroke-dashoffset="@SVGElement.StrokeDashoffset.AsString()"
+              fill="@SVGElement.Fill"
+              style="filter:brightness(@(SVGElement.Selected ? "0.8" : "1"))">
+        </rect>
+        <foreignObject @onpointerdown:stopPropagation=true x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="80" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2">
+            Analyser
+            <br />
+            <Plot Data="timeDomainMeasurements" Height="50" />
+        </foreignObject>
+        <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, true) { Node = SVGElement, PortNumber = 0 }) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
+            <circle @onpointerdown="() => SelectPort(0)" cx=@((SVGElement.X).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
+
+            </circle>
+        </ContextMenuTrigger>
+        <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, false)) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
+            <circle cx=@((SVGElement.X+SVGElement.Width).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
+
+            </circle>
+        </ContextMenuTrigger>
+    </g>
+</ContextMenuTrigger>
+
+@code {
+    private byte[] timeDomainMeasurements = Array.Empty<byte>();
+
+    [CascadingParameter]
+    public required AudioContext AudioContext { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender) return;
+
+        AnalyserNode analyser = ((AnalyserNode)await SVGElement.AudioNode(AudioContext));
+
+        int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
+        Uint8Array timeDomainDataArray = await Uint8Array.CreateAsync(AudioContext.JSRuntime, bufferLength);
+        Uint8Array frequencyDataArray = await Uint8Array.CreateAsync(AudioContext.JSRuntime, bufferLength);
+
+        SVGElement.Running = true;
+
+        while (SVGElement.Running)
+        {
+            try
+            {
+                await analyser.GetByteTimeDomainDataAsync(timeDomainDataArray);
+
+                timeDomainMeasurements = await timeDomainDataArray.GetByteArrayAsync();
+                await Task.Delay(10);
+                SVGElement._stateRepresentation = "";
+                StateHasChanged();
+            }
+            catch (Exception _)
+            {
+                
+            }
+        }
+    }
+}

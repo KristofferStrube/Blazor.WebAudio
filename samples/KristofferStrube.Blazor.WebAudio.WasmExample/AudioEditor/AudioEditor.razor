@@ -48,14 +48,16 @@
         new(typeof(G), element => element.TagName == "G"),
         new(typeof(Oscillator), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "oscillator"),
         new(typeof(AudioDestination), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "audio-destination"),
+        new(typeof(Analyser), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "analyser"),
         new(typeof(Connector), element => element.TagName is "LINE" && element.GetAttribute("data-elementtype") == "connector"),
     };
 
     protected List<SupportedAddNewSVGElementMenuItem> AddNewMenuItems { get; set; } = new()
     {
+        new(typeof(AddNewConnectorMenuItem), (_,data) => data is Port { Ingoing: false }),
         new(typeof(AddNewAudioDestinationMenuItem), (_,_) => true),
         new(typeof(AddNewOscillatorMenuItem), (_,_) => true),
-        new(typeof(AddNewConnectorMenuItem), (_,data) => data is Port { Ingoing: false }),
+        new(typeof(AddNewAnalyserMenuItem), (_,_) => true),
     };
 
     [Parameter]
