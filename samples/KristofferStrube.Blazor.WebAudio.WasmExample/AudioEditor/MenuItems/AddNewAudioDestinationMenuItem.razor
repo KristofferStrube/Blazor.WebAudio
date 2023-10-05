@@ -1,0 +1,9 @@
+﻿@using BlazorContextMenu
+﻿<Item OnClick="_ => AudioDestination.AddNew(SVGEditor)"><div class="icon">🔊</div> New Audio Destination</Item>
+@code {
+    [CascadingParameter]
+    public required SVGEditor.SVGEditor SVGEditor { get; set; }
+
+    [Parameter]
+    public required object Data { get; set; }
+}

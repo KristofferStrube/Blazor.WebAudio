@@ -1,0 +1,9 @@
+﻿@using BlazorContextMenu
+﻿<Item OnClick="_ => Oscillator.AddNew( SVGEditor)"><div class="icon">〰</div> New Oscillator</Item>
+@code {
+    [CascadingParameter]
+    public required SVGEditor.SVGEditor SVGEditor { get; set; }
+
+    [Parameter]
+    public required object Data { get; set; }
+}

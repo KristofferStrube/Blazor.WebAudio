@@ -42,4 +42,17 @@ public class OscillatorNode : AudioScheduledSourceNode
     protected OscillatorNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
     {
     }
+
+    /// <summary>
+    /// The frequency (in Hertz) of the periodic waveform.
+    /// Its default value is <c>440</c>.
+    /// This parameter is a-rate. It forms a compound parameter with detune to form the computedOscFrequency.
+    /// Its nominal range is [-Nyquist frequency, Nyquist frequency].
+    /// </summary>
+    public async Task<AudioParam> GetFrequencyAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "frequency");
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+    }
 }

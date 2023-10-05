@@ -11,7 +11,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// These modules can be connected together to form processing graphs for rendering audio to the audio hardware.
 /// Each node can have inputs and/or outputs. A source node has no inputs and a single output.
 /// Most processing nodes such as filters will have one input and one output.
-/// Each type of <see cref="AudioNode"/> differs in the details of how it processes or synthesizes audio.s
+/// Each type of <see cref="AudioNode"/> differs in the details of how it processes or synthesizes audio.
 /// But, in general, an <see cref="AudioNode"/> will process its inputs (if it has any), and generate audio for its outputs (if it has any).
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioNode">See the API definition here</see>.</remarks>
@@ -101,5 +101,18 @@ public class AudioNode : EventTarget
     public async Task DisconnectAsync()
     {
         await JSReference.InvokeVoidAsync("disconnect");
+    }
+
+    /// <summary>
+    /// Disconnects all outgoing connections from the <see cref="AudioNode"/>.
+    /// </summary>
+    /// <remarks>
+    /// It throws an <see cref="IndexSizeErrorException"/> is the <paramref name="output"/> is out of bounds.
+    /// </remarks>
+    /// <param name="output">This parameter is an index describing which output of the AudioNode to disconnect. It disconnects all outgoing connections from the given output.</param>
+    /// <exception cref="IndexSizeErrorException"></exception>
+    public async Task DisconnectAsync(ulong output)
+    {
+        await JSReference.InvokeVoidAsync("disconnect", output);
     }
 }

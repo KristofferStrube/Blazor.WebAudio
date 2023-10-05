@@ -1,5 +1,5 @@
 ﻿@using System.Globalization;
-<label for=@inputId>@Label</label>
+<label for=@inputId><small>@Label:</small></label>
 <input @bind-value=value
        @bind-value:event="oninput"
        @bind-value:after=AudioParamUpdatedAsync
@@ -8,8 +8,12 @@
        min="@Min"
        max="@Max"
        step="@(StepSize.ToString(CultureInfo.InvariantCulture))"
-       style="width:min(200px, 100%);"/>
-<span class="badge bg-primary">@value</span>
+       style="width:min(200px, calc(100%-40px));" />
+<span style="width:40px;" class="badge bg-primary">
+    <input @bind-value=value
+           @bind-value:after=AudioParamUpdatedAsync
+           style="border: none; outline: none; background: none;"/>
+</span>
 
 @code {
     private string inputId = $"audioParam_{Guid.NewGuid()}"[..9];
@@ -30,9 +34,11 @@
     [Parameter]
     public float StepSize { get; set; } = 0.01f;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    [Parameter]
+    public Action<float>? UpdateCallback { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
-        if (!firstRender) return;
         if (AudioParam is null) return;
         value = await AudioParam.GetValueAsync();
     }
@@ -41,5 +47,6 @@
     {
         if (AudioParam is null) return;
         await AudioParam.SetValueAsync(value);
+        UpdateCallback?.Invoke(value);
     }
 }

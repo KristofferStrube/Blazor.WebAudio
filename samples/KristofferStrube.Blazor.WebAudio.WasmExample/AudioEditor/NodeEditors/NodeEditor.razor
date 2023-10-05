@@ -1,0 +1,18 @@
+﻿﻿@using BlazorContextMenu
+@using KristofferStrube.Blazor.SVGEditor.ShapeEditors
+@using KristofferStrube.Blazor.SVGEditor.Extensions
+@using KristofferStrube.Blazor.SVGEditor;
+@using Microsoft.AspNetCore.Components.Web;
+@typeparam TNode where TNode : Node
+@inherits ShapeEditor<TNode>
+
+@code {
+    public void SelectPort(int port)
+    {
+        if (SVGElement.SVG.EditMode is EditMode.Add && SVGElement.SVG.SelectedShapes.Any(s => s is Connector))
+        {
+            SVGElement.CurrentActivePort = port;
+            SVGElement.SVG.SelectedShapes.Add(SVGElement);
+        }
+    }
+}

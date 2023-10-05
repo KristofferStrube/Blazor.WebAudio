@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -7,26 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Pages\AudioPlayer.razor.css" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Pages\AudioPlayer.razor.css" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="KristofferStrube.Blazor.SVGEditor" Version="0.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.4" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\KristofferStrube.Blazor.WebAudio\KristofferStrube.Blazor.WebAudio.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="Pages\AnalyzeMediaStream.razor">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
   </ItemGroup>
 
 </Project>

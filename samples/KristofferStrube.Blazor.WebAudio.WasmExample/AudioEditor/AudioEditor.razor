@@ -1,0 +1,88 @@
+﻿@using KristofferStrube.Blazor.SVGEditor
+@using KristofferStrube.Blazor.SVGEditor.MenuItems.Action;
+@using KristofferStrube.Blazor.WebAudio.WasmExample.AudioEditor.MenuItems;
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<CascadingValue Value="AudioContext">
+    <SVGEditor @ref=SVGEditor
+               SnapToInteger=true
+               Input=@Input
+               InputUpdated="async (string s) => { Input = s; await InputChanged.InvokeAsync(s); StateHasChanged(); }"
+               SupportedElements=SupportedElements
+               AddNewSVGElementMenuItems=AddNewMenuItems
+               ActionMenuItems=ActionMenuItems
+               DisableZoom=true />
+</CascadingValue>
+
+@code {
+    protected bool running = true;
+    protected SVGEditor SVGEditor { get; set; } = default!;
+    protected AudioContext AudioContext { get; set; } = default!;
+
+    [Parameter]
+    public string Input { get; set; } = "";
+
+    [Parameter]
+    public EventCallback<string> InputChanged { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        AudioContext = await AudioContext.CreateAsync(JSRuntime);
+
+        while (running)
+        {
+            await Task.Delay(100);
+            foreach (ITaskQueueable taskQueueable in SVGEditor.Elements.Where(e => e is ITaskQueueable))
+            {
+                while (taskQueueable.QueuedTasks.TryDequeue(out var task))
+                {
+                    await task(AudioContext);
+                }
+            }
+        }
+    }
+
+    protected List<SupportedElement> SupportedElements { get; set; } = new()
+    {
+        new(typeof(G), element => element.TagName == "G"),
+        new(typeof(Oscillator), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "oscillator"),
+        new(typeof(AudioDestination), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "audio-destination"),
+        new(typeof(Connector), element => element.TagName is "LINE" && element.GetAttribute("data-elementtype") == "connector"),
+    };
+
+    protected List<SupportedAddNewSVGElementMenuItem> AddNewMenuItems { get; set; } = new()
+    {
+        new(typeof(AddNewAudioDestinationMenuItem), (_,_) => true),
+        new(typeof(AddNewOscillatorMenuItem), (_,_) => true),
+        new(typeof(AddNewConnectorMenuItem), (_,data) => data is Port { Ingoing: false }),
+    };
+
+    [Parameter]
+    public List<ActionMenuItem> ActionMenuItems { get; set; } = new() {
+        new(typeof(MoveMenuItem), (_, data) => data is Shape shape && !shape.IsChildElement),
+        new(typeof(GroupMenuItem), (_, data) => data is Shape shape && !shape.IsChildElement),
+        new(typeof(UngroupMenuItem), (_, data) => data is G g && !g.IsChildElement),
+        new(typeof(RemoveMenuItem), (svgEditor, data) => data is Shape && !svgEditor.DisableRemoveElement),
+        new(typeof(CopyMenuItem), (svgEditor, data) => data is Shape && !svgEditor.DisableCopyElement),
+        new(typeof(PasteMenuItem), (svgEditor, _) => !svgEditor.DisablePasteElement)
+    };
+
+    public async Task StopAsync()
+    {
+        @foreach (Node node in SVGEditor.Elements.Where(e => e is Node))
+        {
+            if (await node.AudioNode(AudioContext) is AudioScheduledSourceNode audioSource)
+            {
+                await audioSource.StopAsync();
+            }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await StopAsync();
+        running = false;
+    }
+}

@@ -1,0 +1,35 @@
+﻿@using BlazorContextMenu
+@using KristofferStrube.Blazor.SVGEditor.Extensions
+@inherits NodeEditor<AudioDestination>
+
+<ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@SVGElement MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
+    <g transform="translate(@SVGElement.SVG.Translate.x.AsString() @SVGElement.SVG.Translate.y.AsString()) scale(@SVGElement.SVG.Scale.AsString())">
+        <rect @ref=ElementReference
+        @onfocusin="FocusElement"
+        @onfocusout="UnfocusElement"
+        @onpointerdown="SelectAsync"
+        @onkeyup="KeyUp"
+              tabindex="@(SVGElement.IsChildElement ? -1 : 0)"
+              x=@SVGElement.X.AsString()
+              y=@SVGElement.Y.AsString()
+              width="250"
+              height=@SVGElement.Height.AsString()
+              stroke="@SVGElement.Stroke"
+              stroke-width="@SVGElement.StrokeWidth"
+              stroke-linecap="@SVGElement.StrokeLinecap.AsString()"
+              stroke-linejoin="@SVGElement.StrokeLinejoin.AsString()"
+              stroke-dasharray="@SVGElement.StrokeDasharray"
+              stroke-dashoffset="@SVGElement.StrokeDashoffset.AsString()"
+              fill="@SVGElement.Fill"
+              style="filter:brightness(@(SVGElement.Selected ? "0.8" : "1"))">
+        </rect>
+        <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, true) { Node = SVGElement, PortNumber = 0 }) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
+            <circle @onpointerdown="() => SelectPort(0)" cx=@((SVGElement.X).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
+
+            </circle>
+        </ContextMenuTrigger>
+        <foreignObject x="@((SVGElement.X+10).AsString())" y="@SVGElement.Y.AsString()" height="22" width="250" style="font-size:20px;pointer-events:none;touch-action:none;">
+            Audio Destination
+        </foreignObject>
+    </g>
+</ContextMenuTrigger>

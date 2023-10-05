@@ -1,4 +1,5 @@
 using KristofferStrube.Blazor.MediaCaptureStreams;
+using KristofferStrube.Blazor.SVGEditor.Extensions;
 using KristofferStrube.Blazor.WebAudio.WasmExample;
 using KristofferStrube.Blazor.WebIDL;
 using Microsoft.AspNetCore.Components.Web;
@@ -9,7 +10,9 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
 builder.Services.AddMediaDevicesService();
+builder.Services.AddSVGEditor();
 
 WebAssemblyHost app = builder.Build();
 
