@@ -1,3 +1,9 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/KristofferStrube/Blazor.WebAudio)](https://github.com/KristofferStrube/Blazor.WebAudio/issues)
+[![GitHub forks](https://img.shields.io/github/forks/KristofferStrube/Blazor.WebAudio)](https://github.com/KristofferStrube/Blazor.WebAudio/network/members)
+[![GitHub stars](https://img.shields.io/github/stars/KristofferStrube/Blazor.WebAudio)](https://github.com/KristofferStrube/Blazor.WebAudio/stargazers)
+[![NuGet Downloads (official NuGet)](https://img.shields.io/nuget/dt/KristofferStrube.Blazor.WebAudio?label=NuGet%20Downloads)](https://www.nuget.org/packages/KristofferStrube.Blazor.WebAudio/)
+
 # Blazor.WebAudio
 A Blazor wrapper for the [Web Audio browser API.](https://www.w3.org/TR/webaudio/)
 This Web API standardizes methods for processing and synthesizing audio in web applications. The primary paradigm is of an audio routing graph, where a number of AudioNode objects are connected together to define the overall audio rendering. This project implements a wrapper around the API for Blazor so that we can easily and safely work with audio in the browser.
