@@ -4,9 +4,30 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Title>Blazor Web Audio API wrapper</Title>
+    <Description>Web Audio API wrapper implementation for Blazor.</Description>
+    <PackageId>KristofferStrube.Blazor.WebAudio</PackageId>
+    <PackageTags>Blazor;Wasm;Wrapper;Audio;AudioNode;AudioContext;AudioBufffer;Media;Music;Sound;JSInterop</PackageTags>
+    <RepositoryUrl>https://github.com/KristofferStrube/Blazor.WebAudio</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageVersion>0.1.0-alpha.1</PackageVersion>
+    <Authors>Kristoffer Strube</Authors>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="..\..\docs\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />
