@@ -22,7 +22,7 @@
               stroke-dasharray="@SVGElement.StrokeDasharray"
               stroke-dashoffset="@SVGElement.StrokeDashoffset.AsString()"
               fill="@SVGElement.Fill"
-              style="filter:brightness(@(SVGElement.Selected ? "0.8" : "1"))">
+              style="filter:brightness(@(SVGElement.Selected ? "0.9" : "1"))">
         </rect>
         <foreignObject @onpointerdown:stopPropagation=!SVGElement.Selected x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="80" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2;pointer-events:@(SVGElement.Selected ? "none" : "inherit");touch-action:@(SVGElement.Selected ? "none" : "inherit")">
             Analyser

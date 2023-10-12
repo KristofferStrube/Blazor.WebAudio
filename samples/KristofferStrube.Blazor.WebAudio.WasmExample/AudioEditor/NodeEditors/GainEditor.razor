@@ -21,14 +21,14 @@
               stroke-dasharray="@SVGElement.StrokeDasharray"
               stroke-dashoffset="@SVGElement.StrokeDashoffset.AsString()"
               fill="@SVGElement.Fill"
-              style="filter:brightness(@(SVGElement.Selected ? "0.8" : "1"))">
+              style="filter:brightness(@(SVGElement.Selected ? "0.9" : "1"))">
         </rect>
-        <foreignObject @onpointermove:stopPropagation=!SVGElement.Selected x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="80" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2;pointer-events:@(SVGElement.Selected ? "none" : "inherit");touch-action:@(SVGElement.Selected ? "none" : "inherit");">
+        <foreignObject @onpointermove:stopPropagation=!ChildContentIsNoninteractive x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="80" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2;pointer-events:@(ChildContentIsNoninteractive ? "none" : "inherit");touch-action:@(ChildContentIsNoninteractive ? "none" : "inherit");">
             Gain
             <br />
             @if (GainAudioParam is not null)
             {
-                <AudioParamSlider AudioParam="GainAudioParam" Label="Value" Min="0" Max="1" StepSize="0.01f" UpdateCallback="f => SVGElement.GainValue = f" />
+                <AudioParamSlider AudioParam="GainAudioParam" Label="Volume" Min="0" Max="1" StepSize="0.01f" UpdateCallback="f => SVGElement.GainValue = f" />
             }
         </foreignObject>
         <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, true) { Node = SVGElement, PortNumber = 0 }) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">

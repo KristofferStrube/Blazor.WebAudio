@@ -1,19 +1,21 @@
 ﻿@using System.Globalization;
 <label for=@inputId><small>@Label:</small></label>
-<input @bind-value=value
-       @bind-value:event="oninput"
-       @bind-value:after=AudioParamUpdatedAsync
-       id=@inputId
-       type="range"
-       min="@Min"
-       max="@Max"
-       step="@(StepSize.ToString(CultureInfo.InvariantCulture))"
-       style="width:min(200px, calc(100%-40px));" />
-<span style="width:40px;" class="badge bg-primary">
+<nobr>
     <input @bind-value=value
+           @bind-value:event="oninput"
            @bind-value:after=AudioParamUpdatedAsync
-           style="border: none; outline: none; background: none;"/>
-</span>
+           id=@inputId
+           type="range"
+           min="@Min"
+           max="@Max"
+           step="@(StepSize.ToString(CultureInfo.InvariantCulture))"
+           style="width:min(200px, calc(100%-40px));" />
+    <span style="width:40px;" class="badge bg-primary">
+        <input @bind-value=value
+               @bind-value:after=AudioParamUpdatedAsync
+               style="border: none; outline: none; background: none;" />
+    </span>
+</nobr>
 
 @code {
     private string inputId = $"audioParam_{Guid.NewGuid()}"[..9];

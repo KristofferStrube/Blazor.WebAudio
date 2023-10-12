@@ -12,6 +12,7 @@
 
     protected override void OnInitialized()
     {
+        Console.WriteLine($"We have wrapped {Math.Round(supportedRows.Sum(r => r.end - r.start + 1) / (float)webIDL.Split('\n').Count()*100, 2)}%");
         var compareLines = new List<string>();
         var lines = webIDL.Replace("<", "&lt;").Split('\n');
         for (int i = 0; i < lines.Count(); i++)

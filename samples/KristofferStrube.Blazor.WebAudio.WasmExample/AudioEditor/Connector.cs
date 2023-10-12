@@ -160,8 +160,8 @@ public class Connector : Line, ITaskQueueable
 
         if (distance > 0)
         {
-            X1 = from.x + (differenceX / distance * 10);
-            Y1 = from.y + (differenceY / distance * 10);
+            X1 = from.x + 10;
+            Y1 = from.y;
         }
     }
 
@@ -188,8 +188,8 @@ public class Connector : Line, ITaskQueueable
         else
         {
             SetStart((fromX, fromY), (toX, toY));
-            X2 = toX - (differenceX / distance * 10);
-            Y2 = toY - (differenceY / distance * 10);
+            X2 = toX - 10;
+            Y2 = toY;
         }
     }
 
