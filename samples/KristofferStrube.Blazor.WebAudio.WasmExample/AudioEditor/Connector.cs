@@ -16,6 +16,10 @@ public class Connector : Line, ITaskQueueable
 
     public Queue<Func<AudioContext, Task>> QueuedTasks { get; } = new();
 
+    public bool IsHovered { get; set; } = false;
+
+    public override string StateRepresentation => base.StateRepresentation + IsHovered.ToString();
+
     public (Node node, ulong port)? From
     {
         get
