@@ -66,12 +66,4 @@ public class Gain : Node
         SVG.SelectShape(node);
         SVG.AddElement(node);
     }
-
-    public override async void BeforeBeingRemoved()
-    {
-        if (audioNode is OscillatorNode { } oscillator)
-        {
-            await oscillator.StopAsync();
-        }
-    }
 }

@@ -1,0 +1,121 @@
+﻿@using BlazorContextMenu
+@using KristofferStrube.Blazor.SVGEditor.Extensions
+@inherits NodeEditor<BiquadFilter>
+
+<ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@SVGElement MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
+    <g transform="translate(@SVGElement.SVG.Translate.x.AsString() @SVGElement.SVG.Translate.y.AsString()) scale(@SVGElement.SVG.Scale.AsString())">
+        <rect @ref=ElementReference
+        @onfocusin="FocusElement"
+        @onfocusout="UnfocusElement"
+        @onpointerdown="SelectAsync"
+        @onkeyup="KeyUp"
+              tabindex="@(SVGElement.IsChildElement ? -1 : 0)"
+              x=@SVGElement.X.AsString()
+              y=@SVGElement.Y.AsString()
+              width=@SVGElement.Width.AsString()
+              height=@SVGElement.Height.AsString()
+              stroke="@SVGElement.Stroke"
+              stroke-width="@SVGElement.StrokeWidth"
+              stroke-linecap="@SVGElement.StrokeLinecap.AsString()"
+              stroke-linejoin="@SVGElement.StrokeLinejoin.AsString()"
+              stroke-dasharray="@SVGElement.StrokeDasharray"
+              stroke-dashoffset="@SVGElement.StrokeDashoffset.AsString()"
+              fill="@SVGElement.Fill"
+              style="filter:brightness(@(SVGElement.Selected ? "0.9" : "1"))">
+        </rect>
+        <foreignObject @onpointermove:stopPropagation=!ChildContentIsNoninteractive x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="260" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2;pointer-events:@(ChildContentIsNoninteractive ? "none" : "inherit");touch-action:@(ChildContentIsNoninteractive ? "none" : "inherit");">
+            Biquad Filter
+            <br />
+            <select @bind=SVGElement.Type @bind:after="SetType">
+                <option value="@BiquadFilterType.Lowpass" title="A lowpass filter allows frequencies below the cutoff frequency to pass through and attenuates frequencies above the cutoff.">Lowpass</option>
+                <option value="@BiquadFilterType.Highpass" title="A highpass filter is the opposite of a lowpass filter. Frequencies above the cutoff frequency are passed through, but frequencies below the cutoff are attenuated.">Highpass</option>
+                <option value="@BiquadFilterType.Bandpass" title="A bandpass filter allows a range of frequencies to pass through and attenuates the frequencies below and above this frequency range.">Bandpass</option>
+                <option value="@BiquadFilterType.Lowshelf" title="The lowshelf filter allows all frequencies through, but adds a boost (or attenuation) to the lower frequencies.">Lowshelf</option>
+                <option value="@BiquadFilterType.Highshelf" title="The highshelf filter is the opposite of the lowshelf filter and allows all frequencies through, but adds a boost to the higher frequencies.">Highshelf</option
+                <option value="@BiquadFilterType.Peaking" title="The peaking filter allows all frequencies through, but adds a boost (or attenuation) to a range of frequencies.">Peaking</option>
+                <option value="@BiquadFilterType.Notch" title="The notch filter (also known as a band-stop or band-rejection filter) is the opposite of a bandpass filter.">Notch</option>
+                <option value="@BiquadFilterType.Allpass" title="An allpass filter allows all frequencies through, but changes the phase relationship between the various frequencies.">Allpass</option>
+            </select>
+            <br />
+            @if (QAudioParam is not null && SVGElement.Type
+                is BiquadFilterType.Lowpass
+                or BiquadFilterType.Highpass
+                or BiquadFilterType.Bandpass
+                or BiquadFilterType.Peaking
+                or BiquadFilterType.Notch
+                or BiquadFilterType.Allpass)
+            {
+                <AudioParamSlider AudioParam="QAudioParam" Label="Q" Min="0" Max="2000" StepSize="1" UpdateCallback="f => SVGElement.Q = f" />
+            }
+            @if (DetuneAudioParam is not null)
+            {
+                <AudioParamSlider AudioParam="DetuneAudioParam" Label="Detune" Min="0" Max="100" StepSize="1" UpdateCallback="f => SVGElement.Detune = f" />
+            }
+            @if (FrequencyAudioParam is not null)
+            {
+                <AudioParamSlider AudioParam="FrequencyAudioParam" Label="Frequency" Min="0" Max="2000" StepSize="1" UpdateCallback="f => SVGElement.Frequency = f" />
+            }
+            @if (GainAudioParam is not null && SVGElement.Type
+                is BiquadFilterType.Lowshelf
+                or BiquadFilterType.Highshelf
+                or BiquadFilterType.Peaking)
+            {
+                <AudioParamSlider AudioParam="GainAudioParam" Label="Gain" Min="0" Max="200" StepSize="1" UpdateCallback="f => SVGElement.Gain = f" />
+            }
+        </foreignObject>
+        <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, true) { Node = SVGElement, PortNumber = 0 }) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
+            <circle @onpointerdown="() => SelectPort(0)" cx=@((SVGElement.X).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
+
+            </circle>
+        </ContextMenuTrigger>
+        <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, false)) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
+            <circle cx=@((SVGElement.X+SVGElement.Width).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
+
+            </circle>
+        </ContextMenuTrigger>
+    </g>
+</ContextMenuTrigger>
+
+@code {
+    private AudioParam? QAudioParam;
+    private AudioParam? DetuneAudioParam;
+    private AudioParam? FrequencyAudioParam;
+    private AudioParam? GainAudioParam;
+
+    [CascadingParameter]
+    public required AudioContext AudioContext { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (AudioContext is not null)
+        {
+            if (QAudioParam is null)
+            {
+                QAudioParam = await ((BiquadFilterNode)(await SVGElement.AudioNode(AudioContext))).GetQAsync();
+            }
+            if (DetuneAudioParam is null)
+            {
+                DetuneAudioParam = await ((BiquadFilterNode)(await SVGElement.AudioNode(AudioContext))).GetDetuneAsync();
+            }
+            if (FrequencyAudioParam is null)
+            {
+                FrequencyAudioParam = await ((BiquadFilterNode)(await SVGElement.AudioNode(AudioContext))).GetFrequencyAsync();
+            }
+            if (GainAudioParam is null)
+            {
+                GainAudioParam = await ((BiquadFilterNode)(await SVGElement.AudioNode(AudioContext))).GetGainAsync();
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task SetType()
+    {
+        if (SVGElement.Type is {} type)
+        {
+            await ((BiquadFilterNode)await SVGElement.AudioNode(AudioContext)).SetTypeAsync(type);
+        }
+    }
+}

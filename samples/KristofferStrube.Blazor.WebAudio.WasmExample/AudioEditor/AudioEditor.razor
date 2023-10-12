@@ -50,6 +50,7 @@
         new(typeof(AudioDestination), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "audio-destination"),
         new(typeof(Gain), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "gain"),
         new(typeof(Analyser), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "analyser"),
+        new(typeof(BiquadFilter), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "biquad-filter"),
         new(typeof(Connector), element => element.TagName is "LINE" && element.GetAttribute("data-elementtype") == "connector"),
     };
 
@@ -60,6 +61,7 @@
         new(typeof(AddNewOscillatorMenuItem), (_,_) => true),
         new(typeof(AddNewGainMenuItem), (_,_) => true),
         new(typeof(AddNewAnalyserMenuItem), (_,_) => true),
+        new(typeof(AddNewBiquadFilterMenuItem), (_,_) => true),
     };
 
     [Parameter]

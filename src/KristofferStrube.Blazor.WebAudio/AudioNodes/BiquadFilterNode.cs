@@ -97,7 +97,7 @@ public class BiquadFilterNode : AudioNode
     public async Task<AudioParam> GetQAsync()
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "q");
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "Q");
         return await AudioParam.CreateAsync(JSRuntime, jSInstance);
     }
 

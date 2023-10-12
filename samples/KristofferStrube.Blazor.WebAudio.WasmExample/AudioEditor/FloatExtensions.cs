@@ -6,6 +6,6 @@ internal static class FloatExtensions
 {
     internal static string AsString(this float f)
     {
-        return Math.Round(f, 9).ToString(CultureInfo.InvariantCulture);
+        return Math.Round(f, 4).ToString(CultureInfo.InvariantCulture);
     }
 }
