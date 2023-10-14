@@ -3,7 +3,8 @@
 namespace KristofferStrube.Blazor.WebAudio;
 
 /// <summary>
-/// This specifies the options that can be used in constructing all <see cref="AudioNode"/>s. All members are optional. However, the specific values used for each node depends on the actual node.
+/// This specifies the options that can be used in constructing all <see cref="AudioNode"/>s.
+/// All members are optional. However, the specific values used for each node depends on the actual node.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioNodeOptions">See the API definition here</see>.</remarks>
 public class AudioNodeOptions

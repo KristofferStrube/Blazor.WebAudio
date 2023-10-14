@@ -1,4 +1,7 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebAudio.Extensions;
+using KristofferStrube.Blazor.WebAudio.Options;
+using KristofferStrube.Blazor.WebIDL.Exceptions;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -24,6 +27,24 @@ public class ChannelMergerNode : AudioNode
     public static new Task<ChannelMergerNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new ChannelMergerNode(jSRuntime, jSReference));
+    }
+
+    /// <summary>
+    /// Creates an <see cref="ChannelMergerNode"/> using the standard constructor.
+    /// </summary>
+    /// <remarks>
+    /// It throws an <see cref="IndexSizeErrorException"/> if <see cref="ChannelMergerOptions.NumberOfInputs"/> is less than <c>1</c> or larger than the supported number of channels.
+    /// </remarks>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="ChannelMergerNode"/> will be associated with.</param>
+    /// <param name="options">Optional initial parameter value for this <see cref="ChannelMergerNode"/>.</param>
+    /// <exception cref="IndexSizeErrorException"></exception>
+    /// <returns>A new instance of an <see cref="ChannelMergerNode"/>.</returns>
+    public static async Task<ChannelMergerNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, ChannelMergerOptions? options = null)
+    {
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructChannelMergerNode", context, options);
+        return new ChannelMergerNode(jSRuntime, jSInstance);
     }
 
     private ChannelMergerNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }

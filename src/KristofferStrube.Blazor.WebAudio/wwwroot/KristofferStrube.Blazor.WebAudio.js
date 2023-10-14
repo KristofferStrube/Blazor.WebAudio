@@ -42,6 +42,14 @@ export function constructBiquadFilterNode(context, options) {
     return new BiquadFilterNode(context, options);
 }
 
+export function constructChannelMergerNode(context, options) {
+    return new ChannelMergerNode(context, options);
+}
+
+export function constructChannelSplitterNode(context, options) {
+    return new ChannelSplitterNode(context, options);
+}
+
 export function constructAudioBuffer(options) {
     return new AudioBuffer(options);
 }

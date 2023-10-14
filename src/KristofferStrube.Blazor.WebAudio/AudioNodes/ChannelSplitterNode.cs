@@ -1,4 +1,7 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebAudio.Extensions;
+using KristofferStrube.Blazor.WebAudio.Options;
+using KristofferStrube.Blazor.WebIDL.Exceptions;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -23,6 +26,24 @@ public class ChannelSplitterNode : AudioNode
     public static new Task<ChannelSplitterNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new ChannelSplitterNode(jSRuntime, jSReference));
+    }
+
+    /// <summary>
+    /// Creates an <see cref="ChannelSplitterNode"/> using the standard constructor.
+    /// </summary>
+    /// <remarks>
+    /// It throws an <see cref="IndexSizeErrorException"/> if <see cref="ChannelSplitterOptions.NumberOfInputs"/> is less than <c>1</c> or larger than the supported number of channels.
+    /// </remarks>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="ChannelSplitterNode"/> will be associated with.</param>
+    /// <param name="options">Optional initial parameter value for this <see cref="ChannelSplitterNode"/>.</param>
+    /// <exception cref="IndexSizeErrorException"></exception>
+    /// <returns>A new instance of an <see cref="ChannelSplitterNode"/>.</returns>
+    public static async Task<ChannelSplitterNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, ChannelSplitterOptions? options = null)
+    {
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructChannelSplitterNode", context, options);
+        return new ChannelSplitterNode(jSRuntime, jSInstance);
     }
 
     private ChannelSplitterNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
