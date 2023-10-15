@@ -1,4 +1,5 @@
 ﻿using KristofferStrube.Blazor.WebIDL.Exceptions;
+using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.WebAudio.Options;
 
@@ -15,5 +16,6 @@ public class ChannelMergerOptions : AudioNodeOptions
     /// <remarks>
     /// It throws an <see cref="IndexSizeErrorException"/> if it is less than <c>1</c> or larger than the supported number of channels when used for constructing a <see cref="ChannelMergerNode"/>.
     /// </remarks>
+    [JsonPropertyName("numberOfInputs")]
     public ulong NumberOfInputs { get; set; } = 6;
 }

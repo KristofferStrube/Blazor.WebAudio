@@ -1,4 +1,6 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebAudio.Extensions;
+using KristofferStrube.Blazor.WebAudio.Options;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -22,13 +24,20 @@ public class ConstantSourceNode : AudioScheduledSourceNode
     }
 
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="ConstantSourceNode"/>.
+    /// Creates an <see cref="ConstantSourceNode"/> using the standard constructor.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="ConstantSourceNode"/>.</param>
-    protected ConstantSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
+    /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="ConstantSourceNode"/> will be associated with.</param>
+    /// <param name="options">Optional initial parameter value for this <see cref="ConstantSourceNode"/>.</param>
+    /// <returns>A wrapper instance for a <see cref="ConstantSourceNode"/>.</returns>
+    public static async Task<ConstantSourceNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, ConstantSourceOptions? options = null)
     {
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructConstantSourceNode", context, options);
+        return new ConstantSourceNode(jSRuntime, jSInstance);
     }
+
+    private ConstantSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
 
     /// <summary>
     /// The constant value of the source.

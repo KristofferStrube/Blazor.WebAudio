@@ -10,18 +10,6 @@ export function constructAudioContext(contextOptions = null) {
     return new AudioContext(contextOptions)
 }
 
-export function constructOcillatorNode(context, options = null) {
-    return new OscillatorNode(context, options);
-}
-
-export function constructGainNode(context, options = null) {
-    return new GainNode(context, options);
-}
-
-export function constructAnalyzerNode(context, options = null) {
-    return new AnalyserNode(context, options);
-}
-
 export function constructOfflineAudioContext(contextOptions) {
     return new OfflineAudioContext(contextOptions)
 }
@@ -30,8 +18,16 @@ export function constructOfflineAudioContextWithThreeParameters(numberOfChannels
     return new OfflineAudioContext(numberOfChannels, length, sampleRate)
 }
 
-export function constructOfflineAudioCompletionEvent(type, eventInitDict) {
-    return new OfflineAudioCompletionEvent(type, eventInitDict)
+export function constructOcillatorNode(context, options) {
+    return new OscillatorNode(context, options);
+}
+
+export function constructGainNode(context, options) {
+    return new GainNode(context, options);
+}
+
+export function constructAnalyzerNode(context, options) {
+    return new AnalyserNode(context, options);
 }
 
 export function constructAudioBufferSourceNode(context, options) {
@@ -50,12 +46,20 @@ export function constructChannelSplitterNode(context, options) {
     return new ChannelSplitterNode(context, options);
 }
 
-export function constructAudioBuffer(options) {
-    return new AudioBuffer(options);
+export function constructConstantSourceNode(context, options) {
+    return new ConstantSourceNode(context, options);
 }
 
 export function constructDelayNode(context, options) {
     return new DelayNode(context, options);
+}
+
+export function constructAudioBuffer(options) {
+    return new AudioBuffer(options);
+}
+
+export function constructOfflineAudioCompletionEvent(type, eventInitDict) {
+    return new OfflineAudioCompletionEvent(type, eventInitDict)
 }
 
 export async function decodeAudioData(audioContext, audioData, successCallbackObjRef, errorCallbackObjRef) {
