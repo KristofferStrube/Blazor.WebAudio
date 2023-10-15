@@ -15,7 +15,7 @@ internal class IJSWrapperConverter<TWrapper> : JsonConverter<TWrapper> where TWr
     public override void Write(Utf8JsonWriter writer, TWrapper value, JsonSerializerOptions options)
     {
         IJSObjectReference jSReference = value.JSReference is IErrorHandlingJSObjectReference errorHandlingJSReference
-            ? errorHandlingJSReference
+            ? errorHandlingJSReference.JSReference
             : value.JSReference;
         JsonSerializer.Serialize(writer, jSReference, options);
     }

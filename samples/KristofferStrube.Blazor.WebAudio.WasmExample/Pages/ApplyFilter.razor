@@ -6,14 +6,15 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
 @inject IMediaDevicesService MediaDevicesService
+@inject HttpClient HttpClient
 <PageTitle>WebAudio - Apply Filter</PageTitle>
 <h2>Apply Filter</h2>
 
 <p>
-    On this page we first chain a <code>MediaStreamAudioSourceNode</code> through a <code>DelayNode</code> of 1 second and a <code>Highpass</code> <code>BiquadFilterNode</code> before connecting to the <code>AudioDestinationNode</code> of the <code>AudioContext</code> to output an echo.
+    On this page we first chain a <code>MediaStreamAudioSourceNode</code> through a <code>DelayNode</code> of 1 second, a <code>Lowpass</code> <code>BiquadFilterNode</code>, and a <code>ConvolverNode</code> with data from a big hall before connecting to the <code>AudioDestinationNode</code> of the <code>AudioContext</code> to output a delayed repeat of what you say with reverb.
 </p>
 <p>
-    After this we can see a frequency diagram that shows the <u style="color:blue">original media stream</u> and the <u style="color:red">filtered media stream</u>. You can also change the frequency cut off with a slider to see how it influences the filtered sound.
+    After this we can see a frequency diagram that shows the <u style="color:blue">original media stream</u> and the <u style="color:red">filtered media stream</u>. You can also change the frequency cut off with a slider to see how it influences the filtered sound. Only low frequencies will get through the filter if you decrease the cut off. You can imagine that this simulates that what you hear is further away in the big room as the low frequencies are the only ones left.
 </p>
 
 
@@ -100,10 +101,14 @@ else
 
             BiquadFilterOptions options = new()
             {
-                Type = BiquadFilterType.Highpass,
-                Frequency = 350
+                Type = BiquadFilterType.Lowpass,
+                Frequency = 2000
             };
 
+            byte[] bufferData = await HttpClient.GetByteArrayAsync("Data/BIG HALL E001 M2S.wav");
+            var audioBuffer = await audioContext.DecodeAudioDataAsync(bufferData);
+
+            var convolver = await ConvolverNode.CreateAsync(JSRuntime, audioContext, new() { Buffer = audioBuffer });
             var destination = await audioContext.GetDestinationAsync();
             var delayNode = await DelayNode.CreateAsync(JSRuntime, audioContext, new() { DelayTime = 1, MaxDelayTime = 1 });
             var filterNode = await BiquadFilterNode.CreateAsync(JSRuntime, audioContext, options);
@@ -111,9 +116,10 @@ else
             var analyserNode = await audioContext.CreateAnalyserAsync();
 
             BiquadFrecuencyParam = await filterNode.GetFrequencyAsync();
-
+            
             await mediaStreamAudioSourceNode.ConnectAsync(delayNode);
-            await delayNode.ConnectAsync(filterNode);
+            await delayNode.ConnectAsync(convolver);
+            await convolver.ConnectAsync(filterNode);
             await delayNode.ConnectAsync(analyserNode);
             await filterNode.ConnectAsync(destination);
             await filterNode.ConnectAsync(filteredAnalyserNode);
