@@ -30,7 +30,7 @@ public class ChannelMergerNode : AudioNode
     }
 
     /// <summary>
-    /// Creates an <see cref="ChannelMergerNode"/> using the standard constructor.
+    /// Creates a <see cref="ChannelMergerNode"/> using the standard constructor.
     /// </summary>
     /// <remarks>
     /// It throws an <see cref="IndexSizeErrorException"/> if <see cref="ChannelMergerOptions.NumberOfInputs"/> is less than <c>1</c> or larger than the supported number of channels.
@@ -39,7 +39,7 @@ public class ChannelMergerNode : AudioNode
     /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="ChannelMergerNode"/> will be associated with.</param>
     /// <param name="options">Optional initial parameter value for this <see cref="ChannelMergerNode"/>.</param>
     /// <exception cref="IndexSizeErrorException"></exception>
-    /// <returns>A new instance of an <see cref="ChannelMergerNode"/>.</returns>
+    /// <returns>A new instance of a <see cref="ChannelMergerNode"/>.</returns>
     public static async Task<ChannelMergerNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, ChannelMergerOptions? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();

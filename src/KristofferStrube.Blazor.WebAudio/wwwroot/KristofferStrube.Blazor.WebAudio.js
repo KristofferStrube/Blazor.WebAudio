@@ -54,6 +54,10 @@ export function constructDelayNode(context, options) {
     return new DelayNode(context, options);
 }
 
+export function constructConvolverNode(context, options) {
+    return new ConvolverNode(context, options);
+}
+
 export function constructAudioBuffer(options) {
     return new AudioBuffer(options);
 }

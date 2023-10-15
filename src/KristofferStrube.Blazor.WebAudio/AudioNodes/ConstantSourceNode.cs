@@ -24,7 +24,7 @@ public class ConstantSourceNode : AudioScheduledSourceNode
     }
 
     /// <summary>
-    /// Creates an <see cref="ConstantSourceNode"/> using the standard constructor.
+    /// Creates a <see cref="ConstantSourceNode"/> using the standard constructor.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="ConstantSourceNode"/> will be associated with.</param>
