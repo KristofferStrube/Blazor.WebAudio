@@ -1,7 +1,7 @@
 ﻿using KristofferStrube.Blazor.WebIDL.Exceptions;
 using System.Text.Json.Serialization;
 
-namespace KristofferStrube.Blazor.WebAudio.Options;
+namespace KristofferStrube.Blazor.WebAudio;
 
 
 /// <summary>

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace KristofferStrube.Blazor.WebAudio.Options;
+namespace KristofferStrube.Blazor.WebAudio;
 
 /// <summary>
 /// This specifies options for constructing a <see cref="ConvolverNode"/>.
@@ -19,4 +19,10 @@ public class ConvolverOptions : AudioNodeOptions
     /// </summary>
     [JsonPropertyName("disableNormalization")]
     public bool DisableNormalization { get; set; } = false;
+
+    /// <inheritdoc path="/summary"/>
+    /// <remarks>
+    /// The default value is <see cref="ChannelCountMode.ClampedMax"/>.
+    /// </remarks>
+    public override ChannelCountMode ChannelCountMode { get; set; } = ChannelCountMode.ClampedMax;
 }

@@ -20,10 +20,12 @@ public class AudioNodeOptions
 
     /// <summary>
     /// <see cref="ChannelCountMode"/> determines how channels will be counted when up-mixing and down-mixing connections to any inputs to the node.
-    /// The default value is <see cref="ChannelCountMode.Max"/>. This attribute has no effect for nodes with no inputs.
     /// </summary>
+    /// <remarks>
+    /// The default value is <see cref="ChannelCountMode.Max"/>. This attribute has no effect for nodes with no inputs.
+    /// </remarks>
     [JsonPropertyName("channelCountMode")]
-    public ChannelCountMode ChannelCountMode { get; set; } = ChannelCountMode.Max;
+    public virtual ChannelCountMode ChannelCountMode { get; set; } = ChannelCountMode.Max;
 
     /// <summary>
     /// <see cref="ChannelInterpretation"/> determines how individual channels will be treated when up-mixing and down-mixing connections to any inputs to the node.

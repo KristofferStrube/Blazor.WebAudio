@@ -1,5 +1,4 @@
 ﻿using KristofferStrube.Blazor.WebAudio.Extensions;
-using KristofferStrube.Blazor.WebAudio.Options;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;

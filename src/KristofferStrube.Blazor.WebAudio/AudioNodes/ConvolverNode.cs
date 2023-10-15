@@ -1,5 +1,4 @@
 ﻿using KristofferStrube.Blazor.WebAudio.Extensions;
-using KristofferStrube.Blazor.WebAudio.Options;
 using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
 
@@ -36,7 +35,7 @@ public class ConvolverNode : AudioNode
     public static async Task<ConvolverNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, ConvolverOptions? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructConvolverNode", context, options);
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructConvolverNode", context.JSReference, options);
         return new ConvolverNode(jSRuntime, jSInstance);
     }
 

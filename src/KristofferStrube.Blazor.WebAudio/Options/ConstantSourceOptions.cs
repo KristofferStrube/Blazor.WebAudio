@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace KristofferStrube.Blazor.WebAudio.Options;
+namespace KristofferStrube.Blazor.WebAudio;
 
 /// <summary>
 /// This specifies options for constructing a <see cref="ConstantSourceNode"/>.
