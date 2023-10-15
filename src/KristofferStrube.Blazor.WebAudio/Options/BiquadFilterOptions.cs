@@ -6,7 +6,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// This specifies the options to be used when constructing a <see cref="BiquadFilterNode"/>.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#BiquadFilterOptions">See the API definition here</see>.</remarks>
-public class BiquadFilterOptions
+public class BiquadFilterOptions : AudioNodeOptions
 {
     /// <summary>
     /// The desired initial type of the filter.

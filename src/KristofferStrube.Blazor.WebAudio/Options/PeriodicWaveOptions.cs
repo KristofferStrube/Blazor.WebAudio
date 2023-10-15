@@ -11,7 +11,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// If both are given, the sequences must have the same length; otherwise an error of type <see cref="NotSupportedErrorException"/> will be thrown.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#PeriodicWaveOptions">See the API definition here</see>.</remarks>
-public class PeriodicWaveOptions
+public class PeriodicWaveOptions : PeriodicWaveConstraints
 {
     /// <summary>
     /// The imag parameter represents an array of sine terms.

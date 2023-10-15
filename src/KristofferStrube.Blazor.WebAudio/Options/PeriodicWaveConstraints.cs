@@ -9,7 +9,8 @@ namespace KristofferStrube.Blazor.WebAudio;
 public class PeriodicWaveConstraints
 {
     /// <summary>
-    /// Controls whether the periodic wave is normalized or not. If <see langword="true"/>, the waveform is not normalized; otherwise, the waveform is normalized.
+    /// Controls whether the periodic wave is normalized or not.
+    /// If <see langword="true"/>, the waveform is not normalized; otherwise, the waveform is normalized.
     /// </summary>
     [JsonPropertyName("disableNormalization")]
     public bool DisableNormalization { get; set; } = false;

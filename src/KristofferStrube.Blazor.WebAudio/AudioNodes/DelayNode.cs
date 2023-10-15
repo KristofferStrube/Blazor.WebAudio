@@ -45,4 +45,19 @@ public class DelayNode : AudioNode
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="DelayNode"/>.</param>
     protected DelayNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
+
+    /// <summary>
+    /// An <see cref="AudioParam"/> object representing the amount of delay (in seconds) to apply.
+    /// Its default value is <c>0</c> (no delay).
+    /// The minimum value is <c>0</c> and the maximum value is determined by the maxDelayTime argument parsed to <see cref="BaseAudioContext.CreateDelayAsync(double)"/> or the <see cref="DelayOptions.MaxDelayTime"/> if constructed using the <see cref="CreateAsync(IJSRuntime, BaseAudioContext, DelayOptions?)"/> method.
+    /// </summary>
+    /// <remarks>
+    /// If <see cref="DelayNode"/> is part of a cycle, then the value is clamped to a minimum of one render quantum.
+    /// </remarks>
+    public async Task<AudioParam> GetDelayTimeAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "delayTime");
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+    }
 }

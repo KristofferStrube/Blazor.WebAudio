@@ -110,7 +110,7 @@ else
 
             var convolver = await ConvolverNode.CreateAsync(JSRuntime, audioContext, new() { Buffer = audioBuffer });
             var destination = await audioContext.GetDestinationAsync();
-            var delayNode = await DelayNode.CreateAsync(JSRuntime, audioContext, new() { DelayTime = 1, MaxDelayTime = 1 });
+            var delayNode = await DelayNode.CreateAsync(JSRuntime, audioContext, new() { DelayTime = 0.01, MaxDelayTime = 1 });
             var filterNode = await BiquadFilterNode.CreateAsync(JSRuntime, audioContext, options);
             var filteredAnalyserNode = await audioContext.CreateAnalyserAsync();
             var analyserNode = await audioContext.CreateAnalyserAsync();
