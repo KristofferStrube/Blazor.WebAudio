@@ -42,6 +42,11 @@
         }
     }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+    }
+
     protected List<SupportedElement> SupportedElements { get; set; } = new()
     {
         new(typeof(G), element => element.TagName == "G"),
@@ -50,6 +55,7 @@
         new(typeof(Gain), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "gain"),
         new(typeof(Analyser), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "analyser"),
         new(typeof(BiquadFilter), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "biquad-filter"),
+        new(typeof(MediaStreamAudioSource), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "media-stream-audio-source"),
         new(typeof(Connector), element => element.TagName is "LINE" && element.GetAttribute("data-elementtype") == "connector"),
     };
 
@@ -58,6 +64,7 @@
         new(typeof(AddNewConnectorMenuItem), (_,data) => data is Port { Ingoing: false }),
         new(typeof(AddNewAudioDestinationMenuItem), (_,_) => true),
         new(typeof(AddNewOscillatorMenuItem), (_,_) => true),
+        new(typeof(AddNewMediaStreamAudioSourceMenuItem), (_,_) => true),
         new(typeof(AddNewGainMenuItem), (_,_) => true),
         new(typeof(AddNewAnalyserMenuItem), (_,_) => true),
         new(typeof(AddNewBiquadFilterMenuItem), (_,_) => true),
@@ -80,6 +87,10 @@
             if (await node.AudioNode(AudioContext) is AudioScheduledSourceNode audioSource)
             {
                 await audioSource.StopAsync();
+            }
+            else if (node is MediaStreamAudioSource mediaStreamAudioSourceNode)
+            {
+                await mediaStreamAudioSourceNode.StopAsync(await mediaStreamAudioSourceNode.AudioNode(AudioContext));
             }
         }
     }

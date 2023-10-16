@@ -10,10 +10,10 @@
            max="@Max"
            step="@(StepSize.ToString(CultureInfo.InvariantCulture))"
            style="width:min(200px, calc(100%-40px));" />
-    <span style="width:40px;" class="badge bg-primary">
+    <span style="width:40px;padding-left:4px;padding-right:4px;" class="badge bg-primary">
         <input @bind-value=value
                @bind-value:after=AudioParamUpdatedAsync
-               style="border: none; outline: none; background: none;" />
+               style="border: none; outline: none; background: none;max-width:100%;" />
     </span>
 </nobr>
 

@@ -7,7 +7,7 @@
 @inherits ShapeEditor<TNode>
 
 @code {
-    public bool ChildContentIsNoninteractive => SVGElement.Selected && SVGElement.SVG.EditMode is EditMode.Move;
+    public bool ChildContentIsNoninteractive => SVGElement.SVG.EditMode is EditMode.Move && SVGElement.Selected || SVGElement.SVG.EditMode is EditMode.Add or EditMode.Move;
 
     public void SelectPort(int port)
     {

@@ -27,7 +27,6 @@ public class BiquadFilter : Node
         return audioNode;
     };
 
-
     public new float Height
     {
         get => 280;
@@ -41,7 +40,7 @@ public class BiquadFilter : Node
     {
         get
         {
-            return Element.GetAttribute("data-type") is { } value ? Deserialize<BiquadFilterType>(value) : null;
+            return Element.GetAttribute("data-type") is { } value ? Deserialize<BiquadFilterType>($"\"{value}\"") : null;
         }
         set
         {
@@ -51,7 +50,7 @@ public class BiquadFilter : Node
             }
             else
             {
-                Element.SetAttribute("data-type", Serialize(value.Value));
+                Element.SetAttribute("data-type", Serialize(value.Value)[1..^1]);
             }
             Changed?.Invoke(this);
         }
@@ -61,17 +60,17 @@ public class BiquadFilter : Node
     {
         get
         {
-            return Element.GetAttribute("data-q") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
+            return Element.GetAttribute("data-Q") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
         }
         set
         {
             if (value is null)
             {
-                _ = Element.RemoveAttribute("data-q");
+                _ = Element.RemoveAttribute("data-Q");
             }
             else
             {
-                Element.SetAttribute("data-q", value.Value.AsString());
+                Element.SetAttribute("data-v", value.Value.AsString());
             }
             Changed?.Invoke(this);
         }
@@ -101,17 +100,17 @@ public class BiquadFilter : Node
     {
         get
         {
-            return Element.GetAttribute("data-frequnecy") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
+            return Element.GetAttribute("data-frequency") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
         }
         set
         {
             if (value is null)
             {
-                _ = Element.RemoveAttribute("data-frequnecy");
+                _ = Element.RemoveAttribute("data-frequency");
             }
             else
             {
-                Element.SetAttribute("data-frequnecy", value.Value.AsString());
+                Element.SetAttribute("data-frequency", value.Value.AsString());
             }
             Changed?.Invoke(this);
         }

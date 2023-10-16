@@ -1,0 +1,9 @@
+﻿@using BlazorContextMenu
+﻿<Item OnClick="_ => MediaStreamAudioSource.AddNew(SVGEditor)"><div class="icon">🎤</div> New MediaStream Source</Item>
+@code {
+    [CascadingParameter]
+    public required SVGEditor.SVGEditor SVGEditor { get; set; }
+
+    [Parameter]
+    public required object Data { get; set; }
+}

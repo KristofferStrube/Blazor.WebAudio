@@ -43,6 +43,8 @@
 </ContextMenuTrigger>
 
 @code {
+    private AnalyserNode? analyser;
+
     private byte[] timeDomainMeasurements = Array.Empty<byte>();
 
     [CascadingParameter]
@@ -52,30 +54,31 @@
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (!firstRender) return;
-
-        AnalyserNode analyser = ((AnalyserNode)await SVGElement.AudioNode(AudioContext));
-
-        int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
-        Uint8Array timeDomainDataArray = await Uint8Array.CreateAsync(AudioContext.JSRuntime, bufferLength);
-        Uint8Array frequencyDataArray = await Uint8Array.CreateAsync(AudioContext.JSRuntime, bufferLength);
-
-        SVGElement.Running = true;
-
-        while (SVGElement.Running)
+        if (analyser is null && AudioContext is not null)
         {
-            try
-            {
-                await analyser.GetByteTimeDomainDataAsync(timeDomainDataArray);
+            analyser = (AnalyserNode)await SVGElement.AudioNode(AudioContext);
 
-                timeDomainMeasurements = await timeDomainDataArray.GetByteArrayAsync();
-                await Task.Delay(10);
-                SVGElement._stateRepresentation = "";
-                StateHasChanged();
-            }
-            catch (Exception)
+            int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
+            Uint8Array timeDomainDataArray = await Uint8Array.CreateAsync(AudioContext.JSRuntime, bufferLength);
+            Uint8Array frequencyDataArray = await Uint8Array.CreateAsync(AudioContext.JSRuntime, bufferLength);
+
+            SVGElement.Running = true;
+
+            while (SVGElement.Running)
             {
-                
+                try
+                {
+                    await analyser.GetByteTimeDomainDataAsync(timeDomainDataArray);
+
+                    timeDomainMeasurements = await timeDomainDataArray.GetByteArrayAsync();
+                    await Task.Delay(10);
+                    SVGElement._stateRepresentation = "";
+                    StateHasChanged();
+                }
+                catch (Exception)
+                {
+
+                }
             }
         }
     }

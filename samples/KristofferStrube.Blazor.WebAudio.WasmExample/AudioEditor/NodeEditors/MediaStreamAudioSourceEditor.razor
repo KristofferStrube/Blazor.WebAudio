@@ -1,6 +1,6 @@
 ﻿@using BlazorContextMenu
 @using KristofferStrube.Blazor.SVGEditor.Extensions
-@inherits NodeEditor<Gain>
+@inherits NodeEditor<MediaStreamAudioSource>
 
 <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@SVGElement MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
     <g transform="translate(@SVGElement.SVG.Translate.x.AsString() @SVGElement.SVG.Translate.y.AsString()) scale(@SVGElement.SVG.Scale.AsString())">
@@ -24,18 +24,17 @@
               style="filter:brightness(@(SVGElement.Selected ? "0.9" : "1"))">
         </rect>
         <foreignObject @onpointermove:stopPropagation=!ChildContentIsNoninteractive x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="80" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2;pointer-events:@(ChildContentIsNoninteractive ? "none" : "inherit");touch-action:@(ChildContentIsNoninteractive ? "none" : "inherit");">
-            Gain
-            <br />
-            @if (GainAudioParam is not null)
+            <label for="audioSource">MediaStream Source</label>
+            @if (SVGElement.AudioOptions.Count > 0)
             {
-                <AudioParamSlider AudioParam="GainAudioParam" Label="Volume" Min="0" Max="5" StepSize="0.01f" UpdateCallback="f => SVGElement.GainValue = f" />
+                <select id="audioSource" @bind=SVGElement.SelectedAudioSource @bind:after="SetMediaStreamAudioSourceNode">
+                    @foreach (var option in SVGElement.AudioOptions)
+                    {
+                        <option value="@option.id" selected="@(option.id == SVGElement.SelectedAudioSource)">@option.label</option>
+                    }
+                </select>
             }
         </foreignObject>
-        <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, true) { Node = SVGElement, PortNumber = 0 }) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
-            <circle @onpointerdown="() => SelectPort(0)" cx=@((SVGElement.X).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
-
-            </circle>
-        </ContextMenuTrigger>
         <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, false)) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
             <circle cx=@((SVGElement.X+SVGElement.Width).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
 
@@ -45,7 +44,7 @@
 </ContextMenuTrigger>
 
 @code {
-    private AudioParam? GainAudioParam;
+    private MediaStreamAudioSourceNode? mediaStreamAudioSourceNode;
 
     [CascadingParameter]
     public required AudioContext AudioContext { get; set; }
@@ -54,10 +53,16 @@
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (GainAudioParam is null && AudioContext is not null)
+        if (mediaStreamAudioSourceNode is null && AudioContext is not null)
         {
-            GainAudioParam = await ((GainNode)(await SVGElement.AudioNode(AudioContext))).GetGainAsync();
+            mediaStreamAudioSourceNode = (MediaStreamAudioSourceNode)await SVGElement.AudioNode(AudioContext);
             StateHasChanged();
         }
+    }
+
+    protected async Task SetMediaStreamAudioSourceNode()
+    {
+        await SVGElement.SetMediaStreamAudioSourceNode(AudioContext);
+        StateHasChanged();
     }
 }

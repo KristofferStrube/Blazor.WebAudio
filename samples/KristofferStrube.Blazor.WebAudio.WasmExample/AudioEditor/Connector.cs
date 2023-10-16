@@ -20,36 +20,43 @@ public class Connector : Line, ITaskQueueable
 
     public override string StateRepresentation => base.StateRepresentation + IsHovered.ToString();
 
+    private (Node node, ulong port)? from;
     public (Node node, ulong port)? From
     {
         get
         {
-            var fromNode = (Node?)SVG.Elements.FirstOrDefault(e => e is Node && e.Id == Element.GetAttribute("data-from-node"));
-            ulong fromPort = (ulong)Element.GetAttributeOrZero("data-from-port");
-            _ = fromNode?.OutgoingConnectors.Add((this, fromPort));
-            if (fromNode is null) return null;
-            if (To is { } to)
+            if (from is null)
             {
-                QueuedTasks.Enqueue(async context => await (await fromNode.AudioNode(context)).ConnectAsync(await to.node.AudioNode(context), fromPort, to.port));
+                var fromNode = (Node?)SVG.Elements.FirstOrDefault(e => e is Node && e.Id == Element.GetAttribute("data-from-node"));
+                ulong fromPort = (ulong)Element.GetAttributeOrZero("data-from-port");
+                _ = fromNode?.OutgoingConnectors.Add((this, fromPort));
+                if (fromNode is null) return null;
+                if (To is { } to)
+                {
+                    QueuedTasks.Enqueue(async context => await (await fromNode.AudioNode(context)).ConnectAsync(await to.node.AudioNode(context), fromPort, to.port));
+                }
+                from = (fromNode, fromPort);
             }
-            return (fromNode, fromPort);
+            return from;
         }
         set
         {
-            if (From is { } from)
+            if (from is { } previousValue)
             {
-                _ = from.node.OutgoingConnectors.Remove((this, from.port));
-                QueuedTasks.Enqueue(async context => await (await from.node.AudioNode(context)).DisconnectAsync(from.port));
+                _ = previousValue.node.OutgoingConnectors.Remove((this, previousValue.port));
+                QueuedTasks.Enqueue(async context => await (await previousValue.node.AudioNode(context)).DisconnectAsync(previousValue.port));
             }
             if (value is null)
             {
                 _ = Element.RemoveAttribute("data-from-node");
                 _ = Element.RemoveAttribute("data-from-port");
+                from = null;
             }
             else
             {
                 Element.SetAttribute("data-from-node", value.Value.node.Id);
                 Element.SetAttribute("data-from-port", value.Value.port.ToString());
+                from = value;
                 _ = value.Value.node.OutgoingConnectors.Add((this, value.Value.port));
                 if (To is { } to)
                 {
@@ -60,35 +67,41 @@ public class Connector : Line, ITaskQueueable
         }
     }
 
-
+    private (Node node, ulong port)? to;
     public (Node node, ulong port)? To
     {
         get
         {
-            var toNode = (Node?)SVG.Elements.FirstOrDefault(e => e is Node && e.Id == Element.GetAttribute("data-to-node"));
-            ulong toPort = (ulong)Element.GetAttributeOrZero("data-to-port");
-            _ = toNode?.OutgoingConnectors.Add((this, toPort));
-            return toNode is null ? null : (toNode, toPort);
+            if (to is null)
+            {
+                var toNode = (Node?)SVG.Elements.FirstOrDefault(e => e is Node && e.Id == Element.GetAttribute("data-to-node"));
+                ulong toPort = (ulong)Element.GetAttributeOrZero("data-to-port");
+                _ = toNode?.OutgoingConnectors.Add((this, toPort));
+                to = toNode is null ? null : (toNode, toPort);
+            }
+            return to;
         }
         set
         {
-            if (To is { } to)
+            if (to is { } previousValue)
             {
-                _ = to.node.IngoingConnectors.Remove((this, to.port));
-                if (From is { } from)
+                _ = previousValue.node.IngoingConnectors.Remove((this, previousValue.port));
+                if (from is { } previouvFromValue)
                 {
-                    QueuedTasks.Enqueue(async context => await (await from.node.AudioNode(context)).DisconnectAsync(from.port));
+                    QueuedTasks.Enqueue(async context => await (await previouvFromValue.node.AudioNode(context)).DisconnectAsync(previouvFromValue.port));
                 }
             }
             if (value is null)
             {
                 _ = Element.RemoveAttribute("data-to-node");
                 _ = Element.RemoveAttribute("data-to-port");
+                to = null;
             }
             else
             {
                 Element.SetAttribute("data-to-node", value.Value.node.Id);
                 Element.SetAttribute("data-to-port", value.Value.port.ToString());
+                to = value;
                 _ = value.Value.node.IngoingConnectors.Add((this, value.Value.port));
                 if (From is { } from)
                 {
