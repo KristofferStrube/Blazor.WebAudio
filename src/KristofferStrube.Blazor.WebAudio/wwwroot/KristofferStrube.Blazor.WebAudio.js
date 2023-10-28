@@ -58,6 +58,10 @@ export function constructConvolverNode(context, options) {
     return new ConvolverNode(context, options);
 }
 
+export function constructDynamicsCompressorNode(context, options) {
+    return new DynamicsCompressorNode(context, options);
+}
+
 export function constructAudioBuffer(options) {
     return new AudioBuffer(options);
 }

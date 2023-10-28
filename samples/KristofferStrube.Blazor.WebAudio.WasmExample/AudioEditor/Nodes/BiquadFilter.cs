@@ -30,18 +30,12 @@ public class BiquadFilter : Node
     public new float Height
     {
         get => 280;
-        set
-        {
-            base.Height = 280;
-        }
+        set => base.Height = 280;
     }
 
     public BiquadFilterType? Type
     {
-        get
-        {
-            return Element.GetAttribute("data-type") is { } value ? Deserialize<BiquadFilterType>($"\"{value}\"") : null;
-        }
+        get => Element.GetAttribute("data-type") is { } value ? Deserialize<BiquadFilterType>($"\"{value}\"") : null;
         set
         {
             if (value is null)
@@ -58,10 +52,7 @@ public class BiquadFilter : Node
 
     public float? Q
     {
-        get
-        {
-            return Element.GetAttribute("data-Q") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
-        }
+        get => Element.GetAttribute("data-Q") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
         set
         {
             if (value is null)
@@ -78,10 +69,7 @@ public class BiquadFilter : Node
 
     public float? Detune
     {
-        get
-        {
-            return Element.GetAttribute("data-detune") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
-        }
+        get => Element.GetAttribute("data-detune") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
         set
         {
             if (value is null)
@@ -98,10 +86,7 @@ public class BiquadFilter : Node
 
     public float? Frequency
     {
-        get
-        {
-            return Element.GetAttribute("data-frequency") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
-        }
+        get => Element.GetAttribute("data-frequency") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
         set
         {
             if (value is null)
@@ -118,10 +103,7 @@ public class BiquadFilter : Node
 
     public float? Gain
     {
-        get
-        {
-            return Element.GetAttribute("data-gain") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
-        }
+        get => Element.GetAttribute("data-gain") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
         set
         {
             if (value is null)

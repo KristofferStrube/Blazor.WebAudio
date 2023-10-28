@@ -30,4 +30,16 @@ public class AudioDestinationNode : AudioNode
     protected AudioDestinationNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
     {
     }
+
+    /// <summary>
+    /// The maximum number of channels that the channelCount attribute can be set to.
+    /// An <see cref="AudioDestinationNode"/> representing the audio hardware end-point (the normal case) can potentially output more than <c>2</c> channels of audio if the audio hardware is multi-channel.
+    /// maxChannelCount is the maximum number of channels that this hardware is capable of supporting.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<ulong> GetMaxChannelCountAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "maxChannelCount");
+    }
 }

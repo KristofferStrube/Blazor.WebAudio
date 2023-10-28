@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebAudio.Extensions;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -24,9 +25,88 @@ public class DynamicsCompressorNode : AudioNode
     }
 
     /// <summary>
+    /// Creates an <see cref="DynamicsCompressorNode"/> using the standard constructor.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="DynamicsCompressorNode"/> will be associated with.</param>
+    /// <param name="options">Optional initial parameter value for this <see cref="DynamicsCompressorNode"/>.</param>
+    /// <returns>A new instance of an <see cref="DynamicsCompressorNode"/>.</returns>
+    public static async Task<DynamicsCompressorNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, DynamicsCompressorOptions? options = null)
+    {
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructDynamicsCompressorNode", context.JSReference, options);
+        return new DynamicsCompressorNode(jSRuntime, jSInstance);
+    }
+
+    /// <summary>
     /// Constructs a wrapper instance for a given JS Instance of a <see cref="DynamicsCompressorNode"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="DynamicsCompressorNode"/>.</param>
     protected DynamicsCompressorNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
+
+    /// <summary>
+    /// The decibel value above which the compression will start taking effect.
+    /// Default is <c>-24</c> and it must be between <c>-100</c> and <c>0</c>.
+    /// </summary>
+    public async Task<AudioParam> GetThresholdAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "threshold");
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// A decibel value representing the range above the threshold where the curve smoothly transitions to the "ratio" portion.
+    /// Default is <c>30</c> and it must be between <c>0</c> and <c>40</c>.
+    /// </summary>
+    public async Task<AudioParam> GetKneeAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "knee");
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// The amount of dB change in input for a 1 dB change in output.
+    /// Default is <c>12</c> and it must be between <c>1</c> and <c>20</c>.
+    /// </summary>
+    public async Task<AudioParam> GetRatioAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "ratio");
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// A read-only decibel value for metering purposes, representing the current amount of gain reduction that the compressor is applying to the signal.
+    /// If fed no signal the value will be 0 (no gain reduction).
+    /// </summary>
+    public async Task<float> GetReductionAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        return await helper.InvokeAsync<float>("getAttribute", JSReference, "reduction");
+    }
+
+    /// <summary>
+    /// The amount of time (in seconds) to reduce the gain by 10dB.
+    /// Default is <c>0.003</c> and it must be between <c>0</c> and <c>1</c>.
+    /// </summary>
+    public async Task<AudioParam> GetAttackAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "attack");
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// The amount of time (in seconds) to increase the gain by 10dB.
+    /// Default is <c>0.25</c> and it must be between <c>0</c> and <c>1</c>.
+    /// </summary>
+    public async Task<AudioParam> GetReleaseAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "release");
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+    }
 }

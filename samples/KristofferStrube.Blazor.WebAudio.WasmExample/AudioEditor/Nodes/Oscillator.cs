@@ -27,10 +27,7 @@ public class Oscillator : Node
 
     public float? Frequency
     {
-        get
-        {
-            return Element.GetAttribute("data-frequency") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
-        }
+        get => Element.GetAttribute("data-frequency") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
         set
         {
             if (value is null)

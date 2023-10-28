@@ -26,10 +26,7 @@ public class Gain : Node
 
     public float? GainValue
     {
-        get
-        {
-            return Element.GetAttribute("data-gain") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
-        }
+        get => Element.GetAttribute("data-gain") is { } value ? float.Parse(value, CultureInfo.InvariantCulture) : null;
         set
         {
             if (value is null)

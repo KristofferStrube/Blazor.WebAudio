@@ -30,7 +30,11 @@ public class Connector : Line, ITaskQueueable
                 var fromNode = (Node?)SVG.Elements.FirstOrDefault(e => e is Node && e.Id == Element.GetAttribute("data-from-node"));
                 ulong fromPort = (ulong)Element.GetAttributeOrZero("data-from-port");
                 _ = fromNode?.OutgoingConnectors.Add((this, fromPort));
-                if (fromNode is null) return null;
+                if (fromNode is null)
+                {
+                    return null;
+                }
+
                 if (To is { } to)
                 {
                     QueuedTasks.Enqueue(async context => await (await fromNode.AudioNode(context)).ConnectAsync(await to.node.AudioNode(context), fromPort, to.port));

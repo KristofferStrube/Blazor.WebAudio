@@ -30,10 +30,9 @@
         (19, 41),
         (46, 142),
         (157, 200),
-        (202, 252),
-        (254, 254),
-        (285, 366),
-        (388, 396),
+        (202, 266),
+        (269, 269),
+        (285, 396),
         (446, 456),
         (461, 468)
     };
@@ -83,7 +82,7 @@ interface BaseAudioContext : EventTarget {
     ScriptProcessorNode createScriptProcessor(
         optional unsigned long bufferSize = 0,
         optional unsigned long numberOfInputChannels = 2,
-        optional unsigned long numberOfOutputChannels = 2);
+        optional unsigned long numberOfOutputChannels = 2); // Deprecated
     StereoPannerNode createStereoPanner ();
     WaveShaperNode createWaveShaper ();
 
@@ -305,8 +304,8 @@ interface AudioListener {
     readonly attribute AudioParam upX;
     readonly attribute AudioParam upY;
     readonly attribute AudioParam upZ;
-    undefined setPosition (float x, float y, float z);
-    undefined setOrientation (float x, float y, float z, float xUp, float yUp, float zUp);
+    undefined setPosition (float x, float y, float z); // Deprecated
+    undefined setOrientation (float x, float y, float z, float xUp, float yUp, float zUp); // Deprecated
 };
 
 [Exposed=Window]
