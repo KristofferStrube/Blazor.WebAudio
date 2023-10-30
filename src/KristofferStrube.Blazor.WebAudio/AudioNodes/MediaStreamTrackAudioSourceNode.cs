@@ -1,4 +1,5 @@
 ﻿using KristofferStrube.Blazor.MediaCaptureStreams;
+using KristofferStrube.Blazor.WebAudio.Extensions;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
@@ -18,6 +19,20 @@ public class MediaStreamTrackAudioSourceNode : AudioNode
     public static new Task<MediaStreamTrackAudioSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return Task.FromResult(new MediaStreamTrackAudioSourceNode(jSRuntime, jSReference));
+    }
+
+    /// <summary>
+    /// Creates a <see cref="MediaStreamTrackAudioSourceNode"/> using the standard constructor.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="MediaStreamTrackAudioSourceNode"/> will be associated with.</param>
+    /// <param name="options">Initial parameter value for this <see cref="MediaStreamTrackAudioSourceNode"/>.</param>
+    /// <returns>A new instance of a <see cref="MediaStreamTrackAudioSourceNode"/>.</returns>
+    public static async Task<MediaStreamTrackAudioSourceNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, MediaStreamTrackAudioSourceOptions options)
+    {
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructMediaStreamTrackAudioSourceNode", context, options);
+        return new MediaStreamTrackAudioSourceNode(jSRuntime, jSInstance);
     }
 
     /// <summary>

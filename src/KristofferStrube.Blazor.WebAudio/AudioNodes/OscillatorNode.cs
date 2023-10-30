@@ -44,9 +44,32 @@ public class OscillatorNode : AudioScheduledSourceNode
     }
 
     /// <summary>
+    /// The shape of the periodic waveform.
+    /// The default value is <see cref="OscillatorType.Sine"/>.
+    /// </summary>
+    public async Task<OscillatorType> GetTypeAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        return await helper.InvokeAsync<OscillatorType>("getAttribute", JSReference, "type");
+    }
+
+    /// <summary>
+    /// The shape of the periodic waveform.
+    /// The <see cref="SetPeriodicWaveAsync"/> method can be used to set a custom waveform, which results in this attribute being set to <see cref="OscillatorType.Custom"/>.
+    /// The default value is <see cref="OscillatorType.Sine"/>.
+    /// When this attribute is set, the phase of the oscillator will be conserved.
+    /// </summary>
+    public async Task SetTypeAsync(OscillatorType value)
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        await helper.InvokeVoidAsync("setAttribute", JSReference, "type", value);
+    }
+
+    /// <summary>
     /// The frequency (in Hertz) of the periodic waveform.
     /// Its default value is <c>440</c>.
-    /// This parameter is a-rate. It forms a compound parameter with detune to form the computedOscFrequency.
+    /// This parameter is <see cref="AutomationRate.ARate"/>.
+    /// It forms a compound parameter with detune to form the computedOscFrequency.
     /// Its nominal range is [-Nyquist frequency, Nyquist frequency].
     /// </summary>
     public async Task<AudioParam> GetFrequencyAsync()
@@ -54,5 +77,29 @@ public class OscillatorNode : AudioScheduledSourceNode
         IJSObjectReference helper = await webAudioHelperTask.Value;
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "frequency");
         return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// A detuning value (in cents) which will offset the frequency by the given amount.
+    /// Its default value is <c>0</c>.
+    /// This parameter is <see cref="AutomationRate.ARate"/>.
+    /// It forms a compound parameter with frequency to form the computedOscFrequency.
+    /// The nominal range listed below allows this parameter to detune the frequency over the entire possible range of frequencies.
+    /// </summary>
+    public async Task<AudioParam> GetDetuneAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "detune");
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// Sets an arbitrary custom periodic waveform given a <see cref="PeriodicWave"/>.
+    /// </summary>
+    /// <param name="periodicWave">Custom waveform to be used by the oscillator</param>
+    /// <returns></returns>
+    public async Task SetPeriodicWaveAsync(PeriodicWave periodicWave)
+    {
+        await JSReference.InvokeVoidAsync("setPeriodicWave", periodicWave.JSReference);
     }
 }

@@ -62,6 +62,18 @@ export function constructDynamicsCompressorNode(context, options) {
     return new DynamicsCompressorNode(context, options);
 }
 
+export function constructMediaStreamAudioSourceNode(context, options) {
+    return new MediaStreamAudioSourceNode(context, options)
+}
+
+export function constructMediaStreamTrackAudioSourceNode(context, options) {
+    return new MediaStreamTrackAudioSourceNode(context, options)
+}
+
+export function constructMediaStreamAudioDestinationNode(context, options) {
+    return new MediaStreamAudioDestinationNode(context, options)
+}
+
 export function constructAudioBuffer(options) {
     return new AudioBuffer(options);
 }
