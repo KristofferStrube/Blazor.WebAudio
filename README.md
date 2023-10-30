@@ -20,9 +20,9 @@ On the [API Coverage Status](https://kristofferstrube.github.io/Blazor.WebAudio/
 
 # Related repositories
 The library uses the following other packages to support its features:
-- https://github.com/KristofferStrube/Blazor.WebIDL (To make error handling JSIntero)
+- https://github.com/KristofferStrube/Blazor.WebIDL (To make error handling JSInterop)
 - https://github.com/KristofferStrube/Blazor.DOM (To implement *EventTarget*'s in the package like `BaseAudioContext` and `AudioNode`)
-- https://github.com/KristofferStrube/Blazor.MediaCaptureStreams (To enable the creation of the `MediaStreamAudioDestinationNode`, `MediaStreamAudioSourceNode`, and other other `MediaStream` related nodes)
+- https://github.com/KristofferStrube/Blazor.MediaCaptureStreams (To enable the creation of `MediaStreamAudioDestinationNode`, `MediaStreamAudioSourceNode`, and other other `MediaStream` related nodes)
 
 # Related articles
 This repository was built with inspiration and help from the following series of articles:
