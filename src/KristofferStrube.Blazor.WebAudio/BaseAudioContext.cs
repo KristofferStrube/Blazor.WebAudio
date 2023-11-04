@@ -1,8 +1,10 @@
 ﻿using KristofferStrube.Blazor.DOM;
+using KristofferStrube.Blazor.WebAudio.Converters;
 using KristofferStrube.Blazor.WebAudio.Extensions;
 using KristofferStrube.Blazor.WebIDL;
 using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
+using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -11,6 +13,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// BaseAudioContext is not instantiated directly, but is instead extended by the concrete interfaces <see cref="AudioContext"/> (for real-time rendering) and <see cref="OfflineAudioContext"/> (for offline rendering).
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#BaseAudioContext">See the API definition here</see>.</remarks>
+[JsonConverter(typeof(IJSWrapperConverter<BaseAudioContext>))]
 public class BaseAudioContext : EventTarget
 {
     /// <summary>

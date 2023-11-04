@@ -11,7 +11,7 @@
     <RepositoryUrl>https://github.com/KristofferStrube/Blazor.WebAudio</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageVersion>0.1.0-alpha.2</PackageVersion>
+    <PackageVersion>0.1.0-alpha.3</PackageVersion>
     <Authors>Kristoffer Strube</Authors>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
