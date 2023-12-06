@@ -49,15 +49,15 @@ public class AudioNode : EventTarget
     /// <remarks>
     /// It is possible to connect an <see cref="AudioNode"/> output to more than one <see cref="AudioParam"/> with multiple calls to <see cref="ConnectAsync(AudioNode, ulong, ulong)"/>. Thus, "fan-out" is supported.<br />
     /// It is possible to connect more than one <see cref="AudioNode"/> output to a single <see cref="AudioParam"/> with multiple calls to <see cref="ConnectAsync(AudioNode, ulong, ulong)"/>. Thus, "fan-in" is supported.<br />
-    /// If the <paramref name="destinationNode"/> parameter is an <see cref="AudioNode"/> that has been created using another <see cref="AudioContext"/>, an <see cref="NotSupportedErrorException"/> will be thrown. That is, <see cref="AudioNode"/>s cannot be shared between <see cref="AudioContext"/>s.<br />
-    /// If the <paramref name="output"/> parameter is out-of-bounds, an <see cref="RangeErrorException"/> exception will be thrown.<br />
-    /// If the <paramref name="input"/> parameter is out-of-bounds, an <see cref="RangeErrorException"/> exception will be thrown.<br />
+    /// It throws an <see cref="InvalidAccessErrorException"/> if <paramref name="destinationNode"/> is an <see cref="AudioNode"/> that has been created using another <see cref="AudioContext"/>.<br/>
+    /// It throws an <see cref="IndexSizeErrorException"/> if the <paramref name="output"/> is out of bounds.<br />
+    /// It throws an <see cref="IndexSizeErrorException"/> if the <paramref name="input"/> is out of bounds.
     /// </remarks>
     /// <param name="destinationNode">The destination parameter is the <see cref="AudioNode"/> to connect to.</param>
     /// <param name="output">The output parameter is an index describing which output of the <see cref="AudioNode"/> from which to connect.</param>
     /// <param name="input">The input parameter is an index describing which input of the destination <see cref="AudioNode"/> to connect to.</param>
-    /// <exception cref="NotSupportedErrorException" />
-    /// <exception cref="RangeErrorException" />
+    /// <exception cref="InvalidAccessErrorException" />
+    /// <exception cref="IndexSizeErrorException" />
     /// <returns>This method returns destination AudioNode object.</returns>
     public async Task<AudioNode> ConnectAsync(AudioNode destinationNode, ulong output = 0, ulong input = 0)
     {
@@ -71,28 +71,16 @@ public class AudioNode : EventTarget
     /// <remarks>
     /// It is possible to connect an <see cref="AudioNode"/> output to more than one <see cref="AudioParam"/> with multiple calls to <see cref="ConnectAsync(AudioNode, ulong, ulong)"/>. Thus, "fan-out" is supported.<br />
     /// It is possible to connect more than one <see cref="AudioNode"/> output to a single <see cref="AudioParam"/> with multiple calls to <see cref="ConnectAsync(AudioNode, ulong, ulong)"/>. Thus, "fan-in" is supported.<br />
-    /// If the <paramref name="output"/> parameter is out-of-bounds, an <see cref="RangeErrorException"/> exception will be thrown.<br />
+    /// It throws an <see cref="InvalidAccessErrorException"/> if <paramref name="destinationParam"/> belongs to an <see cref="AudioNode"/> that belongs to a <see cref="BaseAudioContext"/> that is different from the <see cref="BaseAudioContext"/> that has created the <see cref="AudioNode"/> on which this method was called.<br />
+    /// It throws an <see cref="IndexSizeErrorException"/> if the <paramref name="output"/> is out of bounds.
     /// </remarks>
     /// <param name="destinationParam">The destination parameter is the <see cref="AudioParam"/> to connect to.</param>
     /// <param name="output">The output parameter is an index describing which output of the <see cref="AudioNode"/> from which to connect.</param>
-    /// <exception cref="NotSupportedErrorException" />
-    /// <exception cref="RangeErrorException" />
-    /// <returns>This method returns destination AudioNode object.</returns>
+    /// <exception cref="InvalidAccessErrorException" />
+    /// <exception cref="IndexSizeErrorException" />
     public async Task ConnectAsync(AudioParam destinationParam, ulong output = 0)
     {
         await JSReference.InvokeVoidAsync("connect", destinationParam.JSReference, output);
-    }
-
-    /// <summary>
-    /// channelCount is the number of channels used when up-mixing and down-mixing connections to any inputs to the node.
-    /// The default value is 2 except for specific nodes where its value is specially determined.
-    /// This attribute has no effect for nodes with no inputs.
-    /// </summary>
-    /// <returns></returns>
-    public async Task<ulong> GetChannelCountAsync()
-    {
-        IJSObjectReference helper = await webAudioHelperTask.Value;
-        return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "channelCount");
     }
 
     /// <summary>
@@ -104,15 +92,156 @@ public class AudioNode : EventTarget
     }
 
     /// <summary>
-    /// Disconnects all outgoing connections from the <see cref="AudioNode"/>.
+    /// Disconnects a single output of the <see cref="AudioNode"/> from any other <see cref="AudioNode"/> or <see cref="AudioParam"/> objects to which it is connected.
     /// </summary>
     /// <remarks>
-    /// It throws an <see cref="IndexSizeErrorException"/> is the <paramref name="output"/> is out of bounds.
+    /// It throws an <see cref="IndexSizeErrorException"/> if the <paramref name="output"/> is out of bounds.
     /// </remarks>
-    /// <param name="output">This parameter is an index describing which output of the AudioNode to disconnect. It disconnects all outgoing connections from the given output.</param>
+    /// <param name="output">This parameter is an index describing which output of the <see cref="AudioNode"/> to disconnect. It disconnects all outgoing connections from the given output.</param>
     /// <exception cref="IndexSizeErrorException"></exception>
     public async Task DisconnectAsync(ulong output)
     {
         await JSReference.InvokeVoidAsync("disconnect", output);
+    }
+
+    /// <summary>
+    /// Disconnects all outputs of the <see cref="AudioNode"/> that go to a specific destination <see cref="AudioNode"/>.
+    /// </summary>
+    /// <remarks>
+    /// It throws an <see cref="InvalidAccessErrorException"/> if there is connection to the <paramref name="destinationNode"/>.
+    /// </remarks>
+    /// <param name="destinationNode">This parameter is the <see cref="AudioNode"/> to disconnect. It disconnects all outgoing connections to the given destinationNode.</param>
+    /// <exception cref="InvalidAccessErrorException"></exception>
+    public async Task DisconnectAsync(AudioNode destinationNode)
+    {
+        await JSReference.InvokeVoidAsync("disconnect", destinationNode.JSReference);
+    }
+
+    /// <summary>
+    /// Disconnects a specific output of the <see cref="AudioNode"/> from any and all inputs of some destination <see cref="AudioNode"/>.
+    /// </summary>
+    /// <remarks>
+    /// It throws an <see cref="InvalidAccessErrorException"/> if there is connection from the given <paramref name="output"/> to the <paramref name="destinationNode"/>.<br />
+    /// It throws an <see cref="IndexSizeErrorException"/> if the <paramref name="output"/> is out of bounds.
+    /// </remarks>
+    /// <param name="destinationNode">This parameter is the <see cref="AudioNode"/> to disconnect.</param>
+    /// <param name="output">This parameter is an index describing which output of the <see cref="AudioNode"/> from which to disconnect.</param>
+    /// <exception cref="InvalidAccessErrorException"></exception>
+    /// <exception cref="IndexSizeErrorException"></exception>
+    public async Task DisconnectAsync(AudioNode destinationNode, ulong output)
+    {
+        await JSReference.InvokeVoidAsync("disconnect", destinationNode.JSReference, output);
+    }
+
+    /// <summary>
+    /// Disconnects a specific output of the <see cref="AudioNode"/> from a specific input of some destination <see cref="AudioNode"/>.
+    /// </summary>
+    /// <remarks>
+    /// It throws an <see cref="InvalidAccessErrorException"/> if there is no connection to the <paramref name="destinationNode"/> from the given <paramref name="output"/> to the given <paramref name="input"/>.<br />
+    /// It throws an <see cref="IndexSizeErrorException"/> if the <paramref name="output"/> is out of bounds.<br />
+    /// It throws an <see cref="IndexSizeErrorException"/> if the <paramref name="input"/> is out of bounds.
+    /// </remarks>
+    /// <param name="destinationNode">This parameter is the <see cref="AudioNode"/> to disconnect.</param>
+    /// <param name="output">This parameter is an index describing which output of the <see cref="AudioNode"/> from which to disconnect.</param>
+    /// <param name="input">This parameter is an index describing which input of the destination <see cref="AudioNode"/> to disconnect.</param>
+    /// <exception cref="InvalidAccessErrorException"></exception>
+    /// <exception cref="IndexSizeErrorException"></exception>
+    public async Task DisconnectAsync(AudioNode destinationNode, ulong output, ulong input)
+    {
+        await JSReference.InvokeVoidAsync("disconnect", destinationNode.JSReference, output, input);
+    }
+
+    /// <summary>
+    /// Disconnects all outputs of the <see cref="AudioNode"/> that go to a specific destination <see cref="AudioParam"/>.
+    /// The contribution of this <see cref="AudioNode"/> to the computed parameter value goes to <c>0</c> when this operation takes effect.
+    /// The intrinsic parameter value is not affected by this operation.
+    /// </summary>
+    /// <remarks>
+    /// It throws an <see cref="InvalidAccessErrorException"/> if there is no connection to the <paramref name="destinationParam"/>.
+    /// </remarks>
+    /// <param name="destinationParam">This parameter is the <see cref="AudioParam"/> to disconnect.</param>
+    /// <exception cref="InvalidAccessErrorException"></exception>
+    public async Task DisconnectAsync(AudioParam destinationParam)
+    {
+        await JSReference.InvokeVoidAsync("disconnect", destinationParam.JSReference);
+    }
+
+    /// <summary>
+    /// Disconnects a specific output of the <see cref="AudioNode"/> from a specific destination <see cref="AudioParam"/>.
+    /// The contribution of this <see cref="AudioNode"/> to the computed parameter value goes to <c>0</c> when this operation takes effect.
+    /// The intrinsic parameter value is not affected by this operation.
+    /// </summary>
+    /// <remarks>
+    /// It throws an <see cref="InvalidAccessErrorException"/> if there is no connection to the <paramref name="destinationParam"/>.<br />
+    /// It throws an <see cref="IndexSizeErrorException"/> if the <paramref name="output"/> is out of bounds.
+    /// </remarks>
+    /// <param name="destinationParam">This parameter is the <see cref="AudioParam"/> to disconnect.</param>
+    /// <param name="output">This parameter is an index describing which output of the <see cref="AudioNode"/> from which to disconnect.</param>
+    /// <exception cref="InvalidAccessErrorException"></exception>
+    /// <exception cref="IndexSizeErrorException"></exception>
+    public async Task DisconnectAsync(AudioParam destinationParam, ulong output)
+    {
+        await JSReference.InvokeVoidAsync("disconnect", destinationParam.JSReference, output);
+    }
+
+    /// <summary>
+    /// Returns the <see cref="BaseAudioContext"/> which owns this <see cref="AudioNode"/>.
+    /// </summary>
+    public async Task<BaseAudioContext> GetContextAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "context");
+        return await BaseAudioContext.CreateAsync(JSRuntime, jSInstance);
+    }
+
+    /// <summary>
+    /// Returns the number of inputs feeding into the <see cref="AudioNode"/>.
+    /// For source nodes, this will be <c>0</c>.
+    /// </summary>
+    /// <remarks>
+    /// This attribute is predetermined for many <see cref="AudioNode"/> types, but some <see cref="AudioNode"/>s, like the <see cref="ChannelMergerNode"/> and the <see cref="AudioWorkletNode"/>, have variable number of inputs.
+    /// </remarks>
+    public async Task<ulong> GetNumberOfInputsAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "numberOfInputs");
+    }
+
+    /// <summary>
+    /// Returns the number of outputs coming out of the <see cref="AudioNode"/>.
+    /// </summary>
+    /// <remarks>
+    /// This attribute is predetermined for some <see cref="AudioNode"/> types, but can be variable, like for the <see cref="ChannelSplitterNode"/> and the <see cref="AudioWorkletNode"/>.
+    /// </remarks>
+    public async Task<ulong> GetNumberOfOutputsAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "numberOfOutputs");
+    }
+
+    /// <summary>
+    /// Returns the number of channels used when up-mixing and down-mixing connections to any inputs to the node.
+    /// The default value is <c>2</c> except for specific nodes where its value is specially determined.
+    /// This attribute has no effect for nodes with no inputs.
+    /// </summary>
+    public async Task<ulong> GetChannelCountAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "channelCount");
+    }
+
+    /// <summary>
+    /// Sets the number of channels used when up-mixing and down-mixing connections to any inputs to the node.
+    /// The default value is <c>2</c> except for specific nodes where its value is specially determined.
+    /// This attribute has no effect for nodes with no inputs.
+    /// </summary>
+    /// <remarks>
+    /// It throws a <see cref="NotSupportedErrorException"/> if this <paramref name="value"/> is set to zero or to a value greater than the implementation’s maximum number of channels.
+    /// </remarks>
+    /// <exception cref="NotSupportedErrorException"></exception>
+    public async Task SetChannelCountAsync(ulong value)
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        await helper.InvokeVoidAsync("setAttribute", JSReference, "channelCount", value);
     }
 }

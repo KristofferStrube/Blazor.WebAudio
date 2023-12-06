@@ -22,6 +22,17 @@ public class BaseAudioContext : EventTarget
     protected readonly Lazy<Task<IJSObjectReference>> webAudioHelperTask;
 
     /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="BaseAudioContext"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="BaseAudioContext"/>.</param>
+    /// <returns>A wrapper instance for an <see cref="BaseAudioContext"/>.</returns>
+    public static new Task<BaseAudioContext> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    {
+        return Task.FromResult(new BaseAudioContext(jSRuntime, jSReference));
+    }
+
+    /// <summary>
     /// Constructs a wrapper instance for a given JS Instance of a <see cref="BaseAudioContext"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
