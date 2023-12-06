@@ -6,6 +6,8 @@ namespace KristofferStrube.Blazor.WebAudio.WasmExample.AudioEditor;
 
 public abstract class Node : Rect, ITaskQueueable
 {
+    public Dictionary<string, AudioParam> AudioParams { get; set; } = new();
+
     public Node(IElement element, SVGEditor.SVGEditor svg) : base(element, svg)
     {
         string? id = element.GetAttribute("id");
@@ -43,7 +45,9 @@ public abstract class Node : Rect, ITaskQueueable
     public HashSet<(Connector connector, ulong port)> IngoingConnectors { get; } = new();
     public HashSet<(Connector connector, ulong port)> OutgoingConnectors { get; } = new();
 
-    public int? CurrentActivePort { get; set; }
+    public ulong? CurrentActivePort { get; set; }
+
+    public AudioParam? CurrentActiveAudioParam { get; set; }
 
     public override void HandlePointerMove(PointerEventArgs eventArgs)
     {

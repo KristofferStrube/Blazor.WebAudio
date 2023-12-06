@@ -31,6 +31,16 @@
                 <AudioParamSlider AudioParam="FrequencyAudioParam" Label="Frequency" Min="1" Max="2000" StepSize="1" UpdateCallback="f => SVGElement.Frequency = f" />
             }
         </foreignObject>
+
+        @if (FrequencyAudioParam is not null)
+        {
+            <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, true) { Node = SVGElement, PortNumber = 0 }) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
+                <circle @onpointerdown="() => SelectAudioParam(2, FrequencyAudioParam)" cx=@((SVGElement.X).AsString()) cy="@((SVGElement.Y+60).AsString())" r="10" fill="#1976D3">
+
+                </circle>
+            </ContextMenuTrigger>
+        }
+
         <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, false)) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
             <circle cx=@((SVGElement.X+SVGElement.Width).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
 

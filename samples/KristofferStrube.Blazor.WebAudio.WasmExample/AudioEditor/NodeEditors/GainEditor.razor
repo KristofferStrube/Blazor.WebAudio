@@ -5,10 +5,10 @@
 <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@SVGElement MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
     <g transform="translate(@SVGElement.SVG.Translate.x.AsString() @SVGElement.SVG.Translate.y.AsString()) scale(@SVGElement.SVG.Scale.AsString())">
         <rect @ref=ElementReference
-        @onfocusin="FocusElement"
-        @onfocusout="UnfocusElement"
-        @onpointerdown="SelectAsync"
-        @onkeyup="KeyUp"
+              @onfocusin="FocusElement"
+              @onfocusout="UnfocusElement"
+              @onpointerdown="SelectAsync"
+              @onkeyup="KeyUp"
               tabindex="@(SVGElement.IsChildElement ? -1 : 0)"
               x=@SVGElement.X.AsString()
               y=@SVGElement.Y.AsString()
@@ -36,6 +36,16 @@
 
             </circle>
         </ContextMenuTrigger>
+
+        @if (GainAudioParam is not null)
+        {
+            <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, true) { Node = SVGElement, PortNumber = 0 }) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
+                <circle @onpointerdown="() => SelectAudioParam(2, GainAudioParam)" cx=@((SVGElement.X).AsString()) cy="@((SVGElement.Y+60).AsString())" r="10" fill="#1976D3">
+
+                </circle>
+            </ContextMenuTrigger>
+        }
+
         <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, false)) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
             <circle cx=@((SVGElement.X+SVGElement.Width).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
 
@@ -57,6 +67,7 @@
         if (GainAudioParam is null && AudioContext is not null)
         {
             GainAudioParam = await ((GainNode)(await SVGElement.AudioNode(AudioContext))).GetGainAsync();
+            SVGElement.AudioParams["gain"] = GainAudioParam;
             StateHasChanged();
         }
     }

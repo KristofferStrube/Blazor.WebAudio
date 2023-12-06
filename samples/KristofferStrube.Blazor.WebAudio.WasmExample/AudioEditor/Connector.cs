@@ -71,8 +71,8 @@ public class Connector : Line, ITaskQueueable
         }
     }
 
-    private (Node node, ulong port)? to;
-    public (Node node, ulong port)? To
+    private (Node node, ulong port, AudioParam? param)? to;
+    public (Node node, ulong port, AudioParam? param)? To
     {
         get
         {
@@ -80,8 +80,10 @@ public class Connector : Line, ITaskQueueable
             {
                 var toNode = (Node?)SVG.Elements.FirstOrDefault(e => e is Node && e.Id == Element.GetAttribute("data-to-node"));
                 ulong toPort = (ulong)Element.GetAttributeOrZero("data-to-port");
+                AudioParam? toAudioParam = null;
+                _ = toNode?.AudioParams.TryGetValue(Element.GetAttribute("data-to-audioparam")!, out toAudioParam);
                 _ = toNode?.OutgoingConnectors.Add((this, toPort));
-                to = toNode is null ? null : (toNode, toPort);
+                to = toNode is null ? null : (toNode, toPort, toAudioParam);
             }
             return to;
         }
@@ -109,7 +111,15 @@ public class Connector : Line, ITaskQueueable
                 _ = value.Value.node.IngoingConnectors.Add((this, value.Value.port));
                 if (From is { } from)
                 {
-                    QueuedTasks.Enqueue(async context => await (await from.node.AudioNode(context)).ConnectAsync(await value.Value.node.AudioNode(context), from.port, value.Value.port));
+                    if (value.Value.param is not null)
+                    {
+                        Console.WriteLine("param was something");
+                        QueuedTasks.Enqueue(async context => await (await from.node.AudioNode(context)).ConnectAsync(value.Value.param, from.port));
+                    }
+                    else
+                    {
+                        QueuedTasks.Enqueue(async context => await (await from.node.AudioNode(context)).ConnectAsync(await value.Value.node.AudioNode(context), from.port, value.Value.port));
+                    }
                 }
             }
             Changed?.Invoke(this);
@@ -138,7 +148,11 @@ public class Connector : Line, ITaskQueueable
             }
             else
             {
-                To = (to, 0);
+                if (to.CurrentActivePort is { } port)
+                {
+                    Console.WriteLine("audio param set to something: " + (to.CurrentActiveAudioParam is not null));
+                    To = (to, port, to.CurrentActiveAudioParam);
+                }
                 SVG.EditMode = EditMode.None;
                 UpdateLine();
             }

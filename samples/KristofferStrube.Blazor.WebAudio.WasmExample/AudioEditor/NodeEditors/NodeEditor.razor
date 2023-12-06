@@ -9,11 +9,21 @@
 @code {
     public bool ChildContentIsNoninteractive => SVGElement.SVG.EditMode is EditMode.Move && SVGElement.Selected || SVGElement.SVG.EditMode is EditMode.Add or EditMode.Move;
 
-    public void SelectPort(int port)
+    public void SelectPort(ulong port)
     {
         if (SVGElement.SVG.EditMode is EditMode.Add && SVGElement.SVG.SelectedShapes.Any(s => s is Connector))
         {
             SVGElement.CurrentActivePort = port;
+            SVGElement.SVG.SelectedShapes.Add(SVGElement);
+        }
+    }
+
+    public void SelectAudioParam(ulong port, AudioParam param)
+    {
+        if (SVGElement.SVG.EditMode is EditMode.Add && SVGElement.SVG.SelectedShapes.Any(s => s is Connector))
+        {
+            SVGElement.CurrentActivePort = port;
+            SVGElement.CurrentActiveAudioParam = param;
             SVGElement.SVG.SelectedShapes.Add(SVGElement);
         }
     }
