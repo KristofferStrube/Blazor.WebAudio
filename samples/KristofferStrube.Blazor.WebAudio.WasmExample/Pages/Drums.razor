@@ -9,91 +9,135 @@
 <p>Different drums are essentially just a combination of different enharmonic modes each with different frequencies, amplitudes, and decay times + some noice from the kick.</p>
 
 <p>
-    Here we have a button that we can use to make a Bass Drum kick. An approximation of it is <code>OscillatorNode</code>s with the frequencies 50, 86, 136, 182, 225, 273 each with the same decay time (0.2 seconds) but with decreasing amplitude the higher the frequency gets.<br />
-    <small class="text-muted">I still havn't added the noise from the kick as I'm still figuring out how to do that in the simplest way.</small>
+    Below here we have a <b style="color:orange;">Timpani Drum</b> and soon I will add a <b style="color:green;">Bass Drum</b>.
 </p>
 
-<buttton class="btn btn-primary btn-lg" @onclick=PlaySound>🥁</buttton>
+<svg width="200" height="200" @onpointerdown=PlayTimps>
+    <circle cx="100" cy="100" r="90" fill="orange" stroke="orangered"></circle>
+</svg>
+
+<h3>Time Domain Data</h3>
+<hr />
+<Plot Data="timeDomainMeasurements" />
+<h3>Frequency Data</h3>
+<hr />
+<Plot Data="frequencyMeasurements" />
 
 @code {
-    static readonly float[] bassDrumFrecuencies = new float[] { 50, 118, 86, 93, 136, 182, 225, 273 };
+    static readonly float[] timpsFrequencies = new float[] { 1.00f, 1.50f, 1.98f, 2.44f };
+    static readonly float[] timpsAmplitudes = new float[] { 1, 0.8f, 0.6f, 0.2f };
+    static readonly float[] timpsDecays = new float[] { 4.5f, 7.5f, 9f, 8.5f };
+    static readonly double[] lastTimpTime = new double[] { 0, 0, 0, 0 };
 
-    AudioContext? context;
-    OscillatorNode[]? oscillatorNodes;
-    //AudioBufferSourceNode? noiseNode;
-    ChannelMergerNode? channelMergerNode;
-    ChannelSplitterNode? channelSplitterNode;
-    GainNode? gainNode;
-    DynamicsCompressorNode? compressorNode;
-    AudioDestinationNode? destinationNode;
+    bool makingMeasurements = false;
+    AudioContext context = default!;
+    DynamicsCompressorNode mainNode = default!;
+    AnalyserNode analyser = default!;
+    byte[] timeDomainMeasurements = Array.Empty<byte>();
+    byte[] frequencyMeasurements = Array.Empty<byte>();
 
-    public async Task PlaySound()
+    public async Task Initialize()
     {
-        if (context is null || gainNode is null)
+        if (context is null || mainNode is null || analyser is null)
         {
-            // We create our context and all the nodes we need.
             context = await AudioContext.CreateAsync(JSRuntime);
-            oscillatorNodes = new OscillatorNode[bassDrumFrecuencies.Length];
-            for (int i = 0; i < bassDrumFrecuencies.Length; i++)
-            {
-                OscillatorOptions options = new() { Type = OscillatorType.Sine, Frequency = bassDrumFrecuencies[i] };
-                oscillatorNodes[i] = await OscillatorNode.CreateAsync(JSRuntime, context, options);
-            }
-            channelMergerNode = await context.CreateChannelMergerAsync(numberOfInputs: (ulong)bassDrumFrecuencies.Length);
-            channelSplitterNode = await context.CreateChannelSplitterAsync(numberOfOutputs: 2);
-            gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
-            compressorNode = await context.CreateDynamicsCompressorAsync();
-            destinationNode = await context.GetDestinationAsync();
+            mainNode = await DynamicsCompressorNode.CreateAsync(JSRuntime, context);
+            analyser = await context.CreateAnalyserAsync();
+            var mixer = await context.GetDestinationAsync();
+            await mainNode.ConnectAsync(analyser);
+            await analyser.ConnectAsync(mixer);
+        }
+    }
 
-            // We add a local gain for each of the oscillators and connect them to the merger.
-            for (int i = 0; i < bassDrumFrecuencies.Length; i++)
-            {
-                var oscillatorNode = oscillatorNodes[i];
-                GainNode localModeGain = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 1.0f - (i / (float)bassDrumFrecuencies.Length) });
-                await oscillatorNode.ConnectAsync(localModeGain);
-                await localModeGain.ConnectAsync(channelMergerNode);
-                await oscillatorNode.StartAsync();
-            }
+    public async Task Analyze()
+    {
+        if (makingMeasurements) return;
+        makingMeasurements = true;
 
-            // We then add some noise to the mix as well simulating the kick when the stick hits the drum.
-            // int bufferSize = (int)await context.GetSampleRateAsync();
-            // AudioBuffer buffer = await context.DecodeAudioDataAsync(Enumerable.Range(0, bufferSize).Select(i => (byte)(i % 2)).ToArray());
-            // noiseNode = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new() { Buffer = buffer });
-            // await noiseNode.ConnectAsync(channelMergerNode);
+        int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
+        var timeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+        var frequencyDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
 
-            // We seperate the merged channels out to stereo channels
-            // and then through a gain node we use to control when the sound is audible before finally normalising the sound.
-            await channelMergerNode.ConnectAsync(channelSplitterNode);
-            await channelSplitterNode.ConnectAsync(gainNode);
-            await gainNode.ConnectAsync(compressorNode);
-            await compressorNode.ConnectAsync(destinationNode);
+        while (makingMeasurements)
+        {
+            await analyser.GetByteTimeDomainDataAsync(timeDomainDataArray);
+            await analyser.GetByteFrequencyDataAsync(frequencyDataArray);
+
+            timeDomainMeasurements = await timeDomainDataArray.GetByteArrayAsync();
+            frequencyMeasurements = await frequencyDataArray.GetByteArrayAsync();
+            await Task.Delay(1);
+            StateHasChanged();
+        }
+    }
+
+    public async Task PlayTimps(PointerEventArgs eventArgs)
+    {
+        await Initialize();
+
+        float distanceFromMid = (float)Math.Sqrt(Math.Pow(eventArgs.OffsetX - 100, 2) + Math.Pow(eventArgs.OffsetY - 100, 2));
+        if (distanceFromMid > 90) return;
+        float pitch = 100 + distanceFromMid;
+
+        ConstantSourceNode cVMixer = await ConstantSourceNode.CreateAsync(JSRuntime, context, new() { Offset = pitch });
+        await cVMixer.StartAsync();
+
+        GainNode[]? timpOscillatorAmplifiers = new GainNode[4];
+        for (int i = 0; i < 4; i++)
+        {
+            var oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Type = OscillatorType.Sine, Frequency = 0 });
+            var amplifier = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
+            await oscillator.ConnectAsync(amplifier);
+            await amplifier.ConnectAsync(mainNode);
+            var oscillatorFrequency = await oscillator.GetFrequencyAsync();
+            var frequencyRelativeAmplifier = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = timpsFrequencies[i] });
+            await frequencyRelativeAmplifier.ConnectAsync(oscillatorFrequency);
+            await cVMixer.ConnectAsync(frequencyRelativeAmplifier);
+            timpOscillatorAmplifiers[i] = amplifier;
+            await oscillator.StartAsync();
         }
 
-        // When the button is clicked we only change the gain of the output.
-        // We start of with getting the current value of the gain and the time.
-        AudioParam gainAudioParam = await gainNode.GetGainAsync();
-        double currentTime = await context.GetCurrentTimeAsync();
-        float currentValue = await gainAudioParam.GetValueAsync();
-        // Then we hold the value that it has right now for 0.05 seconds.
-        await gainAudioParam.CancelAndHoldAtTimeAsync(currentTime);
-        await gainAudioParam.SetValueAtTimeAsync(currentValue, currentTime + 0.05);
-        // And the we ramp up the amplitude to 1 over 0.05 seconds before ramping down to 0 again over 0.2 seconds.
-        await gainAudioParam.LinearRampToValueAtTimeAsync(1, currentTime + 0.1);
-        await gainAudioParam.LinearRampToValueAtTimeAsync(0, currentTime + 0.3);
+        var time = await context.GetCurrentTimeAsync();
+
+        for (int i = 0; i < 4; i++)
+        {
+            var gain = await timpOscillatorAmplifiers[i].GetGainAsync();
+            await gain.SetValueAsync(await gain.GetValueAsync());
+            await gain.LinearRampToValueAtTimeAsync(timpsAmplitudes[i] / timpsAmplitudes.Sum(), time + 0.3);
+            var endTime = time + timpsDecays[i] * 0.1;
+            await gain.LinearRampToValueAtTimeAsync(0, endTime);
+            lastTimpTime[i] = endTime;
+        }
+
+        var noiseCarrier = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Frequency = 100 });
+        var noiseModulator = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Frequency = 87 });
+        var noiseRingModulator = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
+        var noiseGain = await noiseRingModulator.GetGainAsync();
+        var noiseHighPassFilter = await BiquadFilterNode.CreateAsync(JSRuntime, context, new() {  Type = BiquadFilterType.Highpass, Frequency = 150, Q = 1 });
+        var noiseAmplifier = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
+        await noiseCarrier.ConnectAsync(noiseRingModulator);
+        await noiseModulator.ConnectAsync(noiseGain);
+        await noiseRingModulator.ConnectAsync(noiseHighPassFilter);
+        await noiseHighPassFilter.ConnectAsync(noiseAmplifier);
+        await noiseAmplifier.ConnectAsync(mainNode);
+        await noiseCarrier.StartAsync();
+        await noiseModulator.StartAsync();
+        var noiseAmplifierGain = await noiseAmplifier.GetGainAsync();
+        await noiseAmplifierGain.LinearRampToValueAtTimeAsync(0.2f, time + 0.3);
+        await noiseAmplifierGain.LinearRampToValueAtTimeAsync(0, time + timpsDecays.Max() * 0.1);
+
+        await Analyze();
     }
 
     public async Task StopSound()
     {
-        if (oscillatorNodes is null) return;
+        if (mainNode is null || analyser is null) return;
 
-        foreach (OscillatorNode oscillatorNode in oscillatorNodes)
-        {
-            await oscillatorNode.StopAsync();
-        }
+        await mainNode.DisconnectAsync(analyser);
     }
 
     public async ValueTask DisposeAsync()
     {
+        makingMeasurements = false;
         await StopSound();
     }
 }

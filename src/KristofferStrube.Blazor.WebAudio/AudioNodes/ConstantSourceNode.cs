@@ -32,7 +32,7 @@ public class ConstantSourceNode : AudioScheduledSourceNode
     public static async Task<ConstantSourceNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, ConstantSourceOptions? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructConstantSourceNode", context, options);
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructConstantSourceNode", context.JSReference, options);
         return new ConstantSourceNode(jSRuntime, jSInstance);
     }
 
