@@ -144,6 +144,23 @@
             await gain.LinearRampToValueAtTimeAsync(1 / (float)6, time + 0.2);
             await gain.LinearRampToValueAtTimeAsync(0, time + 0.4);
         }
+
+        var midFrequencyModulator = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Frequency = 87 });
+        var midFrequencyModulatorAmplifier = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 375 });
+        var midFrequencyCarrier = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Frequency = 625 });
+        var midFrequencyBandPassFilter = await BiquadFilterNode.CreateAsync(JSRuntime, context, new() { Type = BiquadFilterType.Bandpass, Frequency = 625, Q = 1 });
+        var midFrequencyGain = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
+        await midFrequencyModulator.ConnectAsync(midFrequencyModulatorAmplifier);
+        var carrierFrequency = await midFrequencyCarrier.GetFrequencyAsync();
+        await midFrequencyModulatorAmplifier.ConnectAsync(carrierFrequency);
+        await midFrequencyCarrier.ConnectAsync(midFrequencyBandPassFilter);
+        await midFrequencyBandPassFilter.ConnectAsync(midFrequencyGain);
+        await midFrequencyGain.ConnectAsync(mainNode);
+        await midFrequencyModulator.StartAsync();
+        await midFrequencyCarrier.StartAsync();
+        var midGain = await midFrequencyGain.GetGainAsync();
+        await midGain.LinearRampToValueAtTimeAsync(0.1f, time + 0.2);
+        await midGain.LinearRampToValueAtTimeAsync(0, time + 0.4);
     }
 
     public async Task StopSound()
