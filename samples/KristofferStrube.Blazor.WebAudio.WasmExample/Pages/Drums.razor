@@ -18,11 +18,15 @@
     <circle cx="100" cy="100" r="90" fill="orange" stroke="orangered"></circle>
 </svg>
 
+<h3>Time Domain</h3>
+<hr />
+<Plot Data="timeDomainMeasurements" />
 <h3>Spectrogram</h3>
 <hr />
-<SpectrogramPlot Analyser=analyser UpperFrequency="40" Height="400" />
+<SpectrogramPlot Analyser=analyser UpperFrequency="40" />
 
 @code {
+    bool makingMeasurements = false;
     static readonly float[] timpsFrequencies = new float[] { 1.00f, 1.50f, 1.98f, 2.44f };
     static readonly float[] timpsAmplitudes = new float[] { 1, 0.8f, 0.6f, 0.2f };
     static readonly float[] timpsDecays = new float[] { 4.5f, 7.5f, 9f, 8.5f };
@@ -43,6 +47,24 @@
             var mixer = await context.GetDestinationAsync();
             await mainNode.ConnectAsync(analyser);
             await analyser.ConnectAsync(mixer);
+        }
+    }
+
+    public async Task Analyze()
+    {
+        if (makingMeasurements) return;
+        makingMeasurements = true;
+
+        int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
+        var timeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+
+        while (makingMeasurements)
+        {
+            await analyser.GetByteTimeDomainDataAsync(timeDomainDataArray);
+
+            timeDomainMeasurements = await timeDomainDataArray.GetByteArrayAsync();
+            await Task.Delay(1);
+            StateHasChanged();
         }
     }
 
@@ -93,6 +115,8 @@
         var noiseAmplifierGain = await noiseAmplifier.GetGainAsync();
         await noiseAmplifierGain.LinearRampToValueAtTimeAsync(0.2f, time + 0.3);
         await noiseAmplifierGain.LinearRampToValueAtTimeAsync(0, time + timpsDecays.Max() * 0.1);
+
+        await Analyze();
     }
 
     public async Task StopSound()
@@ -104,6 +128,7 @@
 
     public async ValueTask DisposeAsync()
     {
+        makingMeasurements = false;
         await StopSound();
     }
 }
