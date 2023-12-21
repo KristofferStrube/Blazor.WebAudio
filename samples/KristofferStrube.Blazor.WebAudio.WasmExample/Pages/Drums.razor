@@ -9,9 +9,7 @@
 <p>Different drums are essentially just a combination of different enharmonic modes each with different frequencies, amplitudes, and decay times + some noice from the kick.</p>
 
 <p>
-    Below here we have a <b style="color:orange;">Timpani Drum</b>. Try to hit it!
-    <br />
-    <small>Soon I will add a <b style="color:grey;">Bass Drum</b> as well.</small>
+    Below here we have a <b style="color:orange;">Timpani Drum</b> and a <b style="color:silver;">Bass Drum</b>. Try to hitting them!
 </p>
 
 <svg width="200" height="200" @onpointerdown=PlayTimps>
@@ -100,9 +98,9 @@
     {
         await Initialize();
 
-        float distanceFromMid = (float)Math.Sqrt(Math.Pow(eventArgs.OffsetX - 100, 2) + Math.Pow(eventArgs.OffsetY - 100, 2));
+        float distanceFromMid = (float)Math.Sqrt(Math.Pow(eventArgs.OffsetX - 90, 2) + Math.Pow(eventArgs.OffsetY - 90, 2));
         if (distanceFromMid > 80) return;
-        float pitch = 40 + distanceFromMid / 2;
+        float pitch = 40 + distanceFromMid / 4;
 
         GainNode[]? oscillatorAmplifiers = new GainNode[6];
         for (int i = 0; i < 6; i++)
@@ -128,7 +126,7 @@
         var midFrequencyModulator = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Frequency = 87 });
         var midFrequencyModulatorAmplifier = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 375 });
         var midFrequencyCarrier = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Frequency = 625 });
-        var midFrequencyBandPassFilter = await BiquadFilterNode.CreateAsync(JSRuntime, context, new() { Type = BiquadFilterType.Bandpass, Frequency = 625, Q = 10 });
+        var midFrequencyBandPassFilter = await BiquadFilterNode.CreateAsync(JSRuntime, context, new() { Type = BiquadFilterType.Bandpass, Frequency = 625, Q = 2 });
         var midFrequencyGain = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
         await midFrequencyModulator.ConnectAsync(midFrequencyModulatorAmplifier);
         var carrierFrequency = await midFrequencyCarrier.GetFrequencyAsync();
