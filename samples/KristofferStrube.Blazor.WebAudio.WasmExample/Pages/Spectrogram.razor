@@ -41,7 +41,6 @@ else
     byte[] frequencyMeasurements = Array.Empty<byte>();
     float frequency;
     OscillatorType type;
-    bool makeMeasurements = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,7 +67,6 @@ else
 
     public async Task StopSound()
     {
-        makeMeasurements = false;
         if (oscillator is null) return;
         await oscillator.StopAsync();
         oscillator = null;
