@@ -29,7 +29,7 @@
     static readonly double[] lastTimpTime = new double[] { 0, 0, 0, 0 };
 
     AudioContext context = default!;
-    DynamicsCompressorNode mainNode = default!;
+    GainNode mainNode = default!;
     AnalyserNode analyser = default!;
     byte[] timeDomainMeasurements = Array.Empty<byte>();
 
@@ -38,7 +38,7 @@
         if (context is null || mainNode is null || analyser is null)
         {
             context = await AudioContext.CreateAsync(JSRuntime);
-            mainNode = await DynamicsCompressorNode.CreateAsync(JSRuntime, context);
+            mainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.5f });
             analyser = await context.CreateAnalyserAsync();
             var mixer = await context.GetDestinationAsync();
             await mainNode.ConnectAsync(analyser);
