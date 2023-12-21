@@ -63,7 +63,7 @@ public partial class SpectrogramPlot : IDisposable
             lastTime = currentTime;
 
             StateHasChanged();
-            await Task.Delay(Math.Max(1, 100 - (int)intervalLength));
+            await Task.Delay(10);
 
         }
     }
