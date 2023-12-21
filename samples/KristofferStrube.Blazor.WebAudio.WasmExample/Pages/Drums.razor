@@ -11,26 +11,23 @@
 <p>
     Below here we have a <b style="color:orange;">Timpani Drum</b>. Try to hit it!
     <br />
-    <small>Soon I will add a <b style="color:green;">Bass Drum</b> as well.</small>
+    <small>Soon I will add a <b style="color:grey;">Bass Drum</b> as well.</small>
 </p>
 
 <svg width="200" height="200" @onpointerdown=PlayTimps>
     <circle cx="100" cy="100" r="90" fill="orange" stroke="orangered"></circle>
 </svg>
 
-<h3>Time Domain</h3>
-<hr />
-<Plot Data="timeDomainMeasurements" />
+<svg width="180" height="180" @onpointerdown=PlayBass>
+    <circle cx="90" cy="90" r="80" fill="silver" stroke="grey"></circle>
+</svg>
+
 <h3>Spectrogram</h3>
 <hr />
 <SpectrogramPlot Analyser=analyser UpperFrequency="40" TimeInSeconds="8" />
 
 @code {
     bool makingMeasurements = false;
-    static readonly float[] timpsFrequencies = new float[] { 1.00f, 1.50f, 1.98f, 2.44f };
-    static readonly float[] timpsAmplitudes = new float[] { 1, 0.8f, 0.6f, 0.2f };
-    static readonly float[] timpsDecays = new float[] { 4.5f, 7.5f, 9f, 8.5f };
-    static readonly double[] lastTimpTime = new double[] { 0, 0, 0, 0 };
 
     AudioContext context = default!;
     GainNode mainNode = default!;
@@ -50,24 +47,27 @@
         }
     }
 
-    public async Task Analyze()
-    {
-        if (makingMeasurements) return;
-        makingMeasurements = true;
+    // public async Task Analyze()
+    // {
+    //     if (makingMeasurements) return;
+    //     makingMeasurements = true;
 
-        int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
-        var timeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+    //     int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
+    //     var timeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
 
-        while (makingMeasurements)
-        {
-            await analyser.GetByteTimeDomainDataAsync(timeDomainDataArray);
+    //     while (makingMeasurements)
+    //     {
+    //         await analyser.GetByteTimeDomainDataAsync(timeDomainDataArray);
 
-            timeDomainMeasurements = await timeDomainDataArray.GetByteArrayAsync();
-            await Task.Delay(1);
-            StateHasChanged();
-        }
-    }
+    //         timeDomainMeasurements = await timeDomainDataArray.GetByteArrayAsync();
+    //         await Task.Delay(1);
+    //         StateHasChanged();
+    //     }
+    // }
 
+    static readonly float[] timpsFrequencies = new float[] { 1.00f, 1.50f, 1.98f, 2.44f };
+    static readonly float[] timpsAmplitudes = new float[] { 1, 0.8f, 0.6f, 0.2f };
+    static readonly float[] timpsDecays = new float[] { 4.5f, 7.5f, 9f, 8.5f };
     public async Task PlayTimps(PointerEventArgs eventArgs)
     {
         await Initialize();
@@ -76,14 +76,14 @@
         if (distanceFromMid > 90) return;
         float pitch = 100 + distanceFromMid;
 
-        GainNode[]? timpOscillatorAmplifiers = new GainNode[4];
+        GainNode[]? oscillatorAmplifiers = new GainNode[4];
         for (int i = 0; i < 4; i++)
         {
             var oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Type = OscillatorType.Sine, Frequency = timpsFrequencies[i] * pitch });
             var amplifier = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
             await oscillator.ConnectAsync(amplifier);
             await amplifier.ConnectAsync(mainNode);
-            timpOscillatorAmplifiers[i] = amplifier;
+            oscillatorAmplifiers[i] = amplifier;
             await oscillator.StartAsync();
         }
 
@@ -91,19 +91,17 @@
 
         for (int i = 0; i < 4; i++)
         {
-            var gain = await timpOscillatorAmplifiers[i].GetGainAsync();
+            var gain = await oscillatorAmplifiers[i].GetGainAsync();
             await gain.SetValueAsync(await gain.GetValueAsync());
             await gain.LinearRampToValueAtTimeAsync(timpsAmplitudes[i] / timpsAmplitudes.Sum(), time + 0.3);
-            var endTime = time + timpsDecays[i] * 0.1;
-            await gain.LinearRampToValueAtTimeAsync(0, endTime);
-            lastTimpTime[i] = endTime;
+            await gain.LinearRampToValueAtTimeAsync(0, time + timpsDecays[i] * 0.1);
         }
 
         var noiseCarrier = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Frequency = 100 });
         var noiseModulator = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Frequency = 87 });
         var noiseRingModulator = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
         var noiseGain = await noiseRingModulator.GetGainAsync();
-        var noiseHighPassFilter = await BiquadFilterNode.CreateAsync(JSRuntime, context, new() {  Type = BiquadFilterType.Highpass, Frequency = 150, Q = 1 });
+        var noiseHighPassFilter = await BiquadFilterNode.CreateAsync(JSRuntime, context, new() { Type = BiquadFilterType.Highpass, Frequency = 150, Q = 1 });
         var noiseAmplifier = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
         await noiseCarrier.ConnectAsync(noiseRingModulator);
         await noiseModulator.ConnectAsync(noiseGain);
@@ -115,8 +113,37 @@
         var noiseAmplifierGain = await noiseAmplifier.GetGainAsync();
         await noiseAmplifierGain.LinearRampToValueAtTimeAsync(0.2f, time + 0.3);
         await noiseAmplifierGain.LinearRampToValueAtTimeAsync(0, time + timpsDecays.Max() * 0.1);
+    }
 
-        await Analyze();
+    static readonly float[] bassFrequencies = new float[] { 1.00f, 1.86f, 2.72f, 3.64f, 4.50f, 5.46f };
+    public async Task PlayBass(PointerEventArgs eventArgs)
+    {
+        await Initialize();
+
+        float distanceFromMid = (float)Math.Sqrt(Math.Pow(eventArgs.OffsetX - 100, 2) + Math.Pow(eventArgs.OffsetY - 100, 2));
+        if (distanceFromMid > 80) return;
+        float pitch = 50 + distanceFromMid / 2;
+
+        GainNode[]? oscillatorAmplifiers = new GainNode[4];
+        for (int i = 0; i < 4; i++)
+        {
+            var oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Type = OscillatorType.Sine, Frequency = bassFrequencies[i] * pitch });
+            var amplifier = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
+            await oscillator.ConnectAsync(amplifier);
+            await amplifier.ConnectAsync(mainNode);
+            oscillatorAmplifiers[i] = amplifier;
+            await oscillator.StartAsync();
+        }
+
+        var time = await context.GetCurrentTimeAsync();
+
+        for (int i = 0; i < 4; i++)
+        {
+            var gain = await oscillatorAmplifiers[i].GetGainAsync();
+            await gain.SetValueAsync(await gain.GetValueAsync());
+            await gain.LinearRampToValueAtTimeAsync(1 / (float)6, time + 0.3);
+            await gain.LinearRampToValueAtTimeAsync(0, time + 1);
+        }
     }
 
     public async Task StopSound()
