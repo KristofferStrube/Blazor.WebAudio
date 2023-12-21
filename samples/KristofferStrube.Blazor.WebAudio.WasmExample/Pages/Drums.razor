@@ -18,12 +18,9 @@
     <circle cx="100" cy="100" r="90" fill="orange" stroke="orangered"></circle>
 </svg>
 
-<h3>Time Domain Data</h3>
+<h3>Spectrogram</h3>
 <hr />
-<Plot Data="timeDomainMeasurements" />
-<h3>Frequency Data</h3>
-<hr />
-<Plot Data="frequencyMeasurements" />
+<SpectrogramPlot Analyser=analyser UpperFrequency="30" />
 
 @code {
     static readonly float[] timpsFrequencies = new float[] { 1.00f, 1.50f, 1.98f, 2.44f };
@@ -31,12 +28,10 @@
     static readonly float[] timpsDecays = new float[] { 4.5f, 7.5f, 9f, 8.5f };
     static readonly double[] lastTimpTime = new double[] { 0, 0, 0, 0 };
 
-    bool makingMeasurements = false;
     AudioContext context = default!;
     DynamicsCompressorNode mainNode = default!;
     AnalyserNode analyser = default!;
     byte[] timeDomainMeasurements = Array.Empty<byte>();
-    byte[] frequencyMeasurements = Array.Empty<byte>();
 
     public async Task Initialize()
     {
@@ -51,27 +46,6 @@
         }
     }
 
-    public async Task Analyze()
-    {
-        if (makingMeasurements) return;
-        makingMeasurements = true;
-
-        int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
-        var timeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
-        var frequencyDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
-
-        while (makingMeasurements)
-        {
-            await analyser.GetByteTimeDomainDataAsync(timeDomainDataArray);
-            await analyser.GetByteFrequencyDataAsync(frequencyDataArray);
-
-            timeDomainMeasurements = await timeDomainDataArray.GetByteArrayAsync();
-            frequencyMeasurements = await frequencyDataArray.GetByteArrayAsync();
-            await Task.Delay(1);
-            StateHasChanged();
-        }
-    }
-
     public async Task PlayTimps(PointerEventArgs eventArgs)
     {
         await Initialize();
@@ -80,20 +54,13 @@
         if (distanceFromMid > 90) return;
         float pitch = 100 + distanceFromMid;
 
-        ConstantSourceNode cVMixer = await ConstantSourceNode.CreateAsync(JSRuntime, context, new() { Offset = pitch });
-        await cVMixer.StartAsync();
-
         GainNode[]? timpOscillatorAmplifiers = new GainNode[4];
         for (int i = 0; i < 4; i++)
         {
-            var oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Type = OscillatorType.Sine, Frequency = 0 });
+            var oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Type = OscillatorType.Sine, Frequency = timpsFrequencies[i] * pitch });
             var amplifier = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
             await oscillator.ConnectAsync(amplifier);
             await amplifier.ConnectAsync(mainNode);
-            var oscillatorFrequency = await oscillator.GetFrequencyAsync();
-            var frequencyRelativeAmplifier = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = timpsFrequencies[i] });
-            await frequencyRelativeAmplifier.ConnectAsync(oscillatorFrequency);
-            await cVMixer.ConnectAsync(frequencyRelativeAmplifier);
             timpOscillatorAmplifiers[i] = amplifier;
             await oscillator.StartAsync();
         }
@@ -104,7 +71,7 @@
         {
             var gain = await timpOscillatorAmplifiers[i].GetGainAsync();
             await gain.SetValueAsync(await gain.GetValueAsync());
-            await gain.LinearRampToValueAtTimeAsync(timpsAmplitudes[i] / timpsAmplitudes.Sum(), time + 0.3);
+            await gain.LinearRampToValueAtTimeAsync(timpsAmplitudes[i] / timpsAmplitudes.Sum(), time + 0.1);
             var endTime = time + timpsDecays[i] * 0.1;
             await gain.LinearRampToValueAtTimeAsync(0, endTime);
             lastTimpTime[i] = endTime;
@@ -124,10 +91,8 @@
         await noiseCarrier.StartAsync();
         await noiseModulator.StartAsync();
         var noiseAmplifierGain = await noiseAmplifier.GetGainAsync();
-        await noiseAmplifierGain.LinearRampToValueAtTimeAsync(0.2f, time + 0.3);
+        await noiseAmplifierGain.LinearRampToValueAtTimeAsync(0.2f, time + 0.1);
         await noiseAmplifierGain.LinearRampToValueAtTimeAsync(0, time + timpsDecays.Max() * 0.1);
-
-        await Analyze();
     }
 
     public async Task StopSound()
@@ -139,7 +104,6 @@
 
     public async ValueTask DisposeAsync()
     {
-        makingMeasurements = false;
         await StopSound();
     }
 }

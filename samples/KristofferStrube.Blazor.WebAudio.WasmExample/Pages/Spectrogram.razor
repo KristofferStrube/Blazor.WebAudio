@@ -30,15 +30,13 @@ else
         type: @type
     </div>
 }
-<h3>Time Domain Data</h3>
-<Plot Data="timeDomainMeasurements" />
-<h3>Frequency Data</h3>
-<Plot Data="frequencyMeasurements" />
+<SpectrogramPlot Analyser="analyser" UpperFrequency="400" />
 
 @code {
     AudioContext context = default!;
     GainNode gainNode = default!;
     OscillatorNode? oscillator;
+    AnalyserNode? analyser;
     byte[] timeDomainMeasurements = Array.Empty<byte>();
     byte[] frequencyMeasurements = Array.Empty<byte>();
     float frequency;
@@ -60,30 +58,12 @@ else
         type = (OscillatorType)Random.Shared.Next(0, 4);
         frequency = Random.Shared.Next(100, 500);
 
-        AnalyserNode analyser = await context.CreateAnalyserAsync();
+        analyser = await context.CreateAnalyserAsync();
         await analyser.ConnectAsync(gainNode);
 
         oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, new() { Type = type, Frequency = frequency });
         await oscillator.ConnectAsync(analyser);
         await oscillator.StartAsync();
-
-        await Task.Delay(200);
-
-        int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
-        var timeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
-        var frequencyDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
-
-        makeMeasurements = true;
-        while (makeMeasurements)
-        {
-            await analyser.GetByteTimeDomainDataAsync(timeDomainDataArray);
-            await analyser.GetByteFrequencyDataAsync(frequencyDataArray);
-
-            timeDomainMeasurements = await timeDomainDataArray.GetByteArrayAsync();
-            frequencyMeasurements = await frequencyDataArray.GetByteArrayAsync();
-            await Task.Delay(1);
-            StateHasChanged();
-        }
     }
 
     public async Task StopSound()

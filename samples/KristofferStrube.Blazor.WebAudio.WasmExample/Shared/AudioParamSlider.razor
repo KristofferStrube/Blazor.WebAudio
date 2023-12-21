@@ -1,6 +1,5 @@
-﻿@implements IDisposable
+﻿@using System.Globalization;
 
-@using System.Globalization;
 <label for=@inputId><small>@Label:</small></label>
 <nobr>
     <input @bind-value=value
@@ -22,7 +21,6 @@
 @code {
     private string inputId = $"audioParam_{Guid.NewGuid()}"[..9];
     private float value = 0;
-    private bool running = false;
 
     [Parameter, EditorRequired]
     public required AudioParam AudioParam { get; set; }
@@ -53,10 +51,5 @@
         if (AudioParam is null) return;
         await AudioParam.SetValueAsync(value);
         UpdateCallback?.Invoke(value);
-    }
-
-    public void Dispose()
-    {
-        running = false;
     }
 }

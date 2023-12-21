@@ -1,0 +1,11 @@
+﻿<svg width="100%" height="@(Height)px" preserveAspectRatio="none" viewBox="0 0 @(TimeInSeconds * 1000) @(UpperFrequency - LowerFrequency)">
+    @for (int i = 1; i < data.Count; i++)
+    {
+        for (int j = 0; j < UpperFrequency - LowerFrequency; j++)
+        {
+            <rect @key=@((i, j)) x="@intervals[i].start.AsString()" y="@j" height="1" width="@intervals[i].length.AsString()" fill=@($"#F{(255-data[i][j])/16:X}{(255-data[i][j])/16:X}") ></rect>
+        }
+    }
+</svg>
+
+
