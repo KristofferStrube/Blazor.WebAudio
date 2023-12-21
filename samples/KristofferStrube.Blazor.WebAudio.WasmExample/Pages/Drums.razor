@@ -141,8 +141,8 @@
         {
             var gain = await oscillatorAmplifiers[i].GetGainAsync();
             await gain.SetValueAsync(await gain.GetValueAsync());
-            await gain.LinearRampToValueAtTimeAsync(1 / (float)6, time + 0.3);
-            await gain.LinearRampToValueAtTimeAsync(0, time + 1);
+            await gain.LinearRampToValueAtTimeAsync(1 / (float)6, time + 0.2);
+            await gain.LinearRampToValueAtTimeAsync(0, time + 0.4);
         }
     }
 
