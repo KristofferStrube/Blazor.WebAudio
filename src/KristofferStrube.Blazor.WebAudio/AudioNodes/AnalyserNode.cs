@@ -45,7 +45,7 @@ public class AnalyserNode : AudioNode
     protected AnalyserNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
 
     /// <summary>
-    /// Get a reference to the bytes held by the <see cref="Float32Array"/> passed as an argument.
+    /// Gets a reference to the bytes held by the <see cref="Float32Array"/> passed as an argument.
     /// Copies the current frequency data into those bytes.
     /// </summary>
     /// <remarks>
@@ -62,7 +62,7 @@ public class AnalyserNode : AudioNode
     }
 
     /// <summary>
-    /// Get a reference to the bytes held by the <see cref="Uint8Array"/> passed as an argument.
+    /// Gets a reference to the bytes held by the <see cref="Uint8Array"/> passed as an argument.
     /// Copies the current time-domain data (waveform data) into those bytes.
     /// </summary>
     /// <remarks>
@@ -77,7 +77,7 @@ public class AnalyserNode : AudioNode
     }
 
     /// <summary>
-    /// Get a reference to the bytes held by the <see cref="Float32Array"/> passed as an argument.
+    /// Gets a reference to the bytes held by the <see cref="Float32Array"/> passed as an argument.
     /// Copies the current time-domain data (waveform data) into those bytes.
     /// </summary>
     /// <remarks>
@@ -92,7 +92,7 @@ public class AnalyserNode : AudioNode
     }
 
     /// <summary>
-    /// Get a reference to the bytes held by the <see cref="Uint8Array"/> passed as an argument.
+    /// Gets a reference to the bytes held by the <see cref="Uint8Array"/> passed as an argument.
     /// Copies the current time-domain data (waveform data) into those bytes.
     /// </summary>
     /// <remarks>

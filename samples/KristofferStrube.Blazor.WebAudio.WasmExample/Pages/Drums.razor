@@ -71,7 +71,7 @@
         {
             var gain = await timpOscillatorAmplifiers[i].GetGainAsync();
             await gain.SetValueAsync(await gain.GetValueAsync());
-            await gain.LinearRampToValueAtTimeAsync(timpsAmplitudes[i] / timpsAmplitudes.Sum(), time + 0.1);
+            await gain.LinearRampToValueAtTimeAsync(timpsAmplitudes[i] / timpsAmplitudes.Sum(), time + 0.3);
             var endTime = time + timpsDecays[i] * 0.1;
             await gain.LinearRampToValueAtTimeAsync(0, endTime);
             lastTimpTime[i] = endTime;
@@ -91,7 +91,7 @@
         await noiseCarrier.StartAsync();
         await noiseModulator.StartAsync();
         var noiseAmplifierGain = await noiseAmplifier.GetGainAsync();
-        await noiseAmplifierGain.LinearRampToValueAtTimeAsync(0.2f, time + 0.1);
+        await noiseAmplifierGain.LinearRampToValueAtTimeAsync(0.2f, time + 0.3);
         await noiseAmplifierGain.LinearRampToValueAtTimeAsync(0, time + timpsDecays.Max() * 0.1);
     }
 
