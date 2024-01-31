@@ -18,6 +18,12 @@ public class Analyser : Node
         return audioNode;
     };
 
+    public new float Height
+    {
+        get => 130;
+        set => base.Height = 130;
+    }
+
     public bool Running { get; set; }
 
     public override Type Presenter => typeof(AnalyserEditor);
@@ -32,7 +38,7 @@ public class Analyser : Node
             Changed = SVG.UpdateInput,
             Stroke = "#9CCC66",
             StrokeWidth = "2",
-            Height = 100,
+            Height = 130,
             Width = 250,
         };
 

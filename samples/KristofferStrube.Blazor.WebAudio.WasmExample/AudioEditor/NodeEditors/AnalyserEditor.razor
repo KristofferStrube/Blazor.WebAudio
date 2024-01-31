@@ -24,10 +24,15 @@
               fill="@SVGElement.Fill"
               style="filter:brightness(@(SVGElement.Selected ? "0.9" : "1"))">
         </rect>
-        <foreignObject @onpointerdown:stopPropagation=!SVGElement.Selected x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="80" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2;pointer-events:@(SVGElement.Selected ? "none" : "inherit");touch-action:@(SVGElement.Selected ? "none" : "inherit")">
+        <foreignObject @onpointerdown:stopPropagation=!SVGElement.Selected x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="110" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2;pointer-events:@(SVGElement.Selected ? "none" : "inherit");touch-action:@(SVGElement.Selected ? "none" : "inherit")">
             Analyser
             <br />
-            <Plot Data="timeDomainMeasurements" Height="50" />
+            <select @bind=analyzeOutput>
+                <option value="TimeDomain" title="Time Domain Data.">Time Domain</option>
+                <option value="Frequency" title="Frequency Data.">Frequency</option>
+            </select>
+            <br />
+            <Plot Data="measurements" Height="50" />
         </foreignObject>
         <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, true) { Node = SVGElement, PortNumber = 0 }) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
             <circle @onpointerdown="() => SelectPort(0)" cx=@((SVGElement.X).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
@@ -44,8 +49,9 @@
 
 @code {
     private AnalyserNode? analyser;
+    private string analyzeOutput = "TimeDomain";
 
-    private byte[] timeDomainMeasurements = Array.Empty<byte>();
+    private byte[] measurements = Array.Empty<byte>();
 
     [CascadingParameter]
     public required AudioContext AudioContext { get; set; }
@@ -59,8 +65,7 @@
             analyser = (AnalyserNode)await SVGElement.AudioNode(AudioContext);
 
             int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
-            Uint8Array timeDomainDataArray = await Uint8Array.CreateAsync(AudioContext.JSRuntime, bufferLength);
-            Uint8Array frequencyDataArray = await Uint8Array.CreateAsync(AudioContext.JSRuntime, bufferLength);
+            Uint8Array dataArray = await Uint8Array.CreateAsync(AudioContext.JSRuntime, bufferLength);
 
             SVGElement.Running = true;
 
@@ -68,9 +73,16 @@
             {
                 try
                 {
-                    await analyser.GetByteTimeDomainDataAsync(timeDomainDataArray);
+                    if (analyzeOutput is "TimeDomain")
+                    {
+                        await analyser.GetByteTimeDomainDataAsync(dataArray);
+                    }
+                    else
+                    {
+                        await analyser.GetByteFrequencyDataAsync(dataArray);
+                    }
 
-                    timeDomainMeasurements = await timeDomainDataArray.GetByteArrayAsync();
+                    measurements = await dataArray.GetByteArrayAsync();
                     await Task.Delay(10);
                     SVGElement._stateRepresentation = "";
                     StateHasChanged();
