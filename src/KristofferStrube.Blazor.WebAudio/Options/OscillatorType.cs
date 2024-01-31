@@ -11,23 +11,23 @@ namespace KristofferStrube.Blazor.WebAudio;
 public enum OscillatorType
 {
     /// <summary>
-    /// A sine wave
+    /// A sine wave.
     /// </summary>
     Sine,
     /// <summary>
-    /// A square wave of duty period 0.5
+    /// A square wave of duty period <c>0.5</c>.
     /// </summary>
     Square,
     /// <summary>
-    ///	A sawtooth wave
+    ///	A sawtooth wave.
     /// </summary>
     Sawtooth,
     /// <summary>
-    /// A triangle wave
+    /// A triangle wave.
     /// </summary>
     Triangle,
     /// <summary>
-    /// A custom periodic wave
+    /// A custom periodic wave.
     /// </summary>
     Custom
 }
