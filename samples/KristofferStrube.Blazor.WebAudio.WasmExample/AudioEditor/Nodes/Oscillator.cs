@@ -1,6 +1,7 @@
 ﻿using AngleSharp.Dom;
 using KristofferStrube.Blazor.WebAudio.WasmExample.AudioEditor.NodeEditors;
 using System.Globalization;
+using static System.Text.Json.JsonSerializer;
 
 namespace KristofferStrube.Blazor.WebAudio.WasmExample.AudioEditor;
 
@@ -24,6 +25,29 @@ public class Oscillator : Node
         }
         return audioNode;
     };
+
+    public new float Height
+    {
+        get => 130;
+        set => base.Height = 130;
+    }
+
+    public OscillatorType? Type
+    {
+        get => Element.GetAttribute("data-type") is { } value ? Deserialize<OscillatorType>($"\"{value}\"") : null;
+        set
+        {
+            if (value is null)
+            {
+                _ = Element.RemoveAttribute("data-type");
+            }
+            else
+            {
+                Element.SetAttribute("data-type", Serialize(value.Value)[1..^1]);
+            }
+            Changed?.Invoke(this);
+        }
+    }
 
     public float? Frequency
     {
@@ -54,7 +78,7 @@ public class Oscillator : Node
             Changed = SVG.UpdateInput,
             Stroke = "#28B6F6",
             StrokeWidth = "2",
-            Height = 100,
+            Height = 150,
             Width = 250,
         };
 

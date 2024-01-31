@@ -23,8 +23,15 @@
               fill="@SVGElement.Fill"
               style="filter:brightness(@(SVGElement.Selected ? "0.9" : "1"))">
         </rect>
-        <foreignObject @onpointermove:stopPropagation=!ChildContentIsNoninteractive x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="80" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2;pointer-events:@(ChildContentIsNoninteractive ? "none" : "inherit");touch-action:@(ChildContentIsNoninteractive ? "none" : "inherit");">
+        <foreignObject @onpointermove:stopPropagation=!ChildContentIsNoninteractive x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="110" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2;pointer-events:@(ChildContentIsNoninteractive ? "none" : "inherit");touch-action:@(ChildContentIsNoninteractive ? "none" : "inherit");">
             Oscillator
+            <br />
+            <select @bind=SVGElement.Type @bind:after="SetType">
+                <option value="@OscillatorType.Sine" title="A sine wave.">Sine</option>
+                <option value="@OscillatorType.Square" title="A square wave of duty period 0.5.">Square</option>
+                <option value="@OscillatorType.Sawtooth" title="A sawtooth wave.">Sawtooth</option>
+                <option value="@OscillatorType.Triangle" title="A triangle wave.">Triangle</option>
+            </select>
             <br />
             @if (FrequencyAudioParam is not null)
             {
@@ -63,6 +70,14 @@
         {
             FrequencyAudioParam = await ((OscillatorNode)(await SVGElement.AudioNode(AudioContext))).GetFrequencyAsync();
             StateHasChanged();
+        }
+    }
+
+    private async Task SetType()
+    {
+        if (SVGElement.Type is {} type)
+        {
+            await ((OscillatorNode)await SVGElement.AudioNode(AudioContext)).SetTypeAsync(type);
         }
     }
 }
