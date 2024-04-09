@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebIDL;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -9,25 +10,22 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The number of channels of the output always equals the number of channels of the input.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#WaveShaperNode">See the API definition here</see>.</remarks>
-public class WaveShaperNode : AudioNode
+public class WaveShaperNode : AudioNode, IJSCreatable<WaveShaperNode>
 {
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="WaveShaperNode"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="WaveShaperNode"/>.</param>
-    /// <returns>A wrapper instance for a <see cref="WaveShaperNode"/>.</returns>
-    public static new Task<WaveShaperNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <inheritdoc/>
+    public static new async Task<WaveShaperNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return Task.FromResult(new WaveShaperNode(jSRuntime, jSReference));
+        return await CreateAsync(jSRuntime, jSReference, new());
     }
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="WaveShaperNode"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="WaveShaperNode"/>.</param>
-    protected WaveShaperNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
+    /// <inheritdoc/>
+    public static new Task<WaveShaperNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
+    {
+        return Task.FromResult(new WaveShaperNode(jSRuntime, jSReference, options));
+    }
+
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    protected WaveShaperNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
     }
 }

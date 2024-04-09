@@ -1,4 +1,5 @@
 ﻿using KristofferStrube.Blazor.WebAudio.Extensions;
+using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
@@ -9,17 +10,18 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The single output of this node consists of one channel (mono).
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#ConstantSourceNode">See the API definition here</see>.</remarks>
-public class ConstantSourceNode : AudioScheduledSourceNode
+public class ConstantSourceNode : AudioScheduledSourceNode, IJSCreatable<ConstantSourceNode>
 {
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="ConstantSourceNode"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="ConstantSourceNode"/>.</param>
-    /// <returns>A wrapper instance for a <see cref="ConstantSourceNode"/>.</returns>
-    public static new Task<ConstantSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <inheritdoc/>
+    public static new async Task<ConstantSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return Task.FromResult(new ConstantSourceNode(jSRuntime, jSReference));
+        return await CreateAsync(jSRuntime, jSReference, new());
+    }
+
+    /// <inheritdoc/>
+    public static new Task<ConstantSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
+    {
+        return Task.FromResult(new ConstantSourceNode(jSRuntime, jSReference, options));
     }
 
     /// <summary>
@@ -33,10 +35,11 @@ public class ConstantSourceNode : AudioScheduledSourceNode
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructConstantSourceNode", context.JSReference, options);
-        return new ConstantSourceNode(jSRuntime, jSInstance);
+        return new ConstantSourceNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
-    private ConstantSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    protected ConstantSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options) { }
 
     /// <summary>
     /// The constant value of the source.

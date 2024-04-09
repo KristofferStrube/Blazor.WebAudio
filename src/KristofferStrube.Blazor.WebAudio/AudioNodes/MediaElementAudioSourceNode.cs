@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebIDL;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -6,25 +7,22 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// This interface represents an audio source from an audio or video element.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#MediaElementAudioSourceNode">See the API definition here</see>.</remarks>
-public class MediaElementAudioSourceNode : AudioNode
+public class MediaElementAudioSourceNode : AudioNode, IJSCreatable<MediaElementAudioSourceNode>
 {
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="MediaElementAudioSourceNode"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="MediaElementAudioSourceNode"/>.</param>
-    /// <returns>A wrapper instance for a <see cref="MediaElementAudioSourceNode"/>.</returns>
+    /// <inheritdoc/>
     public static new Task<MediaElementAudioSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return Task.FromResult(new MediaElementAudioSourceNode(jSRuntime, jSReference));
+        return CreateAsync(jSRuntime, jSReference, new());
     }
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="MediaElementAudioSourceNode"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="MediaElementAudioSourceNode"/>.</param>
-    protected MediaElementAudioSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
+    /// <inheritdoc/>
+    public static new Task<MediaElementAudioSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
+    {
+        return Task.FromResult(new MediaElementAudioSourceNode(jSRuntime, jSReference, options));
+    }
+
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    protected MediaElementAudioSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
     }
 }

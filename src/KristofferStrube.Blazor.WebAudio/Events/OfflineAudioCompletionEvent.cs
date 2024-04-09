@@ -16,17 +16,17 @@ public class OfflineAudioCompletionEvent : Event, IJSCreatable<OfflineAudioCompl
     /// </summary>
     protected readonly Lazy<Task<IJSObjectReference>> webAudioHelperTask;
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of an <see cref="OfflineAudioCompletionEvent"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="OfflineAudioCompletionEvent"/>.</param>
-    /// <returns>A wrapper instance for an <see cref="OfflineAudioCompletionEvent"/>.</returns>
-    public static new Task<OfflineAudioCompletionEvent> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <inheritdoc/>
+    public static new async Task<OfflineAudioCompletionEvent> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return Task.FromResult(new OfflineAudioCompletionEvent(jSRuntime, jSReference));
+        return await CreateAsync(jSRuntime, jSReference, new());
     }
 
+    /// <inheritdoc/>
+    public static new Task<OfflineAudioCompletionEvent> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
+    {
+        return Task.FromResult(new OfflineAudioCompletionEvent(jSRuntime, jSReference, options));
+    }
 
     /// <summary>
     /// Creates an <see cref="OfflineAudioCompletionEvent"/> using the standard constructor.
@@ -39,15 +39,11 @@ public class OfflineAudioCompletionEvent : Event, IJSCreatable<OfflineAudioCompl
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructOfflineAudioCompletionEvent", type, eventInitDict);
-        return new OfflineAudioCompletionEvent(jSRuntime, jSInstance);
+        return new OfflineAudioCompletionEvent(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of an <see cref="OfflineAudioCompletionEvent"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="OfflineAudioCompletionEvent"/>.</param>
-    protected OfflineAudioCompletionEvent(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    protected OfflineAudioCompletionEvent(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
         webAudioHelperTask = new(jSRuntime.GetHelperAsync);
     }

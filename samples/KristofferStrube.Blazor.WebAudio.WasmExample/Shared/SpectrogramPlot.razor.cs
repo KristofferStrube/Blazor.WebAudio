@@ -1,8 +1,6 @@
 using KristofferStrube.Blazor.WebIDL;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using CommunityToolkit.HighPerformance;
-using System;
 
 namespace KristofferStrube.Blazor.WebAudio.WasmExample.Shared;
 
@@ -44,7 +42,7 @@ public partial class SpectrogramPlot : IDisposable
         while (running)
         {
             await Analyser.GetByteFrequencyDataAsync(frequencyDataArray);
-            byte[] reading = await frequencyDataArray.GetByteArrayAsync();
+            byte[] reading = await frequencyDataArray.GetAsArrayAsync();
 
             DateTimeOffset currentTime = DateTimeOffset.UtcNow;
             int intervalStart = (int)((lastTime - start).TotalMilliseconds / TimeInSeconds / 10);
@@ -77,5 +75,6 @@ public partial class SpectrogramPlot : IDisposable
     public void Dispose()
     {
         running = false;
+        GC.SuppressFinalize(this);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebIDL;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -9,25 +10,22 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// There is only a single <see cref="AudioDestinationNode"/> per <see cref="AudioContext"/>, provided through the <see cref="BaseAudioContext.GetDestinationAsync"/> method.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioDestinationNode">See the API definition here</see>.</remarks>
-public class AudioDestinationNode : AudioNode
+public class AudioDestinationNode : AudioNode, IJSCreatable<AudioDestinationNode>
 {
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioDestinationNode"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="AudioDestinationNode"/>.</param>
-    /// <returns>A wrapper instance for an <see cref="AudioDestinationNode"/>.</returns>
-    public static new Task<AudioDestinationNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <inheritdoc/>
+    public static new async Task<AudioDestinationNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return Task.FromResult(new AudioDestinationNode(jSRuntime, jSReference));
+        return await CreateAsync(jSRuntime, jSReference, new());
     }
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioDestinationNode"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="AudioDestinationNode"/>.</param>
-    protected AudioDestinationNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
+    /// <inheritdoc/>
+    public static new Task<AudioDestinationNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
+    {
+        return Task.FromResult(new AudioDestinationNode(jSRuntime, jSReference, options));
+    }
+
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    protected AudioDestinationNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
     }
 
