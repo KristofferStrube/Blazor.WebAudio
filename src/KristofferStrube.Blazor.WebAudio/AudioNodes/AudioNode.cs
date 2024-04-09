@@ -1,6 +1,5 @@
 ﻿using KristofferStrube.Blazor.DOM;
 using KristofferStrube.Blazor.WebAudio.Extensions;
-using KristofferStrube.Blazor.WebIDL;
 using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
 
@@ -16,27 +15,30 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// But, in general, an <see cref="AudioNode"/> will process its inputs (if it has any), and generate audio for its outputs (if it has any).
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioNode">See the API definition here</see>.</remarks>
-public class AudioNode : EventTarget, IJSCreatable<AudioNode>
+public class AudioNode : EventTarget
 {
     /// <summary>
     /// A lazily evaluated task that gives access to helper methods for the Web Audio API.
     /// </summary>
     protected readonly Lazy<Task<IJSObjectReference>> webAudioHelperTask;
 
-    /// <inheritdoc/>
-    public static new async Task<AudioNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="AudioNode"/>.</param>
+    /// <returns>A wrapper instance for an <see cref="AudioNode"/>.</returns>
+    public static new Task<AudioNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return await CreateAsync(jSRuntime, jSReference, new());
+        return Task.FromResult(new AudioNode(jSRuntime, jSReference));
     }
 
-    /// <inheritdoc/>
-    public static new Task<AudioNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
-    {
-        return Task.FromResult(new AudioNode(jSRuntime, jSReference, options));
-    }
-
-    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
-    protected AudioNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="AudioNode"/>.</param>
+    protected AudioNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
     {
         webAudioHelperTask = new(jSRuntime.GetHelperAsync);
     }

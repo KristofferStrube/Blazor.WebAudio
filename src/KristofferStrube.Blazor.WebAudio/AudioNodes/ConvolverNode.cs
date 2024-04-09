@@ -1,5 +1,4 @@
 ﻿using KristofferStrube.Blazor.WebAudio.Extensions;
-using KristofferStrube.Blazor.WebIDL;
 using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
 
@@ -13,18 +12,17 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// These constraints ensure that the input to the node is either mono or stereo.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#ConvolverNode">See the API definition here</see>.</remarks>
-public class ConvolverNode : AudioNode, IJSCreatable<ConvolverNode>
+public class ConvolverNode : AudioNode
 {
-    /// <inheritdoc/>
-    public static new async Task<ConvolverNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="ConvolverNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="ConvolverNode"/>.</param>
+    /// <returns>A wrapper instance for an <see cref="ConvolverNode"/>.</returns>
+    public static new Task<ConvolverNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return await CreateAsync(jSRuntime, jSReference, new());
-    }
-
-    /// <inheritdoc/>
-    public static new Task<ConvolverNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
-    {
-        return Task.FromResult(new ConvolverNode(jSRuntime, jSReference, options));
+        return Task.FromResult(new ConvolverNode(jSRuntime, jSReference));
     }
 
     /// <summary>
@@ -38,11 +36,10 @@ public class ConvolverNode : AudioNode, IJSCreatable<ConvolverNode>
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructConvolverNode", context.JSReference, options);
-        return new ConvolverNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
+        return new ConvolverNode(jSRuntime, jSInstance);
     }
 
-    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
-    protected ConvolverNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options) { }
+    private ConvolverNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
 
     /// <summary>
     /// Gets the buffer that is used for convolution.

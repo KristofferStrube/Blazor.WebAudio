@@ -1,6 +1,5 @@
 ﻿using KristofferStrube.Blazor.MediaCaptureStreams;
 using KristofferStrube.Blazor.WebAudio.Extensions;
-using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
@@ -9,18 +8,17 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// This interface represents an audio source from a <see cref="MediaStream"/>.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#MediaStreamAudioSourceNode">See the API definition here</see>.</remarks>
-public class MediaStreamAudioSourceNode : AudioNode, IJSCreatable<MediaStreamAudioSourceNode>
+public class MediaStreamAudioSourceNode : AudioNode
 {
-    /// <inheritdoc/>
-    public static new async Task<MediaStreamAudioSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of a <see cref="MediaStreamAudioSourceNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="MediaStreamAudioSourceNode"/>.</param>
+    /// <returns>A wrapper instance for a <see cref="MediaStreamAudioSourceNode"/>.</returns>
+    public static new Task<MediaStreamAudioSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return await CreateAsync(jSRuntime, jSReference, new());
-    }
-
-    /// <inheritdoc/>
-    public static new Task<MediaStreamAudioSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
-    {
-        return Task.FromResult(new MediaStreamAudioSourceNode(jSRuntime, jSReference, options));
+        return Task.FromResult(new MediaStreamAudioSourceNode(jSRuntime, jSReference));
     }
 
     /// <summary>
@@ -34,11 +32,15 @@ public class MediaStreamAudioSourceNode : AudioNode, IJSCreatable<MediaStreamAud
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructMediaStreamAudioSourceNode", context, options);
-        return new MediaStreamAudioSourceNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
+        return new MediaStreamAudioSourceNode(jSRuntime, jSInstance);
     }
 
-    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
-    protected MediaStreamAudioSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options) { }
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of a <see cref="MediaStreamAudioSourceNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="MediaStreamAudioSourceNode"/>.</param>
+    protected MediaStreamAudioSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
 
     /// <summary>
     /// Gets the <see cref="MediaStream"/> used when constructing this <see cref="MediaStreamAudioSourceNode"/>

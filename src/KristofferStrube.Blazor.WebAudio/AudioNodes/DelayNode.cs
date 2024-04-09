@@ -1,5 +1,4 @@
 ﻿using KristofferStrube.Blazor.WebAudio.Extensions;
-using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
@@ -13,18 +12,17 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The default delayTime is <c>0</c> seconds (no delay).
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#DelayNode">See the API definition here</see>.</remarks>
-public class DelayNode : AudioNode, IJSCreatable<DelayNode>
+public class DelayNode : AudioNode
 {
-    /// <inheritdoc/>
-    public static new async Task<DelayNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of a <see cref="DelayNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="DelayNode"/>.</param>
+    /// <returns>A wrapper instance for a <see cref="DelayNode"/>.</returns>
+    public static new Task<DelayNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return await CreateAsync(jSRuntime, jSReference, new());
-    }
-
-    /// <inheritdoc/>
-    public static new Task<DelayNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
-    {
-        return Task.FromResult(new DelayNode(jSRuntime, jSReference, options));
+        return Task.FromResult(new DelayNode(jSRuntime, jSReference));
     }
 
     /// <summary>
@@ -38,11 +36,15 @@ public class DelayNode : AudioNode, IJSCreatable<DelayNode>
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructDelayNode", context.JSReference, options);
-        return new DelayNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
+        return new DelayNode(jSRuntime, jSInstance);
     }
 
-    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
-    protected DelayNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options) { }
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of a <see cref="DelayNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="DelayNode"/>.</param>
+    protected DelayNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
 
     /// <summary>
     /// An <see cref="AudioParam"/> object representing the amount of delay (in seconds) to apply.

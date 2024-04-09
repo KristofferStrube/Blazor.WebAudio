@@ -82,7 +82,7 @@
                         await analyser.GetByteFrequencyDataAsync(dataArray);
                     }
 
-                    measurements = await dataArray.GetAsArrayAsync();
+                    measurements = await dataArray.GetByteArrayAsync();
                     await Task.Delay(10);
                     SVGElement._stateRepresentation = "";
                     StateHasChanged();

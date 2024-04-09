@@ -1,5 +1,4 @@
-﻿using KristofferStrube.Blazor.WebIDL;
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -8,22 +7,25 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The spatialization is in relation to the <see cref="BaseAudioContext"/>'s <see cref="AudioListener"/> (listener attribute).
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#PannerNode">See the API definition here</see>.</remarks>
-public class PannerNode : AudioNode, IJSCreatable<PannerNode>
+public class PannerNode : AudioNode
 {
-    /// <inheritdoc/>
-    public static new async Task<PannerNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of a <see cref="PannerNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="PannerNode"/>.</param>
+    /// <returns>A wrapper instance for a <see cref="PannerNode"/>.</returns>
+    public static new Task<PannerNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return await CreateAsync(jSRuntime, jSReference, new());
+        return Task.FromResult(new PannerNode(jSRuntime, jSReference));
     }
 
-    /// <inheritdoc/>
-    public static new Task<PannerNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
-    {
-        return Task.FromResult(new PannerNode(jSRuntime, jSReference, options));
-    }
-
-    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
-    protected PannerNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of a <see cref="PannerNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="PannerNode"/>.</param>
+    protected PannerNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
     {
     }
 }

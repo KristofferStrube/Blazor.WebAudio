@@ -14,18 +14,17 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The default filter type is <see cref="BiquadFilterType.Lowpass"/>.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#BiquadFilterNode">See the API definition here</see>.</remarks>
-public class BiquadFilterNode : AudioNode, IJSCreatable<BiquadFilterNode>
+public class BiquadFilterNode : AudioNode
 {
-    /// <inheritdoc/>
-    public static new async Task<BiquadFilterNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="BiquadFilterNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="BiquadFilterNode"/>.</param>
+    /// <returns>A wrapper instance for an <see cref="BiquadFilterNode"/>.</returns>
+    public static new Task<BiquadFilterNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return await CreateAsync(jSRuntime, jSReference, new());
-    }
-
-    /// <inheritdoc/>
-    public static new Task<BiquadFilterNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
-    {
-        return Task.FromResult(new BiquadFilterNode(jSRuntime, jSReference, options));
+        return Task.FromResult(new BiquadFilterNode(jSRuntime, jSReference));
     }
 
     /// <summary>
@@ -39,11 +38,10 @@ public class BiquadFilterNode : AudioNode, IJSCreatable<BiquadFilterNode>
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructBiquadFilterNode", context.JSReference, options);
-        return new BiquadFilterNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
+        return new BiquadFilterNode(jSRuntime, jSInstance);
     }
 
-    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
-    private BiquadFilterNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
+    private BiquadFilterNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
     {
     }
 

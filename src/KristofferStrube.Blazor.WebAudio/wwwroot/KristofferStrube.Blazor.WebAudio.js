@@ -63,19 +63,15 @@ export function constructDynamicsCompressorNode(context, options) {
 }
 
 export function constructMediaStreamAudioSourceNode(context, options) {
-    return new MediaStreamAudioSourceNode(context, options);
+    return new MediaStreamAudioSourceNode(context, options)
 }
 
 export function constructMediaStreamTrackAudioSourceNode(context, options) {
-    return new MediaStreamTrackAudioSourceNode(context, options);
+    return new MediaStreamTrackAudioSourceNode(context, options)
 }
 
 export function constructMediaStreamAudioDestinationNode(context, options) {
-    return new MediaStreamAudioDestinationNode(context, options);
-}
-
-export function constructAudioWorkletNode(context, name, options) {
-    return new AudioWorkletNode(context, name, options);
+    return new MediaStreamAudioDestinationNode(context, options)
 }
 
 export function constructAudioBuffer(options) {
@@ -83,7 +79,7 @@ export function constructAudioBuffer(options) {
 }
 
 export function constructOfflineAudioCompletionEvent(type, eventInitDict) {
-    return new OfflineAudioCompletionEvent(type, eventInitDict);
+    return new OfflineAudioCompletionEvent(type, eventInitDict)
 }
 
 export async function decodeAudioData(audioContext, audioData, successCallbackObjRef, errorCallbackObjRef) {

@@ -1,5 +1,4 @@
-﻿using KristofferStrube.Blazor.WebIDL;
-using KristofferStrube.Blazor.WebIDL.Exceptions;
+﻿using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
@@ -12,22 +11,25 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// Additionally, audio signals from the outputs of <see cref="AudioNode"/>s can be connected to an <see cref="AudioParam"/>, summing with the intrinsic parameter value.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioParam">See the API definition here</see>.</remarks>
-public class AudioParam : BaseJSWrapper, IJSCreatable<AudioParam>
+public class AudioParam : BaseJSWrapper
 {
-    /// <inheritdoc/>
-    public static async Task<AudioParam> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioParam"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="AudioParam"/>.</param>
+    /// <returns>A wrapper instance for an <see cref="AudioParam"/>.</returns>
+    public static Task<AudioParam> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return await CreateAsync(jSRuntime, jSReference, new());
+        return Task.FromResult(new AudioParam(jSRuntime, jSReference));
     }
 
-    /// <inheritdoc/>
-    public static Task<AudioParam> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
-    {
-        return Task.FromResult(new AudioParam(jSRuntime, jSReference, options));
-    }
-
-    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
-    protected AudioParam(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioParam"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="AudioParam"/>.</param>
+    protected AudioParam(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
     {
     }
 

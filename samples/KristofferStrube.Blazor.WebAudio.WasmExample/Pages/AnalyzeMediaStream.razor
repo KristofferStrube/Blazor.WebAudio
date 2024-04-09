@@ -102,8 +102,8 @@ else
                 await analyser.GetByteTimeDomainDataAsync(timeDomainDataArray);
                 await analyser.GetByteFrequencyDataAsync(frequencyDataArray);
 
-                timeDomainMeasurements = await timeDomainDataArray.GetAsArrayAsync();
-                frequencyMeasurements = await frequencyDataArray.GetAsArrayAsync();
+                timeDomainMeasurements = await timeDomainDataArray.GetByteArrayAsync();
+                frequencyMeasurements = await frequencyDataArray.GetByteArrayAsync();
                 await Task.Delay(1);
                 StateHasChanged();
             }

@@ -1,5 +1,4 @@
 ﻿using KristofferStrube.Blazor.WebAudio.Extensions;
-using KristofferStrube.Blazor.WebIDL;
 using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
 
@@ -11,18 +10,17 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// If sample-accurate playback of network- or disk-backed assets is required, an implementer should use <see cref="AudioWorkletNode"/> to implement playback.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioBufferSourceNode">See the API definition here</see>.</remarks>
-public class AudioBufferSourceNode : AudioScheduledSourceNode, IJSCreatable<AudioBufferSourceNode>
+public class AudioBufferSourceNode : AudioScheduledSourceNode
 {
-    /// <inheritdoc/>
-    public static new async Task<AudioBufferSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioBufferSourceNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="AudioBufferSourceNode"/>.</param>
+    /// <returns>A wrapper instance for an <see cref="AudioBufferSourceNode"/>.</returns>
+    public static new Task<AudioBufferSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return await CreateAsync(jSRuntime, jSReference, new());
-    }
-
-    /// <inheritdoc/>
-    public static new Task<AudioBufferSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
-    {
-        return Task.FromResult(new AudioBufferSourceNode(jSRuntime, jSReference, options));
+        return Task.FromResult(new AudioBufferSourceNode(jSRuntime, jSReference));
     }
 
     /// <summary>
@@ -36,11 +34,15 @@ public class AudioBufferSourceNode : AudioScheduledSourceNode, IJSCreatable<Audi
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructAudioBufferSourceNode", context, options);
-        return new(jSRuntime, jSInstance, new() { DisposesJSReference = true });
+        return new(jSRuntime, jSInstance);
     }
 
-    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
-    protected AudioBufferSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioBufferSourceNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="AudioBufferSourceNode"/>.</param>
+    protected AudioBufferSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
     {
     }
 

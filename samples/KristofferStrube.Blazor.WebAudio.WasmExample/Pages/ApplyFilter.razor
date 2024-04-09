@@ -138,8 +138,8 @@ else
                 await analyserNode.GetByteFrequencyDataAsync(dataArray);
                 await filteredAnalyserNode.GetByteFrequencyDataAsync(filteredDataArray);
 
-                frequencies = await dataArray.GetAsArrayAsync();
-                filteredFrequencies = await filteredDataArray.GetAsArrayAsync();
+                frequencies = await dataArray.GetByteArrayAsync();
+                filteredFrequencies = await filteredDataArray.GetByteArrayAsync();
                 await Task.Delay(1);
                 StateHasChanged();
             }

@@ -10,18 +10,17 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The audio stream will be passed un-processed from input to output.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AnalyserNode">See the API definition here</see>.</remarks>
-public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
+public class AnalyserNode : AudioNode
 {
-    /// <inheritdoc/>
-    public static new async Task<AnalyserNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AnalyserNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="AnalyserNode"/>.</param>
+    /// <returns>A wrapper instance for an <see cref="AnalyserNode"/>.</returns>
+    public static new Task<AnalyserNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return await CreateAsync(jSRuntime, jSReference, new());
-    }
-
-    /// <inheritdoc/>
-    public static new Task<AnalyserNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
-    {
-        return Task.FromResult(new AnalyserNode(jSRuntime, jSReference, options));
+        return Task.FromResult(new AnalyserNode(jSRuntime, jSReference));
     }
 
     /// <summary>
@@ -35,11 +34,15 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructAnalyzerNode", context.JSReference, options);
-        return new AnalyserNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
+        return new AnalyserNode(jSRuntime, jSInstance);
     }
 
-    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
-    protected AnalyserNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options) { }
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AnalyserNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="AnalyserNode"/>.</param>
+    protected AnalyserNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
 
     /// <summary>
     /// Gets a reference to the bytes held by the <see cref="Float32Array"/> passed as an argument.

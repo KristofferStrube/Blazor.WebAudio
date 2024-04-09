@@ -1,5 +1,4 @@
 ﻿using KristofferStrube.Blazor.WebAudio.Extensions;
-using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
@@ -8,18 +7,17 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// <see cref="OscillatorNode"/> represents an audio source generating a periodic waveform. It can be set to a few commonly used waveforms. Additionally, it can be set to an arbitrary periodic waveform through the use of a <see cref="PeriodicWave"/> object.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#OscillatorNode">See the API definition here</see>.</remarks>
-public class OscillatorNode : AudioScheduledSourceNode, IJSCreatable<OscillatorNode>
+public class OscillatorNode : AudioScheduledSourceNode
 {
-    /// <inheritdoc/>
-    public static new async Task<OscillatorNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="OscillatorNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="OscillatorNode"/>.</param>
+    /// <returns>A wrapper instance for an <see cref="OscillatorNode"/>.</returns>
+    public static new Task<OscillatorNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return await CreateAsync(jSRuntime, jSReference, new());
-    }
-
-    /// <inheritdoc/>
-    public static new Task<OscillatorNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
-    {
-        return Task.FromResult(new OscillatorNode(jSRuntime, jSReference, options));
+        return Task.FromResult(new OscillatorNode(jSRuntime, jSReference));
     }
 
     /// <summary>
@@ -33,11 +31,15 @@ public class OscillatorNode : AudioScheduledSourceNode, IJSCreatable<OscillatorN
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructOcillatorNode", context.JSReference, options);
-        return new OscillatorNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
+        return new OscillatorNode(jSRuntime, jSInstance);
     }
 
-    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
-    protected OscillatorNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
+    /// <summary>
+    /// Constructs a wrapper instance for a given JS Instance of an <see cref="OscillatorNode"/>.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="jSReference">A JS reference to an existing <see cref="OscillatorNode"/>.</param>
+    protected OscillatorNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
     {
     }
 
