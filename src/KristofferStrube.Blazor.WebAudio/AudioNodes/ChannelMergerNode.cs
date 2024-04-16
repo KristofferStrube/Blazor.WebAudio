@@ -1,4 +1,5 @@
 ﻿using KristofferStrube.Blazor.WebAudio.Extensions;
+using KristofferStrube.Blazor.WebIDL;
 using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
 
@@ -15,17 +16,18 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// Changing input streams does not affect the order of output channels.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#ChannelMergerNode">See the API definition here</see>.</remarks>
-public class ChannelMergerNode : AudioNode
+public class ChannelMergerNode : AudioNode, IJSCreatable<ChannelMergerNode>
 {
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of an <see cref="ChannelMergerNode"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="ChannelMergerNode"/>.</param>
-    /// <returns>A wrapper instance for an <see cref="ChannelMergerNode"/>.</returns>
-    public static new Task<ChannelMergerNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <inheritdoc/>
+    public static new async Task<ChannelMergerNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return Task.FromResult(new ChannelMergerNode(jSRuntime, jSReference));
+        return await CreateAsync(jSRuntime, jSReference, new());
+    }
+
+    /// <inheritdoc/>
+    public static new Task<ChannelMergerNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
+    {
+        return Task.FromResult(new ChannelMergerNode(jSRuntime, jSReference, options));
     }
 
     /// <summary>
@@ -43,8 +45,9 @@ public class ChannelMergerNode : AudioNode
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructChannelMergerNode", context, options);
-        return new ChannelMergerNode(jSRuntime, jSInstance);
+        return new ChannelMergerNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
-    private ChannelMergerNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    protected ChannelMergerNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options) { }
 }

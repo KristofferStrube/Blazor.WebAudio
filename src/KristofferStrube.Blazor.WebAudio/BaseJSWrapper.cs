@@ -1,15 +1,13 @@
-﻿using KristofferStrube.Blazor.WebAudio.Converters;
-using KristofferStrube.Blazor.WebAudio.Extensions;
+﻿using KristofferStrube.Blazor.WebAudio.Extensions;
 using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
-using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
 /// <summary>
 /// Base class for wrapping objects in the Blazor.WebAudio library.
 /// </summary>
-[JsonConverter(typeof(IJSWrapperConverter<BaseJSWrapper>))]
+[IJSWrapperConverter]
 public abstract class BaseJSWrapper : IJSWrapper, IAsyncDisposable
 {
     /// <summary>
@@ -23,16 +21,16 @@ public abstract class BaseJSWrapper : IJSWrapper, IAsyncDisposable
     /// <inheritdoc/>
     public IJSObjectReference JSReference { get; }
 
-    /// <summary>
-    /// Constructs a wrapper instance for an equivalent JS instance.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing JS instance that should be wrapped.</param>
-    internal BaseJSWrapper(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <inheritdoc/>
+    public bool DisposesJSReference { get; }
+
+    /// <inheritdoc cref="IJSCreatable{T}.CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    internal BaseJSWrapper(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
     {
         helperTask = new(jSRuntime.GetHelperAsync);
         JSReference = jSReference;
         JSRuntime = jSRuntime;
+        DisposesJSReference = options.DisposesJSReference;
     }
 
     /// <summary>
@@ -46,6 +44,7 @@ public abstract class BaseJSWrapper : IJSWrapper, IAsyncDisposable
             IJSObjectReference module = await helperTask.Value;
             await module.DisposeAsync();
         }
+        await IJSWrapper.DisposeJSReference(this);
         GC.SuppressFinalize(this);
     }
 }

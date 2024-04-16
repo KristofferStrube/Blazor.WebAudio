@@ -12,22 +12,23 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// It does not render to the audio hardware, but instead renders as quickly as possible, fulfilling the returned promise with the rendered result as an <see cref="AudioBuffer"/>.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#offlineaudiocontext">See the API definition here</see>.</remarks>
-public class OfflineAudioContext : BaseAudioContext
+public class OfflineAudioContext : BaseAudioContext, IJSCreatable<OfflineAudioContext>
 {
     /// <summary>
     /// An error handling reference to the underlying js object.
     /// </summary>
     protected IJSObjectReference ErrorHandlingJSReference { get; set; }
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of an <see cref="OfflineAudioContext"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="OfflineAudioContext"/>.</param>
-    /// <returns>A wrapper instance for an <see cref="OfflineAudioContext"/>.</returns>
-    public static new Task<OfflineAudioContext> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <inheritdoc/>
+    public static new async Task<OfflineAudioContext> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return Task.FromResult(new OfflineAudioContext(jSRuntime, jSReference));
+        return await CreateAsync(jSRuntime, jSReference, new());
+    }
+
+    /// <inheritdoc/>
+    public static new Task<OfflineAudioContext> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
+    {
+        return Task.FromResult(new OfflineAudioContext(jSRuntime, jSReference, options));
     }
 
     /// <summary>
@@ -46,7 +47,7 @@ public class OfflineAudioContext : BaseAudioContext
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         ErrorHandlingJSObjectReference errorHandlingHelper = new(jSRuntime, helper);
         IJSObjectReference jSInstance = await errorHandlingHelper.InvokeAsync<IJSObjectReference>("constructOfflineAudioContext", contextOptions);
-        return new OfflineAudioContext(jSRuntime, jSInstance);
+        return new OfflineAudioContext(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -67,15 +68,11 @@ public class OfflineAudioContext : BaseAudioContext
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         ErrorHandlingJSObjectReference errorHandlingHelper = new(jSRuntime, helper);
         IJSObjectReference jSInstance = await errorHandlingHelper.InvokeAsync<IJSObjectReference>("constructOfflineAudioContextWithThreeParameters", numberOfChannels, length, sampleRate);
-        return new OfflineAudioContext(jSRuntime, jSInstance);
+        return new OfflineAudioContext(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of an <see cref="OfflineAudioContext"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="OfflineAudioContext"/>.</param>
-    protected OfflineAudioContext(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    protected OfflineAudioContext(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
         ErrorHandlingJSReference = new ErrorHandlingJSObjectReference(jSRuntime, jSReference);
     }

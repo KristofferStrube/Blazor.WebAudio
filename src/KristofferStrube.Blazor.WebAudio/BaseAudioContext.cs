@@ -1,10 +1,8 @@
 ﻿using KristofferStrube.Blazor.DOM;
-using KristofferStrube.Blazor.WebAudio.Converters;
 using KristofferStrube.Blazor.WebAudio.Extensions;
 using KristofferStrube.Blazor.WebIDL;
 using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
-using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -13,31 +11,28 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// BaseAudioContext is not instantiated directly, but is instead extended by the concrete interfaces <see cref="AudioContext"/> (for real-time rendering) and <see cref="OfflineAudioContext"/> (for offline rendering).
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#BaseAudioContext">See the API definition here</see>.</remarks>
-[JsonConverter(typeof(IJSWrapperConverter<BaseAudioContext>))]
-public class BaseAudioContext : EventTarget
+[IJSWrapperConverter]
+public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
 {
     /// <summary>
     /// A lazily evaluated task that gives access to helper methods for the Web Audio API.
     /// </summary>
     protected readonly Lazy<Task<IJSObjectReference>> webAudioHelperTask;
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of an <see cref="BaseAudioContext"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="BaseAudioContext"/>.</param>
-    /// <returns>A wrapper instance for an <see cref="BaseAudioContext"/>.</returns>
-    public static new Task<BaseAudioContext> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    /// <inheritdoc/>
+    public static new async Task<BaseAudioContext> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return Task.FromResult(new BaseAudioContext(jSRuntime, jSReference));
+        return await CreateAsync(jSRuntime, jSReference, new());
     }
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="BaseAudioContext"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="BaseAudioContext"/>.</param>
-    protected BaseAudioContext(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
+    /// <inheritdoc/>
+    public static new Task<BaseAudioContext> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
+    {
+        return Task.FromResult(new BaseAudioContext(jSRuntime, jSReference, options));
+    }
+
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    protected BaseAudioContext(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
         webAudioHelperTask = new(jSRuntime.GetHelperAsync);
     }

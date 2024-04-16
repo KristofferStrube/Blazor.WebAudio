@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebIDL;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -9,14 +10,22 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// <see cref="AudioScheduledSourceNode"/> cannot be instantiated directly, but is instead extended by the concrete interfaces for the source nodes.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioScheduledSourceNode">See the API definition here</see>.</remarks>
-public class AudioScheduledSourceNode : AudioNode
+public class AudioScheduledSourceNode : AudioNode, IJSCreatable<AudioScheduledSourceNode>
 {
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of an <see cref="AudioScheduledSourceNode"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="AudioScheduledSourceNode"/>.</param>
-    protected AudioScheduledSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference)
+    /// <inheritdoc/>
+    public static new async Task<AudioScheduledSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    {
+        return await CreateAsync(jSRuntime, jSReference, new());
+    }
+
+    /// <inheritdoc/>
+    public static new Task<AudioScheduledSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
+    {
+        return Task.FromResult(new AudioScheduledSourceNode(jSRuntime, jSReference, options));
+    }
+
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    protected AudioScheduledSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
     }
 
