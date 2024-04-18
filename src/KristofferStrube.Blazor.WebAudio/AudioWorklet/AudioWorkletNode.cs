@@ -1,5 +1,4 @@
-﻿using KristofferStrube.Blazor.WebAudio.AudioWorklet;
-using KristofferStrube.Blazor.WebAudio.Extensions;
+﻿using KristofferStrube.Blazor.WebAudio.Extensions;
 using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 
@@ -52,7 +51,7 @@ public class AudioWorkletNode : AudioNode, IJSCreatable<AudioWorkletNode>
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "parameter");
-        return await AudioParamMap.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParamMap.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -66,6 +65,6 @@ public class AudioWorkletNode : AudioNode, IJSCreatable<AudioWorkletNode>
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "port");
-        return await MessagePort.CreateAsync(JSRuntime, jSInstance);
+        return await MessagePort.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 }

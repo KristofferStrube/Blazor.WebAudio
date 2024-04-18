@@ -56,6 +56,6 @@ public class DelayNode : AudioNode, IJSCreatable<DelayNode>
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "delayTime");
-        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 }

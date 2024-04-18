@@ -74,7 +74,7 @@ public class OscillatorNode : AudioScheduledSourceNode, IJSCreatable<OscillatorN
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "frequency");
-        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -88,7 +88,7 @@ public class OscillatorNode : AudioScheduledSourceNode, IJSCreatable<OscillatorN
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "detune");
-        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>

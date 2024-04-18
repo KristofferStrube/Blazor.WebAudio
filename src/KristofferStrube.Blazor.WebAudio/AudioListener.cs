@@ -41,7 +41,7 @@ public class AudioListener : BaseJSWrapper, IJSCreatable<AudioListener>
     public async Task<AudioParam> GetPositionXAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("positionX");
-        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public class AudioListener : BaseJSWrapper, IJSCreatable<AudioListener>
     public async Task<AudioParam> GetPositionYAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("positionY");
-        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ public class AudioListener : BaseJSWrapper, IJSCreatable<AudioListener>
     public async Task<AudioParam> GetPositionZAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("positionZ");
-        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ public class AudioListener : BaseJSWrapper, IJSCreatable<AudioListener>
     public async Task<AudioParam> GetForwardXAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("forwardX");
-        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -81,7 +81,7 @@ public class AudioListener : BaseJSWrapper, IJSCreatable<AudioListener>
     public async Task<AudioParam> GetForwardYAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("forwardY");
-        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ public class AudioListener : BaseJSWrapper, IJSCreatable<AudioListener>
     public async Task<AudioParam> GetForwardZAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("forwardZ");
-        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ public class AudioListener : BaseJSWrapper, IJSCreatable<AudioListener>
     public async Task<AudioParam> GetUpXAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("upX");
-        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ public class AudioListener : BaseJSWrapper, IJSCreatable<AudioListener>
     public async Task<AudioParam> GetUpYAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("upY");
-        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -121,6 +121,6 @@ public class AudioListener : BaseJSWrapper, IJSCreatable<AudioListener>
     public async Task<AudioParam> GetUpZAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("upZ");
-        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 }

@@ -189,7 +189,7 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "context");
-        return await BaseAudioContext.CreateAsync(JSRuntime, jSInstance);
+        return await BaseAudioContext.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>

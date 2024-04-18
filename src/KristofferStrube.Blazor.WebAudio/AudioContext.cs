@@ -124,7 +124,7 @@ public class AudioContext : BaseAudioContext, IJSCreatable<AudioContext>
     public async Task<MediaElementAudioSourceNode> CreateMediaElementSourceAsync(EventTarget mediaElement)
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createMediaElementSource", mediaElement.JSReference);
-        return await MediaElementAudioSourceNode.CreateAsync(JSRuntime, jSInstance);
+        return await MediaElementAudioSourceNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -135,7 +135,7 @@ public class AudioContext : BaseAudioContext, IJSCreatable<AudioContext>
     public async Task<MediaStreamAudioSourceNode> CreateMediaStreamSourceAsync(MediaStream mediaStream)
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createMediaStreamSource", mediaStream.JSReference);
-        return await MediaStreamAudioSourceNode.CreateAsync(JSRuntime, jSInstance);
+        return await MediaStreamAudioSourceNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -150,7 +150,7 @@ public class AudioContext : BaseAudioContext, IJSCreatable<AudioContext>
     public async Task<MediaStreamTrackAudioSourceNode> CreateMediaStreamTrackSourceAsync(MediaStreamTrack mediaStreamTrack)
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createMediaStreamTrackSource", mediaStreamTrack.JSReference);
-        return await MediaStreamTrackAudioSourceNode.CreateAsync(JSRuntime, jSInstance);
+        return await MediaStreamTrackAudioSourceNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -160,6 +160,6 @@ public class AudioContext : BaseAudioContext, IJSCreatable<AudioContext>
     public async Task<MediaStreamAudioDestinationNode> CreateMediaStreamDestinationAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createMediaStreamDestination");
-        return await MediaStreamAudioDestinationNode.CreateAsync(JSRuntime, jSInstance);
+        return await MediaStreamAudioDestinationNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 }

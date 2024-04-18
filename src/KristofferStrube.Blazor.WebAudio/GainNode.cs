@@ -46,6 +46,6 @@ public class GainNode : AudioNode, IJSCreatable<GainNode>
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "gain");
-        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 }

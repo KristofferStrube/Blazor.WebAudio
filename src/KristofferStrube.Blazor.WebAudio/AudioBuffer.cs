@@ -98,7 +98,7 @@ public class AudioBuffer : BaseJSWrapper, IJSCreatable<AudioBuffer>
     public async Task<Float32Array> GetChannelDataAsync(ulong channel)
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("getChannelData", channel);
-        return await Float32Array.CreateAsync(JSRuntime, jSInstance);
+        return await Float32Array.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>

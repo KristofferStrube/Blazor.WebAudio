@@ -55,6 +55,6 @@ public class ConstantSourceNode : AudioScheduledSourceNode, IJSCreatable<Constan
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "offset");
-        return await AudioParam.CreateAsync(JSRuntime, jSInstance);
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 }

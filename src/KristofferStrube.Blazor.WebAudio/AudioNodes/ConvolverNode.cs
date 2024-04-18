@@ -51,7 +51,7 @@ public class ConvolverNode : AudioNode, IJSCreatable<ConvolverNode>
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
         IJSObjectReference? jSInstance = await helper.InvokeAsync<IJSObjectReference?>("getAttribute", JSReference, "buffer");
-        return jSInstance is null ? null : await AudioBuffer.CreateAsync(JSRuntime, jSInstance);
+        return jSInstance is null ? null : await AudioBuffer.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>

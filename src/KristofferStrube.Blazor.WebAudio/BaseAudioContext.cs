@@ -103,7 +103,15 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
         return AudioContextStateExtensions.Parse(state);
     }
 
-    // TODO: We need to implement a wrapper for Worklet before we can add implement a wrapper for AudioWorklet.
+    /// <summary>
+    /// Gets the <see cref="AudioWorklet"/> object that can import a script containing <see cref="AudioWorkletProcessor"/> class definitions.
+    /// </summary>
+    public async Task<AudioWorklet> GetAudioWorkletAsync()
+    {
+        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "audioWorklet");
+        return await AudioWorklet.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
+    }
 
     /// <summary>
     /// Adds an <see cref="EventListener{TEvent}"/> for when the state of the <see cref="AudioContext"/> has changed (i.e. when the corresponding promise would have resolved).
@@ -137,7 +145,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<AnalyserNode> CreateAnalyserAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createAnalyser");
-        return await AnalyserNode.CreateAsync(JSRuntime, jSInstance);
+        return await AnalyserNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -147,7 +155,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<BiquadFilterNode> CreateBiquadFilterAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createBiquadFilter");
-        return await BiquadFilterNode.CreateAsync(JSRuntime, jSInstance);
+        return await BiquadFilterNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -160,7 +168,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<AudioBuffer> CreateBufferAsync(ulong numberOfChannels, ulong length, float sampleRate)
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createBuffer", numberOfChannels, length, sampleRate);
-        return await AudioBuffer.CreateAsync(JSRuntime, jSInstance);
+        return await AudioBuffer.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -170,7 +178,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<AudioBufferSourceNode> CreateBufferSourceAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createBufferSource");
-        return await AudioBufferSourceNode.CreateAsync(JSRuntime, jSInstance);
+        return await AudioBufferSourceNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -184,7 +192,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<ChannelMergerNode> CreateChannelMergerAsync(ulong numberOfInputs = 6)
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createChannelMerger", numberOfInputs);
-        return await ChannelMergerNode.CreateAsync(JSRuntime, jSInstance);
+        return await ChannelMergerNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -198,7 +206,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<ChannelSplitterNode> CreateChannelSplitterAsync(ulong numberOfOutputs = 6)
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createChannelSplitter", numberOfOutputs);
-        return await ChannelSplitterNode.CreateAsync(JSRuntime, jSInstance);
+        return await ChannelSplitterNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -208,7 +216,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<ConstantSourceNode> CreateConstantSourceAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createConstantSource");
-        return await ConstantSourceNode.CreateAsync(JSRuntime, jSInstance);
+        return await ConstantSourceNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -218,7 +226,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<ConvolverNode> CreateConvolverAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createConvolver");
-        return await ConvolverNode.CreateAsync(JSRuntime, jSInstance);
+        return await ConvolverNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -234,7 +242,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<DelayNode> CreateDelayAsync(double maxDelayTime = 1)
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createDelay", maxDelayTime);
-        return await DelayNode.CreateAsync(JSRuntime, jSInstance);
+        return await DelayNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -244,7 +252,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<DynamicsCompressorNode> CreateDynamicsCompressorAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createDynamicsCompressor");
-        return await DynamicsCompressorNode.CreateAsync(JSRuntime, jSInstance);
+        return await DynamicsCompressorNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -254,7 +262,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<GainNode> CreateGainAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createGain");
-        return await GainNode.CreateAsync(JSRuntime, jSInstance);
+        return await GainNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -274,7 +282,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<IIRFilterNode> CreateIIRFilterAsync(double[] feedforward, double[] feedback)
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createIIRFilter", feedforward, feedback);
-        return await IIRFilterNode.CreateAsync(JSRuntime, jSInstance);
+        return await IIRFilterNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -284,7 +292,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<OscillatorNode> CreateOscillatorAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createOscillator");
-        return await OscillatorNode.CreateAsync(JSRuntime, jSInstance);
+        return await OscillatorNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -294,7 +302,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<PannerNode> CreatePannerAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createPanner");
-        return await PannerNode.CreateAsync(JSRuntime, jSInstance);
+        return await PannerNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -308,7 +316,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     {
         constraints ??= new();
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createPeriodicWave", real, imag, constraints);
-        return await PeriodicWave.CreateAsync(JSRuntime, jSInstance);
+        return await PeriodicWave.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -318,7 +326,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<StereoPannerNode> CreateStereoPannerAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createStereoPanner");
-        return await StereoPannerNode.CreateAsync(JSRuntime, jSInstance);
+        return await StereoPannerNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -328,7 +336,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     public async Task<WaveShaperNode> CreateWaveShaperAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createWaveShaper");
-        return await WaveShaperNode.CreateAsync(JSRuntime, jSInstance);
+        return await WaveShaperNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -389,7 +397,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
         DotNetObjectReference<DecodeErrorCallback>? errorCallbackObjRef = errorCallback is null ? null : DotNetObjectReference.Create(new DecodeErrorCallback(JSRuntime, errorCallback));
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("decodeAudioData", JSReference, audioData, successCallbackObjRef, errorCallbackObjRef);
 
-        return await AudioBuffer.CreateAsync(JSRuntime, jSInstance);
+        return await AudioBuffer.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     private record DecodeSuccessCallback(IJSRuntime JSRuntime, Func<AudioBuffer, Task> SuccessCallback)

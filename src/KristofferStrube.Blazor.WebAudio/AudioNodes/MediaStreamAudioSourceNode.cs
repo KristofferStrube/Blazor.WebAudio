@@ -48,6 +48,6 @@ public class MediaStreamAudioSourceNode : AudioNode, IJSCreatable<MediaStreamAud
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "mediaStream");
-        return await MediaStream.CreateAsync(JSRuntime, jSInstance);
+        return await MediaStream.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 }

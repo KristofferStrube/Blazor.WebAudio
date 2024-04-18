@@ -90,7 +90,7 @@ public class OfflineAudioContext : BaseAudioContext, IJSCreatable<OfflineAudioCo
     public async Task<AudioBuffer> StartRenderingAsync()
     {
         IJSObjectReference jSInstance = await ErrorHandlingJSReference.InvokeAsync<IJSObjectReference>("startRendering");
-        return await AudioBuffer.CreateAsync(JSRuntime, jSInstance);
+        return await AudioBuffer.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>

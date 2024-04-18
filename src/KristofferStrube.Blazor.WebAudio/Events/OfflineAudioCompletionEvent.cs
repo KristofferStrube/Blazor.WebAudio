@@ -55,6 +55,6 @@ public class OfflineAudioCompletionEvent : Event, IJSCreatable<OfflineAudioCompl
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "renderedBuffer");
-        return await AudioBuffer.CreateAsync(JSRuntime, jSInstance);
+        return await AudioBuffer.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 }

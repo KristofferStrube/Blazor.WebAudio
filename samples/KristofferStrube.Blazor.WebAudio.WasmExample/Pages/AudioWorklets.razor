@@ -1,0 +1,34 @@
+﻿@page "/"
+@using KristofferStrube.Blazor.DOM
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+<PageTitle>WebAudio - Audio Worklets</PageTitle>
+<h2>Audio Worklets</h2>
+
+@code {
+    AudioContext context = default!;
+    AudioWorklet? audioWorklet;
+
+    protected override async Task OnInitializedAsync()
+    {
+        context = await AudioContext.CreateAsync(JSRuntime);
+    }
+
+    public async Task PlaySound()
+    {
+        audioWorklet = await context.GetAudioWorkletAsync();
+    }
+
+    public async Task StopSound()
+    {
+
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await StopSound();
+        await context.DisposeAsync();
+    }
+}
+
+

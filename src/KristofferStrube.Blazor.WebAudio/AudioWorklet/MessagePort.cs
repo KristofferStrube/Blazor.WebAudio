@@ -2,7 +2,7 @@
 using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 
-namespace KristofferStrube.Blazor.WebAudio.AudioWorklet;
+namespace KristofferStrube.Blazor.WebAudio;
 
 /// <summary>
 /// Each <see cref="MessagePort"/> object can be entangled with another (a symmetric relationship).
