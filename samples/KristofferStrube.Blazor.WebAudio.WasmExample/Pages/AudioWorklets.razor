@@ -38,7 +38,7 @@ else
 
         // Get destination and connect worklet node through gainNode
         destination = await context.GetDestinationAsync();
-        gainNode = await context.CreateGainAsync();
+        gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.05f } );
         await worktletNode.ConnectAsync(gainNode);
         await gainNode.ConnectAsync(destination);
     }
