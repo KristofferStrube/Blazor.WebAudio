@@ -7,6 +7,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The automation rate of an <see cref="AudioParam"/> can be selected calling <see cref="AudioParam.SetAutomationRateAsync"/> with one of the following values.
 /// However, some <see cref="AudioParam"/>s have constraints on whether the automation rate can be changed.
 /// </summary>
+/// <remarks><see href="https://www.w3.org/TR/webaudio/#enumdef-automationrate">See the API definition here</see>.</remarks>
 [JsonConverter(typeof(AutomationRateConverter))]
 public enum AutomationRate
 {

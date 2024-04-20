@@ -11,6 +11,11 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// <remarks><see href="https://html.spec.whatwg.org/multipage/worklets.html#worklet">See the API definition here</see>.</remarks>
 public class Worklet : BaseJSWrapper, IJSCreatable<Worklet>
 {
+    /// <summary>
+    /// An error handling reference to the underlying js object.
+    /// </summary>
+    protected IJSObjectReference ErrorHandlingJSReference { get; set; }
+
     /// <inheritdoc/>
     public static async Task<Worklet> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
@@ -26,6 +31,7 @@ public class Worklet : BaseJSWrapper, IJSCreatable<Worklet>
     /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
     protected Worklet(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
+        ErrorHandlingJSReference = new ErrorHandlingJSObjectReference(jSRuntime, jSReference);
     }
 
     /// <summary>
@@ -42,6 +48,6 @@ public class Worklet : BaseJSWrapper, IJSCreatable<Worklet>
     /// <returns></returns>
     public async Task AddModuleAsync(string moduleURL, WorkletOptions? options = null)
     {
-        await JSReference.InvokeVoidAsync("addModule", moduleURL, options);
+        await ErrorHandlingJSReference.InvokeVoidAsync("addModule", moduleURL, options);
     }
 }

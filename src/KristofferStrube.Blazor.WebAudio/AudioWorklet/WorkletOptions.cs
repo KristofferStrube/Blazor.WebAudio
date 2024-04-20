@@ -5,6 +5,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// <summary>
 /// The options used to add a module via <see cref="Worklet.AddModuleAsync(string, KristofferStrube.Blazor.WebAudio.WorkletOptions?)"/>
 /// </summary>
+/// <remarks><see href="https://html.spec.whatwg.org/multipage/worklets.html#workletoptions">See the API definition here</see>.</remarks>
 public class WorkletOptions
 {
     /// <summary>

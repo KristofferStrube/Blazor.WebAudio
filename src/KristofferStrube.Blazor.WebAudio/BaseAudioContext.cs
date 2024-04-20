@@ -387,11 +387,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
         Func<AudioBuffer, Task>? successCallback = null,
         Func<DOMException, Task>? errorCallback = null)
     {
-        IJSObjectReference helper = await webAudioHelperTask.Value;
-        if (ErrorHandlingJSInterop.ErrorHandlingJSInteropHasBeenSetup)
-        {
-            helper = new ErrorHandlingJSObjectReference(JSRuntime, helper);
-        }
+        IJSObjectReference helper = new ErrorHandlingJSObjectReference(JSRuntime, await webAudioHelperTask.Value);
 
         DotNetObjectReference<DecodeSuccessCallback>? successCallbackObjRef = successCallback is null ? null : DotNetObjectReference.Create(new DecodeSuccessCallback(JSRuntime, successCallback));
         DotNetObjectReference<DecodeErrorCallback>? errorCallbackObjRef = errorCallback is null ? null : DotNetObjectReference.Create(new DecodeErrorCallback(JSRuntime, errorCallback));

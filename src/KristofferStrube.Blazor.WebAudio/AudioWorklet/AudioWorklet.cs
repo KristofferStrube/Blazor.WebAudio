@@ -26,6 +26,4 @@ public class AudioWorklet : Worklet, IJSCreatable<AudioWorklet>
     protected AudioWorklet(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
     }
-
-
 }
