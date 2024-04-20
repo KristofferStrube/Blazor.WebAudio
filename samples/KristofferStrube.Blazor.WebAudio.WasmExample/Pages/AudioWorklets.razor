@@ -1,33 +1,78 @@
-﻿@page "/"
+﻿@page "/AudioWorklets"
 @using KristofferStrube.Blazor.DOM
 @implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
 <PageTitle>WebAudio - Audio Worklets</PageTitle>
 <h2>Audio Worklets</h2>
 
-@code {
-    AudioContext context = default!;
-    AudioWorklet? audioWorklet;
+<p>Here we can play sound that is generated using Audio Worklet Processors that can manipulate or generate sound in any custom way.</p>
 
-    protected override async Task OnInitializedAsync()
-    {
-        context = await AudioContext.CreateAsync(JSRuntime);
-    }
+@if (worktletNode is null)
+{
+    <button class="btn btn-success" @onclick=PlaySound>Play Sound from White Noise Generator</button>
+}
+else
+{
+    <button class="btn btn-warning" @onclick=StopSound>Stop Sound from White Noise Generator</button>
+}
+<br />
+<GainSlider GainNode=gainNode />
+
+@code {
+    AudioContext? context;
+    AudioWorkletNode? worktletNode;
+    AudioDestinationNode? destination;
+    GainNode? gainNode;
 
     public async Task PlaySound()
     {
-        audioWorklet = await context.GetAudioWorkletAsync();
+        // Get context.
+        context = await AudioContext.CreateAsync(JSRuntime);
+
+        // Register module
+        await using AudioWorklet audioWorklet = await context.GetAudioWorkletAsync();
+        await audioWorklet.AddModuleAsync("js/white-noise.js");
+
+        // Create node from registered processor.
+        worktletNode = await AudioWorkletNode.CreateAsync(JSRuntime, context, "white-noise");
+
+        // Get destination and connect worklet node through gainNode
+        destination = await context.GetDestinationAsync();
+        gainNode = await context.CreateGainAsync();
+        await worktletNode.ConnectAsync(gainNode);
+        await gainNode.ConnectAsync(destination);
     }
 
     public async Task StopSound()
     {
+        if (context is not null)
+        {
+            await context.DisposeAsync();
+        }
 
+        if (gainNode is not null)
+        {
+            await gainNode.DisposeAsync();
+            gainNode = null;
+        }
+
+        if (destination is not null)
+        {
+            await destination.DisposeAsync();
+            destination = null;
+        }
+
+        if (worktletNode is not null)
+        {
+            await worktletNode.DisconnectAsync();
+            await worktletNode.DisposeAsync();
+            worktletNode = null;
+        }
     }
 
     public async ValueTask DisposeAsync()
     {
         await StopSound();
-        await context.DisposeAsync();
     }
 }
 
