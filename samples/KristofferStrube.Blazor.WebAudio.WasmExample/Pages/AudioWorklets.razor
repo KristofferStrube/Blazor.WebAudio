@@ -9,11 +9,14 @@
 
 @if (worktletNode is null)
 {
-    <button class="btn btn-success" @onclick=PlaySound>Play Sound from White Noise Generator</button>
+    <div style="display:flex; flex-direction:column; grid-gap: 5px;">
+        <button class="btn btn-success" @onclick=PlayWhiteSound>Play Sound from static JS White Noise Generator</button>
+        <button class="btn btn-success" @onclick=PlayPushProcessedSound>Play Sound that is pushed from Blazor</button>
+    </div>
 }
 else
 {
-    <button class="btn btn-warning" @onclick=StopSound>Stop Sound from White Noise Generator</button>
+    <button class="btn btn-warning" @onclick=StopSound>Stop Sound</button>
 }
 <br />
 <GainSlider GainNode=gainNode />
@@ -24,7 +27,7 @@ else
     AudioDestinationNode? destination;
     GainNode? gainNode;
 
-    public async Task PlaySound()
+    public async Task PlayWhiteSound()
     {
         // Get context.
         context = await AudioContext.CreateAsync(JSRuntime);
@@ -41,6 +44,53 @@ else
         gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.05f } );
         await worktletNode.ConnectAsync(gainNode);
         await gainNode.ConnectAsync(destination);
+    }
+
+    public async Task PlayPushProcessedSound()
+    {
+        // Get context.
+        context = await AudioContext.CreateAsync(JSRuntime);
+
+        // Register module
+        await using AudioWorklet audioWorklet = await context.GetAudioWorkletAsync();
+        await audioWorklet.AddModuleAsync("./_content/KristofferStrube.Blazor.WebAudio/KristofferStrube.Blazor.WebAudio.PushAudioProcessor.js");
+
+        // Create node from registered processor.
+        worktletNode = await AudioWorkletNode.CreateAsync(JSRuntime, context, "kristoffer-strube-webaudio-push-audio-processor");
+
+        // Get destination and connect worklet node through gainNode
+        destination = await context.GetDestinationAsync();
+        gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.05f });
+        await worktletNode.ConnectAsync(gainNode);
+        await gainNode.ConnectAsync(destination);
+
+        // Get MessagePort and set up event listener for messages from the worklet.
+        MessagePort messagePort = await worktletNode.GetPortAsync();
+        await messagePort.StartAsync();
+        EventListener<MessageEvent> messageEventListener = await EventListener<MessageEvent>.CreateAsync(JSRuntime, async (e) =>
+        {
+            var messagge = await e.GetDataAsync<string>();
+            Console.WriteLine(messagge);
+            if (int.TryParse(messagge, out int count))
+            {
+                await messagePort.PostMessageAsync(
+                    Enumerable
+                        .Range(0, count)
+                        .Select(
+                            _ => Enumerable.Range(0, 128).Select(_ => Random.Shared.NextDouble() - 0.5).ToArray()
+                        ).ToArray()
+                );
+            }
+        });
+        await messagePort.AddOnMessageEventListenerAsync(messageEventListener);
+
+        await messagePort.PostMessageAsync(
+            Enumerable
+                .Range(0, 100)
+                .Select(
+                    _ => Enumerable.Range(0, 128).Select(_ => Random.Shared.NextDouble() - 0.5).ToArray()
+                ).ToArray()
+        );
     }
 
     public async Task StopSound()
@@ -64,6 +114,10 @@ else
 
         if (worktletNode is not null)
         {
+            // Get MessagePort and close it.
+            await using MessagePort messagePort = await worktletNode.GetPortAsync();
+            await messagePort.CloseAsync();
+
             await worktletNode.DisconnectAsync();
             await worktletNode.DisposeAsync();
             worktletNode = null;

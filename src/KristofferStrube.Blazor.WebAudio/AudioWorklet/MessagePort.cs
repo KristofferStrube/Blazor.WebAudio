@@ -29,4 +29,31 @@ public class MessagePort : EventTarget, IJSCreatable<MessagePort>
     protected internal MessagePort(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
     }
+
+    public async Task PostMessageAsync(object message, ITransferable[]? transfer = null)
+    {
+        await JSReference.InvokeVoidAsync("postMessage", message, transfer?.Select(e => e.JSReference).ToArray());
+    }
+
+    public async Task StartAsync()
+    {
+        await JSReference.InvokeVoidAsync("start");
+    }
+
+    public async Task CloseAsync()
+    {
+        await JSReference.InvokeVoidAsync("close");
+    }
+
+    /// <inheritdoc/>
+    public async Task AddOnMessageEventListenerAsync(EventListener<MessageEvent> callback, AddEventListenerOptions? options = null)
+    {
+        await AddEventListenerAsync("message", callback, options);
+    }
+
+    /// <inheritdoc/>
+    public async Task RemoveOnMessageEventListenerAsync(EventListener<MessageEvent> callback, EventListenerOptions? options = null)
+    {
+        await RemoveEventListenerAsync("message", callback, options);
+    }
 }
