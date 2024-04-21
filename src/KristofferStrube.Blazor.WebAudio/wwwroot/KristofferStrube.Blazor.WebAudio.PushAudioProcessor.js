@@ -30,10 +30,10 @@
                 });
             }
             if (count < 100) {
-                let dataNeededToReachLowTide = 100 - count;
+                let dataNeededToReachLowTide = 100;
                 if (this.dataRequested + dataNeededToReachLowTide < 500) {
                     this.dataRequested += dataNeededToReachLowTide;
-                    this.port.postMessage(100 - count);
+                    this.port.postMessage(dataNeededToReachLowTide);
                 }
             }
         }
