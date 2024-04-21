@@ -84,7 +84,7 @@ else
             Enumerable
                 .Range(0, 100)
                 .Select(
-                    _ => Enumerable.Range(0, 128).Select(_ => Random.Shared.NextDouble() - 0.5).ToArray()
+                    _ => Enumerable.Range(0, 128).Select(_ => Random.Shared.NextDouble() * 2 - 1).ToArray()
                 ).ToArray()
         );
     }
