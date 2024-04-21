@@ -11,7 +11,21 @@
 {
     <div style="display:flex; flex-direction:column; grid-gap: 5px;">
         <button class="btn btn-success" @onclick=PlayWhiteSound>Play Sound from static JS White Noise Generator</button>
+        <hr />
         <button class="btn btn-success" @onclick=PlayPushProcessedSound>Play Sound that is pushed from Blazor</button>
+        <div>
+            <label for="lowTide">Low Tide</label>
+            <input id="lowTide" @bind=lowTide />
+        </div>
+        <div>
+            <label for="highTide">High Tide</label>
+            <input id="highTide" @bind=highTide />
+        </div>
+        <div>
+            <label for="bufferRequestSize">Buffer Request Size</label>
+            <input id="bufferRequestSize" @bind=bufferRequestSize />
+        </div>
+        <hr />
     </div>
 }
 else
@@ -22,8 +36,16 @@ else
 <GainSlider GainNode=gainNode />
 
 @code {
+    int lowTide = 100;
+    int highTide = 500;
+    int bufferRequestSize = 100;
+
     AudioContext? context;
+
     AudioWorkletNode? worktletNode;
+    MessagePort? messagePort;
+    EventListener<MessageEvent>? messageEventListener;
+
     AudioDestinationNode? destination;
     GainNode? gainNode;
 
@@ -41,7 +63,7 @@ else
 
         // Get destination and connect worklet node through gainNode
         destination = await context.GetDestinationAsync();
-        gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.05f } );
+        gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.05f });
         await worktletNode.ConnectAsync(gainNode);
         await gainNode.ConnectAsync(destination);
     }
@@ -56,7 +78,15 @@ else
         await audioWorklet.AddModuleAsync("./_content/KristofferStrube.Blazor.WebAudio/KristofferStrube.Blazor.WebAudio.PushAudioProcessor.js");
 
         // Create node from registered processor.
-        worktletNode = await AudioWorkletNode.CreateAsync(JSRuntime, context, "kristoffer-strube-webaudio-push-audio-processor");
+        worktletNode = await AudioWorkletNode.CreateAsync(JSRuntime, context, "kristoffer-strube-webaudio-push-audio-processor", new()
+            {
+                ParameterData = new()
+                {
+                    ["lowTide"] = lowTide,
+                    ["highTide"] = highTide,
+                    ["bufferRequestSize"] = bufferRequestSize,
+                }
+            });
 
         // Get destination and connect worklet node through gainNode
         destination = await context.GetDestinationAsync();
@@ -65,9 +95,9 @@ else
         await gainNode.ConnectAsync(destination);
 
         // Get MessagePort and set up event listener for messages from the worklet.
-        MessagePort messagePort = await worktletNode.GetPortAsync();
+        messagePort = await worktletNode.GetPortAsync();
         await messagePort.StartAsync();
-        EventListener<MessageEvent> messageEventListener = await EventListener<MessageEvent>.CreateAsync(JSRuntime, async (e) =>
+        messageEventListener = await EventListener<MessageEvent>.CreateAsync(JSRuntime, async (e) =>
         {
             var dataNeededToReachLowTide = await e.GetDataAsync<int>();
             Console.WriteLine(dataNeededToReachLowTide);
@@ -109,12 +139,22 @@ else
             destination = null;
         }
 
+        if (messageEventListener is not null && messagePort is not null)
+        {
+            await messagePort.RemoveOnMessageEventListenerAsync(messageEventListener);
+            await messageEventListener.DisposeAsync();
+            messageEventListener = null;
+        }
+
+        if (messagePort is not null)
+        {
+            await messagePort.CloseAsync();
+            await messagePort.DisposeAsync();
+            messagePort = null;
+        }
+
         if (worktletNode is not null)
         {
-            // Get MessagePort and close it.
-            await using MessagePort messagePort = await worktletNode.GetPortAsync();
-            await messagePort.CloseAsync();
-
             await worktletNode.DisconnectAsync();
             await worktletNode.DisposeAsync();
             worktletNode = null;

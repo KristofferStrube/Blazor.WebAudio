@@ -4,6 +4,30 @@
     frontIndex = 0;
     dataRequested = 100;
 
+    static get parameterDescriptors() {
+        return [{
+            name: 'lowTide',
+            defaultValue: 100,
+            minValue: 1,
+            maxValue: 10000,
+            automationRate: "k-rate"
+        },
+        {
+            name: 'highTide',
+            defaultValue: 500,
+            minValue: 1,
+            maxValue: 10000,
+            automationRate: "k-rate"
+        },
+        {
+            name: 'bufferRequestSize',
+            defaultValue: 100,
+            minValue: 1,
+            maxValue: 10000,
+            automationRate: "k-rate"
+        }];
+    }
+
     constructor(...args) {
         super(...args);
         this.queue = [];
@@ -17,6 +41,10 @@
 
     process(inputs, outputs, parameters) {
         const output = outputs[0];
+        const lowTide = parameters.lowTide[0];
+        const highTide = parameters.highTide[0];
+        const bufferRequestSize = parameters.bufferRequestSize[0];
+
         try {
             const count = this.frontIndex - this.backIndex;
             if (count != 0) {
@@ -29,12 +57,9 @@
                     }
                 });
             }
-            if (count < 100) {
-                let dataNeededToReachLowTide = 100;
-                if (this.dataRequested + dataNeededToReachLowTide < 500) {
-                    this.dataRequested += dataNeededToReachLowTide;
-                    this.port.postMessage(dataNeededToReachLowTide);
-                }
+            if (count < lowTide && this.dataRequested + bufferRequestSize < highTide) {
+                this.dataRequested += bufferRequestSize;
+                this.port.postMessage(bufferRequestSize);
             }
         }
         catch (e) {
