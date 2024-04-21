@@ -70,6 +70,7 @@ else
         EventListener<MessageEvent> messageEventListener = await EventListener<MessageEvent>.CreateAsync(JSRuntime, async (e) =>
         {
             var dataNeededToReachLowTide = await e.GetDataAsync<int>();
+            Console.WriteLine(dataNeededToReachLowTide);
             await messagePort.PostMessageAsync(
                 Enumerable
                 .Range(0, dataNeededToReachLowTide)
