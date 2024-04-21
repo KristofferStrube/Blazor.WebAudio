@@ -2,6 +2,7 @@
     queue = [];
     backIndex = 0;
     frontIndex = 0;
+    dataRequested = 100;
 
     constructor(...args) {
         super(...args);
@@ -9,6 +10,7 @@
         this.port.onmessage = (e) => {
             e.data.forEach(data => this.queue.push(data));
             this.frontIndex += e.data.length;
+            this.dataRequested -= e.data.length;
             //this.port.postMessage((this.frontIndex - this.backIndex).toString());
         };
     }
@@ -29,6 +31,9 @@
                 });
             }
             if (count < 100) {
+                let dataNeededToReachLowTide = 100 - count;
+                if (this.dataRequested + dataNeededToReachLowTide < 500)
+                this.dataRequested += dataNeededToReachLowTide;
                 this.port.postMessage(100 - count);
             }
         }
