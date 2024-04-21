@@ -19,9 +19,8 @@
         const output = outputs[0];
         try {
             const count = this.frontIndex - this.backIndex;
-            let data = undefined;
             if (count != 0) {
-                data = this.queue[this.backIndex];
+                let data = this.queue[this.backIndex];
                 this.backIndex++;
 
                 output.forEach((channel) => {
@@ -32,8 +31,7 @@
             }
             if (count < 100) {
                 let dataNeededToReachLowTide = 100 - count;
-                if (this.dataRequested + dataNeededToReachLowTide < 500)
-                {
+                if (this.dataRequested + dataNeededToReachLowTide < 500) {
                     this.dataRequested += dataNeededToReachLowTide;
                     this.port.postMessage(100 - count);
                 }
