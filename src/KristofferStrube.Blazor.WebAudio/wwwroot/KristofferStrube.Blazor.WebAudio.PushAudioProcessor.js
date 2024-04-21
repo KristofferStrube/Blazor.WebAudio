@@ -29,7 +29,7 @@
                 });
             }
             if (count < 100) {
-                this.port.postMessage((100 - count).toString());
+                this.port.postMessage(100 - count);
             }
         }
         catch (e) {
