@@ -43,7 +43,7 @@ else
     AudioContext? context;
 
     AudioWorkletNode? worktletNode;
-    MessagePort? messagePort;
+    MessagePortInProcess? messagePort;
     EventListener<MessageEvent>? messageEventListener;
 
     AudioDestinationNode? destination;
@@ -95,13 +95,14 @@ else
         await gainNode.ConnectAsync(destination);
 
         // Get MessagePort and set up event listener for messages from the worklet.
-        messagePort = await worktletNode.GetPortAsync();
+        MessagePort messagePortAsynchronous = await worktletNode.GetPortAsync();
+        messagePort = await MessagePortInProcess.CreateAsync(JSRuntime, (IJSInProcessObjectReference)messagePortAsynchronous.JSReference);
         await messagePort.StartAsync();
         messageEventListener = await EventListener<MessageEvent>.CreateAsync(JSRuntime, async (e) =>
         {
             var dataNeededToReachLowTide = await e.GetDataAsync<int>();
             Console.WriteLine(dataNeededToReachLowTide);
-            await messagePort.PostMessageAsync(
+            messagePort.PostMessage(
                 Enumerable
                 .Range(0, dataNeededToReachLowTide)
                     .Select(
