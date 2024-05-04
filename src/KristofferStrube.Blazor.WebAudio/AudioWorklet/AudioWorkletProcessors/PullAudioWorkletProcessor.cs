@@ -22,7 +22,7 @@ public class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDisposable
     public static async Task<PullAudioWorkletProcessor> CreateAsync(BaseAudioContext audioContext, int lowTide = 100, int highTide = 500, int bufferRequestSize = 100)
     {
         await using AudioWorklet audioWorklet = await audioContext.GetAudioWorkletAsync();
-        await audioWorklet.AddModuleAsync("./_content/KristofferStrube.Blazor.WebAudio/KristofferStrube.Blazor.WebAudio.PushAudioProcessor.js");
+        await audioWorklet.AddModuleAsync("./_content/KristofferStrube.Blazor.WebAudio/KristofferStrube.Blazor.WebAudio.PullAudioProcessor.js");
 
         AudioWorkletNodeOptions options = new()
         {
@@ -34,7 +34,7 @@ public class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDisposable
             }
         };
 
-        AudioWorkletNode audioWorkletNode = await AudioWorkletNode.CreateAsync(audioContext.JSRuntime, audioContext, "kristoffer-strube-webaudio-push-audio-processor", options);
+        AudioWorkletNode audioWorkletNode = await AudioWorkletNode.CreateAsync(audioContext.JSRuntime, audioContext, "kristoffer-strube-webaudio-pull-audio-processor", options);
 
         MessagePort messagePortAsynchronous = await audioWorkletNode.GetPortAsync();
         MessagePortInProcess messagePort = await MessagePortInProcess.CreateAsync(audioContext.JSRuntime, (IJSInProcessObjectReference)messagePortAsynchronous.JSReference);

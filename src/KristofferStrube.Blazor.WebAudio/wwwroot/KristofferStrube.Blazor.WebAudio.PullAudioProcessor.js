@@ -1,4 +1,4 @@
-﻿class PushAudioProcessor extends AudioWorkletProcessor {
+﻿class PullAudioProcessor extends AudioWorkletProcessor {
     queue = [];
     backIndex = 0;
     frontIndex = 0;
@@ -69,4 +69,4 @@
     }
 }
 
-registerProcessor("kristoffer-strube-webaudio-push-audio-processor", PushAudioProcessor);
+registerProcessor("kristoffer-strube-webaudio-pull-audio-processor", PullAudioProcessor);
