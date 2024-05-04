@@ -7,7 +7,7 @@
 
 <p>Here we can play sound that is generated using Audio Worklet Processors that can manipulate or generate sound in any custom way.</p>
 
-@if (worktletNode is null)
+@if (worktletNode is null && processor is null)
 {
     <div style="display:flex; flex-direction:column; grid-gap: 5px;">
         <button class="btn btn-success" @onclick=PlayWhiteSound>Play Sound from static JS White Noise Generator</button>
@@ -39,12 +39,10 @@ else
     int lowTide = 100;
     int highTide = 500;
     int bufferRequestSize = 100;
+    PullAudioWorkletProcessor? processor;
+    AudioWorkletNode? worktletNode;
 
     AudioContext? context;
-
-    AudioWorkletNode? worktletNode;
-    MessagePortInProcess? messagePort;
-    EventListener<MessageEvent>? messageEventListener;
 
     AudioDestinationNode? destination;
     GainNode? gainNode;
@@ -73,52 +71,14 @@ else
         // Get context.
         context = await AudioContext.CreateAsync(JSRuntime);
 
-        // Register module
-        await using AudioWorklet audioWorklet = await context.GetAudioWorkletAsync();
-        await audioWorklet.AddModuleAsync("./_content/KristofferStrube.Blazor.WebAudio/KristofferStrube.Blazor.WebAudio.PushAudioProcessor.js");
-
-        // Create node from registered processor.
-        worktletNode = await AudioWorkletNode.CreateAsync(JSRuntime, context, "kristoffer-strube-webaudio-push-audio-processor", new()
-            {
-                ParameterData = new()
-                {
-                    ["lowTide"] = lowTide,
-                    ["highTide"] = highTide,
-                    ["bufferRequestSize"] = bufferRequestSize,
-                }
-            });
+        // Create and register node.
+        processor = await PullAudioWorkletProcessor.CreateAsync(context);
 
         // Get destination and connect worklet node through gainNode
         destination = await context.GetDestinationAsync();
         gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.05f });
-        await worktletNode.ConnectAsync(gainNode);
+        await processor.Node.ConnectAsync(gainNode);
         await gainNode.ConnectAsync(destination);
-
-        // Get MessagePort and set up event listener for messages from the worklet.
-        MessagePort messagePortAsynchronous = await worktletNode.GetPortAsync();
-        messagePort = await MessagePortInProcess.CreateAsync(JSRuntime, (IJSInProcessObjectReference)messagePortAsynchronous.JSReference);
-        await messagePort.StartAsync();
-        messageEventListener = await EventListener<MessageEvent>.CreateAsync(JSRuntime, async (e) =>
-        {
-            var dataNeededToReachLowTide = await e.GetDataAsync<int>();
-            Console.WriteLine(dataNeededToReachLowTide);
-            messagePort.PostMessage(
-                Enumerable
-                .Range(0, dataNeededToReachLowTide)
-                    .Select(
-                        _ => Enumerable.Range(0, 128).Select(_ => Random.Shared.NextDouble() * 2 - 1).ToArray()
-                    ).ToArray()
-            );
-        });
-        await messagePort.AddOnMessageEventListenerAsync(messageEventListener);
-
-        await messagePort.PostMessageAsync(
-            Enumerable
-                .Range(0, 100)
-                .Select(
-                    _ => Enumerable.Range(0, 128).Select(_ => Random.Shared.NextDouble() * 2 - 1).ToArray()
-                ).ToArray()
-        );
     }
 
     public async Task StopSound()
@@ -140,18 +100,10 @@ else
             destination = null;
         }
 
-        if (messageEventListener is not null && messagePort is not null)
+        if (processor is not null)
         {
-            await messagePort.RemoveOnMessageEventListenerAsync(messageEventListener);
-            await messageEventListener.DisposeAsync();
-            messageEventListener = null;
-        }
-
-        if (messagePort is not null)
-        {
-            await messagePort.CloseAsync();
-            await messagePort.DisposeAsync();
-            messagePort = null;
+            await processor.DisposeAsync();
+            processor = null;
         }
 
         if (worktletNode is not null)
