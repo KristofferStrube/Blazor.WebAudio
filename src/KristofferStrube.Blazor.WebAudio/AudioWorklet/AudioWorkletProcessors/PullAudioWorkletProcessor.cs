@@ -3,7 +3,8 @@ using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
-public class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDisposable
+//
+public partial class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDisposable
 {
     private readonly MessagePortInProcess messagePort;
     private readonly EventListener<MessageEvent> messageEventListener;
@@ -19,22 +20,22 @@ public class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDisposable
     }
 
     /// <inheritdoc/>
-    public static async Task<PullAudioWorkletProcessor> CreateAsync(BaseAudioContext audioContext, int lowTide = 100, int highTide = 500, int bufferRequestSize = 100)
+    public static async Task<PullAudioWorkletProcessor> CreateAsync(BaseAudioContext audioContext, Options options)
     {
         await using AudioWorklet audioWorklet = await audioContext.GetAudioWorkletAsync();
         await audioWorklet.AddModuleAsync("./_content/KristofferStrube.Blazor.WebAudio/KristofferStrube.Blazor.WebAudio.PullAudioProcessor.js");
 
-        AudioWorkletNodeOptions options = new()
+        AudioWorkletNodeOptions nodeOptions = new()
         {
             ParameterData = new()
             {
-                ["lowTide"] = lowTide,
-                ["highTide"] = highTide,
-                ["bufferRequestSize"] = bufferRequestSize,
+                ["lowTide"] = options.LowTide,
+                ["highTide"] = options.HighTide,
+                ["bufferRequestSize"] = options.BufferRequestSize,
             }
         };
 
-        AudioWorkletNode audioWorkletNode = await AudioWorkletNode.CreateAsync(audioContext.JSRuntime, audioContext, "kristoffer-strube-webaudio-pull-audio-processor", options);
+        AudioWorkletNode audioWorkletNode = await AudioWorkletNode.CreateAsync(audioContext.JSRuntime, audioContext, "kristoffer-strube-webaudio-pull-audio-processor", nodeOptions);
 
         MessagePort messagePortAsynchronous = await audioWorkletNode.GetPortAsync();
         MessagePortInProcess messagePort = await MessagePortInProcess.CreateAsync(audioContext.JSRuntime, (IJSInProcessObjectReference)messagePortAsynchronous.JSReference);
@@ -47,7 +48,7 @@ public class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDisposable
                 Enumerable
                 .Range(0, dataNeededToReachLowTide)
                     .Select(
-                        _ => Enumerable.Range(0, 128).Select(_ => Random.Shared.NextDouble() * 2 - 1).ToArray()
+                        _ => Enumerable.Range(0, 128).Select(_ => options.Produce()).ToArray()
                     ).ToArray()
             );
         });
@@ -57,7 +58,7 @@ public class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDisposable
             Enumerable
                 .Range(0, 100)
                 .Select(
-                    _ => Enumerable.Range(0, 128).Select(_ => Random.Shared.NextDouble() * 2 - 1).ToArray()
+                    _ => Enumerable.Range(0, 128).Select(_ => options.Produce()).ToArray()
                 ).ToArray()
         );
 

@@ -12,18 +12,18 @@
     <div style="display:flex; flex-direction:column; grid-gap: 5px;">
         <button class="btn btn-success" @onclick=PlayWhiteSound>Play Sound from static JS White Noise Generator</button>
         <hr />
-        <button class="btn btn-success" @onclick=PlayPushProcessedSound>Play Sound that is pushed from Blazor</button>
+        <button class="btn btn-success" @onclick=PlayPullProcessedSound>Play Sound that is pulled from Blazor</button>
         <div>
             <label for="lowTide">Low Tide</label>
-            <input id="lowTide" @bind=lowTide />
+            <input id="lowTide" @bind=options.LowTide />
         </div>
         <div>
             <label for="highTide">High Tide</label>
-            <input id="highTide" @bind=highTide />
+            <input id="highTide" @bind=options.HighTide />
         </div>
         <div>
             <label for="bufferRequestSize">Buffer Request Size</label>
-            <input id="bufferRequestSize" @bind=bufferRequestSize />
+            <input id="bufferRequestSize" @bind=options.BufferRequestSize />
         </div>
         <hr />
     </div>
@@ -36,9 +36,10 @@ else
 <GainSlider GainNode=gainNode />
 
 @code {
-    int lowTide = 100;
-    int highTide = 500;
-    int bufferRequestSize = 100;
+    PullAudioWorkletProcessor.Options options = new()
+        {
+            Produce = () => Random.Shared.NextDouble() * 2 - 1,
+        };
     PullAudioWorkletProcessor? processor;
     AudioWorkletNode? worktletNode;
 
@@ -66,13 +67,13 @@ else
         await gainNode.ConnectAsync(destination);
     }
 
-    public async Task PlayPushProcessedSound()
+    public async Task PlayPullProcessedSound()
     {
         // Get context.
         context = await AudioContext.CreateAsync(JSRuntime);
 
         // Create and register node.
-        processor = await PullAudioWorkletProcessor.CreateAsync(context);
+        processor = await PullAudioWorkletProcessor.CreateAsync(context, options);
 
         // Get destination and connect worklet node through gainNode
         destination = await context.GetDestinationAsync();
