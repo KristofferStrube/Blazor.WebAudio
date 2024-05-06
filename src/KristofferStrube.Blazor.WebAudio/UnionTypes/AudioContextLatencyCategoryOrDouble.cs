@@ -1,10 +1,13 @@
-﻿using KristofferStrube.Blazor.WebAudio.UnionTypes;
+﻿using KristofferStrube.Blazor.WebAudio.Converters;
+using KristofferStrube.Blazor.WebAudio.UnionTypes;
+using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
 /// <summary>
 /// A value that is either a <see cref="AudioContextLatencyCategory"/> or a <see cref="double"/>.
 /// </summary>
+[JsonConverter(typeof(UnionTypeJsonConverter<AudioContextLatencyCategoryOrDouble>))]
 public class AudioContextLatencyCategoryOrDouble : UnionType
 {
     /// <summary>
