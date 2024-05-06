@@ -113,7 +113,6 @@ public class Connector : Line, ITaskQueueable
                 {
                     if (value.Value.param is not null)
                     {
-                        Console.WriteLine("param was something");
                         QueuedTasks.Enqueue(async context => await (await from.node.AudioNode(context)).ConnectAsync(value.Value.param, from.port));
                     }
                     else
@@ -150,7 +149,6 @@ public class Connector : Line, ITaskQueueable
             {
                 if (to.CurrentActivePort is { } port)
                 {
-                    Console.WriteLine("audio param set to something: " + (to.CurrentActiveAudioParam is not null));
                     To = (to, port, to.CurrentActiveAudioParam);
                 }
                 SVG.EditMode = EditMode.None;

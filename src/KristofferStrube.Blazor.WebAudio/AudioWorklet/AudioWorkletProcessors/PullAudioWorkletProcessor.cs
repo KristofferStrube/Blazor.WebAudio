@@ -43,7 +43,6 @@ public partial class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDi
         EventListener<MessageEvent> messageEventListener = await EventListener<MessageEvent>.CreateAsync(audioContext.JSRuntime, async (e) =>
         {
             int dataNeededToReachLowTide = await e.GetDataAsync<int>();
-            Console.WriteLine(dataNeededToReachLowTide);
             messagePort.PostMessage(
                 Enumerable
                 .Range(0, dataNeededToReachLowTide)
