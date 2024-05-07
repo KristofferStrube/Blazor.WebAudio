@@ -12,7 +12,8 @@
     <div style="display:flex; flex-direction:column; grid-gap: 5px;">
         <button class="btn btn-success" @onclick=PlayWhiteSound>Play Sound from static JS White Noise Generator</button>
         <hr />
-        <button class="btn btn-success" @onclick=PlayPullProcessedSound>Play Sound that is pulled from Blazor</button>
+        <button class="btn btn-success" @onclick=PlayMonoPullProcessedSound>Play Mono Sound that is pulled from Blazor</button>
+        <button class="btn btn-success" @onclick=PlayStereoPullProcessedSound>Play Stereo Sound that is pulled from Blazor</button>
         <div>
             <label for="lowTide">Low Tide</label>
             <input id="lowTide" @bind=options.LowTide />
@@ -37,9 +38,8 @@ else
 
 @code {
     PullAudioWorkletProcessor.Options options = new()
-        {
-            Produce = () => Random.Shared.NextDouble() * 2 - 1,
-        };
+    {
+    };
     PullAudioWorkletProcessor? processor;
     AudioWorkletNode? worktletNode;
 
@@ -67,10 +67,31 @@ else
         await gainNode.ConnectAsync(destination);
     }
 
-    public async Task PlayPullProcessedSound()
+    public async Task PlayMonoPullProcessedSound()
     {
         // Get context.
         context = await AudioContext.CreateAsync(JSRuntime);
+
+        options.ProduceMono = () => Random.Shared.NextDouble() * 2 - 1;
+        options.ProduceStereo = null;
+
+        // Create and register node.
+        processor = await PullAudioWorkletProcessor.CreateAsync(context, options);
+
+        // Get destination and connect worklet node through gainNode
+        destination = await context.GetDestinationAsync();
+        gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.05f });
+        await processor.Node.ConnectAsync(gainNode);
+        await gainNode.ConnectAsync(destination);
+    }
+
+    public async Task PlayStereoPullProcessedSound()
+    {
+        // Get context.
+        context = await AudioContext.CreateAsync(JSRuntime);
+
+        options.ProduceMono = null;
+        options.ProduceStereo = () => (left: Random.Shared.NextDouble() * 2 - 1, right: Random.Shared.NextDouble() * 2 - 1);
 
         // Create and register node.
         processor = await PullAudioWorkletProcessor.CreateAsync(context, options);
@@ -87,12 +108,6 @@ else
         if (context is not null)
         {
             await context.DisposeAsync();
-        }
-
-        if (gainNode is not null)
-        {
-            await gainNode.DisposeAsync();
-            gainNode = null;
         }
 
         if (destination is not null)

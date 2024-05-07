@@ -25,6 +25,43 @@ public partial class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDi
         await using AudioWorklet audioWorklet = await audioContext.GetAudioWorkletAsync();
         await audioWorklet.AddModuleAsync("./_content/KristofferStrube.Blazor.WebAudio/KristofferStrube.Blazor.WebAudio.PullAudioProcessor.js");
 
+        ulong channels = (ulong)(options.ProduceStereo is not null ? 2 : 1);
+
+        double[] ProduceArray(int chunks)
+        {
+            double[] result;
+            if (options.ProduceStereo is not null)
+            {
+                result = new double[chunks * 128 * 2];
+                for (int i = 0; i < chunks; i++)
+                {
+                    for (int j = 0; j < 128; j++)
+                    {
+                        (double left, double right) = options.ProduceStereo();
+                        result[(i * 128 * 2) + j] = left;
+                        result[(i * 128 * 2) + 128 + j] = right;
+                    }
+                }
+            }
+            else if (options.ProduceMono is not null)
+            {
+                result = new double[chunks * 128];
+                for (int i = 0; i < chunks; i++)
+                {
+                    for (int j = 0; j < 128; j++)
+                    {
+                        double monoSound = options.ProduceMono();
+                        result[(i * 128) + j] = monoSound;
+                    }
+                }
+            }
+            else
+            {
+                result = Enumerable.Range(0, 128 * chunks).Select(_ => 0.0).ToArray();
+            }
+            return result;
+        }
+
         AudioWorkletNodeOptions nodeOptions = new()
         {
             ParameterData = new()
@@ -32,7 +69,8 @@ public partial class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDi
                 ["lowTide"] = options.LowTide,
                 ["highTide"] = options.HighTide,
                 ["bufferRequestSize"] = options.BufferRequestSize,
-            }
+            },
+            OutputChannelCount = new ulong[] { channels }
         };
 
         AudioWorkletNode audioWorkletNode = await AudioWorkletNode.CreateAsync(audioContext.JSRuntime, audioContext, "kristoffer-strube-webaudio-pull-audio-processor", nodeOptions);
@@ -42,24 +80,9 @@ public partial class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDi
         await messagePort.StartAsync();
         EventListener<MessageEvent> messageEventListener = await EventListener<MessageEvent>.CreateAsync(audioContext.JSRuntime, async (e) =>
         {
-            int dataNeededToReachLowTide = await e.GetDataAsync<int>();
-            messagePort.PostMessage(
-                Enumerable
-                .Range(0, dataNeededToReachLowTide)
-                    .Select(
-                        _ => Enumerable.Range(0, 128).Select(_ => options.Produce()).ToArray()
-                    ).ToArray()
-            );
+            messagePort.PostMessage(ProduceArray(options.BufferRequestSize));
         });
         await messagePort.AddOnMessageEventListenerAsync(messageEventListener);
-
-        await messagePort.PostMessageAsync(
-            Enumerable
-                .Range(0, 100)
-                .Select(
-                    _ => Enumerable.Range(0, 128).Select(_ => options.Produce()).ToArray()
-                ).ToArray()
-        );
 
         return new PullAudioWorkletProcessor(audioWorkletNode, messagePort, messageEventListener);
     }

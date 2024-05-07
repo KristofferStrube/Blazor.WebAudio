@@ -2,7 +2,7 @@
     queue = [];
     backIndex = 0;
     frontIndex = 0;
-    dataRequested = 100;
+    dataRequested = 0;
 
     static get parameterDescriptors() {
         return [{
@@ -32,10 +32,11 @@
         super(...args);
         this.queue = [];
         this.port.onmessage = (e) => {
-            e.data.forEach(data => this.queue.push(data));
-            this.frontIndex += e.data.length;
-            this.dataRequested -= e.data.length;
-            //this.port.postMessage((this.frontIndex - this.backIndex).toString());
+            for (let i = 0; i < e.data.length / 128; i++) {
+                this.queue.push(e.data.slice(i * 128, (i + 1) * 128));
+                this.frontIndex++;
+                this.dataRequested--;
+            }
         };
     }
 
@@ -47,15 +48,18 @@
 
         try {
             const count = this.frontIndex - this.backIndex;
+            this.port.postMessage((count).toString());
             if (count != 0) {
-                let data = this.queue[this.backIndex];
-                this.backIndex++;
+                for (let i = 0; i < output.length; i++)
+                {
+                    let data = this.queue[this.backIndex];
+                    this.backIndex++;
 
-                output.forEach((channel) => {
-                    for (let i = 0; i < channel.length; i++) {
-                        channel[i] = data[i];
+                    let channel = output[i];
+                    for (let j = 0; j < channel.length; j++) {
+                        channel[j] = data[j];
                     }
-                });
+                }
             }
             if (count < lowTide && this.dataRequested + bufferRequestSize < highTide) {
                 this.dataRequested += bufferRequestSize;
