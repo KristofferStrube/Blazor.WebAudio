@@ -1,18 +1,17 @@
 ﻿using KristofferStrube.Blazor.DOM;
-using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
 //
 public partial class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDisposable
 {
-    private readonly MessagePortInProcess messagePort;
+    private readonly MessagePort messagePort;
     private readonly EventListener<MessageEvent> messageEventListener;
 
     /// <inheritdoc/>
     public override AudioWorkletNode Node { get; }
 
-    private PullAudioWorkletProcessor(AudioWorkletNode node, MessagePortInProcess messagePort, EventListener<MessageEvent> messageEventListener)
+    private PullAudioWorkletProcessor(AudioWorkletNode node, MessagePort messagePort, EventListener<MessageEvent> messageEventListener)
     {
         Node = node;
         this.messagePort = messagePort;
