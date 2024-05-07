@@ -56,8 +56,7 @@
 
         try {
             const count = this.frontIndex - this.backIndex;
-            this.port.postMessage((count).toString());
-            if (count != 0) {
+            if (count >= output.length) {
                 for (let i = 0; i < output.length; i++) {
                     let data = this.queue[this.backIndex];
                     this.backIndex++;
