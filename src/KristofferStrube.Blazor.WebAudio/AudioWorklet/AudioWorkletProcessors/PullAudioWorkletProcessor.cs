@@ -40,8 +40,8 @@ public partial class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDi
                         (double left, double right) = options.ProduceStereo();
                         if (options.Resolution is Resolution.Byte)
                         {
-                            result[(i * 128 * 2) + j] = TNumber.CreateTruncating(left * 255);
-                            result[(i * 128 * 2) + 128 + j] = TNumber.CreateTruncating(right * 255);
+                            result[(i * 128 * 2) + j] = TNumber.CreateTruncating((left + 1) / 2 * 255);
+                            result[(i * 128 * 2) + 128 + j] = TNumber.CreateTruncating((right + 1) / 2 * 255);
                         }
                         else
                         {
@@ -61,7 +61,7 @@ public partial class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDi
                         double monoSound = options.ProduceMono();
                         if (options.Resolution is Resolution.Byte)
                         {
-                            result[(i * 128) + j] = TNumber.CreateTruncating(monoSound * 255);
+                            result[(i * 128) + j] = TNumber.CreateTruncating((monoSound + 1) / 2 * 255);
                         }
                         else
                         {

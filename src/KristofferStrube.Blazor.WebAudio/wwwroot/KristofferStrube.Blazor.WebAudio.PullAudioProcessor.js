@@ -64,7 +64,12 @@
 
                     let channel = output[i];
                     for (let j = 0; j < channel.length; j++) {
-                        channel[j] = data[j] / resolution;
+                        if (resolution == 255) {
+                            channel[j] = data[j] / 255 * 2 - 1;
+                        }
+                        else {
+                            channel[j] = data[j];
+                        }
                     }
                 }
             }

@@ -7,7 +7,7 @@ public partial class PullAudioWorkletProcessor
         public int LowTide { get; set; } = 10;
         public int HighTide { get; set; } = 50;
         public int BufferRequestSize { get; set; } = 10;
-        public Resolution Resolution { get; set; } = Resolution.Byte;
+        public Resolution Resolution { get; set; } = Resolution.Double;
 
         /// <summary>
         /// A functions that will be used to pull data to play in the audio processor as mono audio
