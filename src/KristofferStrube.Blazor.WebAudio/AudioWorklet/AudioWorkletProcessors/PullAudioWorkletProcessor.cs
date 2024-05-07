@@ -75,12 +75,11 @@ public partial class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDi
 
         AudioWorkletNode audioWorkletNode = await AudioWorkletNode.CreateAsync(audioContext.JSRuntime, audioContext, "kristoffer-strube-webaudio-pull-audio-processor", nodeOptions);
 
-        MessagePort messagePortAsynchronous = await audioWorkletNode.GetPortAsync();
-        MessagePortInProcess messagePort = await MessagePortInProcess.CreateAsync(audioContext.JSRuntime, (IJSInProcessObjectReference)messagePortAsynchronous.JSReference);
+        MessagePort messagePort = await audioWorkletNode.GetPortAsync();
         await messagePort.StartAsync();
         EventListener<MessageEvent> messageEventListener = await EventListener<MessageEvent>.CreateAsync(audioContext.JSRuntime, async (e) =>
         {
-            messagePort.PostMessage(ProduceArray(options.BufferRequestSize));
+            await messagePort.PostMessageAsync(ProduceArray(options.BufferRequestSize));
         });
         await messagePort.AddOnMessageEventListenerAsync(messageEventListener);
 
