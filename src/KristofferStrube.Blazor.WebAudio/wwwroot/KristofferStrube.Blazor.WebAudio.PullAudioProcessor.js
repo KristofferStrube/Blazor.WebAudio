@@ -7,23 +7,30 @@
     static get parameterDescriptors() {
         return [{
             name: 'lowTide',
-            defaultValue: 100,
+            defaultValue: 10,
             minValue: 1,
             maxValue: 10000,
             automationRate: "k-rate"
         },
         {
             name: 'highTide',
-            defaultValue: 500,
+            defaultValue: 50,
             minValue: 1,
             maxValue: 10000,
             automationRate: "k-rate"
         },
         {
             name: 'bufferRequestSize',
-            defaultValue: 100,
+            defaultValue: 10,
             minValue: 1,
             maxValue: 10000,
+            automationRate: "k-rate"
+        },
+        {
+            name: 'resolution',
+            defaultValue: 1,
+            minValue: 1,
+            maxValue: 255,
             automationRate: "k-rate"
         }];
     }
@@ -45,19 +52,19 @@
         const lowTide = parameters.lowTide[0];
         const highTide = parameters.highTide[0];
         const bufferRequestSize = parameters.bufferRequestSize[0];
+        const resolution = parameters.resolution[0];
 
         try {
             const count = this.frontIndex - this.backIndex;
             this.port.postMessage((count).toString());
             if (count != 0) {
-                for (let i = 0; i < output.length; i++)
-                {
+                for (let i = 0; i < output.length; i++) {
                     let data = this.queue[this.backIndex];
                     this.backIndex++;
 
                     let channel = output[i];
                     for (let j = 0; j < channel.length; j++) {
-                        channel[j] = data[j];
+                        channel[j] = data[j] / resolution;
                     }
                 }
             }

@@ -26,7 +26,7 @@
     public async Task GainUpdatedAsync()
     {
         if (GainNode is null) return;
-        var audioParam = await GainNode.GetGainAsync();
+        await using AudioParam audioParam = await GainNode.GetGainAsync();
         await audioParam.SetValueAsync(Gain);
     }
 }

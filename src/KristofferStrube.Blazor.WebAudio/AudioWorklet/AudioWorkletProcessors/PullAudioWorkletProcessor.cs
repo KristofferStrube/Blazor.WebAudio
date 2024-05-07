@@ -1,4 +1,5 @@
 ﻿using KristofferStrube.Blazor.DOM;
+using System.Numerics;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -26,37 +27,52 @@ public partial class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDi
 
         ulong channels = (ulong)(options.ProduceStereo is not null ? 2 : 1);
 
-        double[] ProduceArray(int chunks)
+        TNumber[] ProduceArray<TNumber>(int chunks) where TNumber : INumber<TNumber>
         {
-            double[] result;
+            TNumber[] result;
             if (options.ProduceStereo is not null)
             {
-                result = new double[chunks * 128 * 2];
+                result = new TNumber[chunks * 128 * 2];
                 for (int i = 0; i < chunks; i++)
                 {
                     for (int j = 0; j < 128; j++)
                     {
                         (double left, double right) = options.ProduceStereo();
-                        result[(i * 128 * 2) + j] = left;
-                        result[(i * 128 * 2) + 128 + j] = right;
+                        if (options.Resolution is Resolution.Byte)
+                        {
+                            result[(i * 128 * 2) + j] = TNumber.CreateTruncating(left * 255);
+                            result[(i * 128 * 2) + 128 + j] = TNumber.CreateTruncating(right * 255);
+                        }
+                        else
+                        {
+                            result[(i * 128 * 2) + j] = TNumber.CreateTruncating(left);
+                            result[(i * 128 * 2) + 128 + j] = TNumber.CreateTruncating(right);
+                        }
                     }
                 }
             }
             else if (options.ProduceMono is not null)
             {
-                result = new double[chunks * 128];
+                result = new TNumber[chunks * 128];
                 for (int i = 0; i < chunks; i++)
                 {
                     for (int j = 0; j < 128; j++)
                     {
                         double monoSound = options.ProduceMono();
-                        result[(i * 128) + j] = monoSound;
+                        if (options.Resolution is Resolution.Byte)
+                        {
+                            result[(i * 128) + j] = TNumber.CreateTruncating(monoSound * 255);
+                        }
+                        else
+                        {
+                            result[(i * 128) + j] = TNumber.CreateTruncating(monoSound);
+                        }
                     }
                 }
             }
             else
             {
-                result = Enumerable.Range(0, 128 * chunks).Select(_ => 0.0).ToArray();
+                result = Enumerable.Range(0, 128 * chunks).Select(_ => TNumber.Zero).ToArray();
             }
             return result;
         }
@@ -68,6 +84,7 @@ public partial class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDi
                 ["lowTide"] = options.LowTide,
                 ["highTide"] = options.HighTide,
                 ["bufferRequestSize"] = options.BufferRequestSize,
+                ["resolution"] = options.Resolution is Resolution.Byte ? 255 : 1,
             },
             OutputChannelCount = new ulong[] { channels }
         };
@@ -78,13 +95,24 @@ public partial class PullAudioWorkletProcessor : AudioWorkletProcessor, IAsyncDi
         await messagePort.StartAsync();
         EventListener<MessageEvent> messageEventListener = await EventListener<MessageEvent>.CreateAsync(audioContext.JSRuntime, async (e) =>
         {
-            await messagePort.PostMessageAsync(ProduceArray(options.BufferRequestSize));
+            if (options.Resolution is Resolution.Byte)
+            {
+                await messagePort.PostMessageAsync(ProduceArray<byte>(options.BufferRequestSize));
+            }
+            else
+            {
+                await messagePort.PostMessageAsync(ProduceArray<double>(options.BufferRequestSize));
+            }
         });
         await messagePort.AddOnMessageEventListenerAsync(messageEventListener);
 
         return new PullAudioWorkletProcessor(audioWorkletNode, messagePort, messageEventListener);
     }
 
+    /// <summary>
+    /// Removes the event listener that listens for events from the audio worklet processor, closes the message port, and disposes these and the <see cref="Node"/>.
+    /// </summary>
+    /// <returns></returns>
     public async ValueTask DisposeAsync()
     {
         if (messageEventListener is not null && messagePort is not null)
