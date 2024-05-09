@@ -1,15 +1,18 @@
 ﻿@page "/Drums"
+@page "/Instruments"
 @using KristofferStrube.Blazor.DOM
 @using KristofferStrube.Blazor.WebIDL;
 @implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
-<PageTitle>WebAudio - Drums</PageTitle>
+<PageTitle>WebAudio - Instruments</PageTitle>
 <h2>Drums</h2>
 
-<p>Different drums are essentially just a combination of different enharmonic modes each with different frequencies, amplitudes, and decay times + some noice from the kick.</p>
+<p>
+    Many intstrments are essentially just a combination of different enharmonic or harmonic modes each with different frequencies, amplitudes, and decay times + some noice from the kick.
+</p>
 
 <p>
-    Below here we have a <b style="color:orange;">Timpani Drum</b> and a <b style="color:silver;">Bass Drum</b>. Try to hitting them!
+    Below here we have a <b style="color:orange;">Timpani Drum</b>, a <b style="color:silver;">Bass Drum</b> and <b style="color:#77F;">Violin</b> Try to hitting them!
 </p>
 
 <svg width="200" height="200" @onpointerdown=PlayTimps>
@@ -19,16 +22,44 @@
 <svg width="180" height="180" @onpointerdown=PlayBass>
     <circle cx="90" cy="90" r="80" fill="silver" stroke="grey"></circle>
 </svg>
+<br />
+<br />
+<svg width="360" height="80" @onpointerup=EndViolin @onpointermove=MoveViolin>
+    <rect x="1" y="1" width="358" height="18" fill="#88F" stroke="#55F" @onpointerdown="e => StartViolin(e, 659.3f)">
+    </rect>
+    <text x="5" y="16" width="100" height="100" fill="white" style="pointer-events:none;">
+        E<sub>5</sub>
+    </text>
+    <rect x="1" y="21" width="360" height="18" fill="#77F" stroke="#55F" @onpointerdown="e => StartViolin(e, 440.0f)">
+    </rect>
+    <text x="5" y="36" width="100" height="100" fill="white" style="pointer-events:none;">
+        A<sub>4</sub>
+    </text>
+    <rect x="1" y="41" width="360" height="18" fill="#66F" stroke="#55F" @onpointerdown="e => StartViolin(e, 293.7f)">
+    </rect>
+    <text x="5" y="56" width="100" height="100" fill="white" style="pointer-events:none;">
+        D<sub>4</sub>
+    </text>
+    <rect x="1" y="61" width="360" height="18" fill="#55F" stroke="#55F" @onpointerdown="e => StartViolin(e, 196.0f)">
+    </rect>
+    <text x="5" y="76" width="100" height="100" fill="white" style="pointer-events:none;">
+        G<sub>3</sub>
+    </text>
+</svg>
 
-<h3>Spectrogram</h3>
-<hr />
-<SpectrogramPlot Analyser=analyser UpperFrequency="40" TimeInSeconds="8" />
+<DoublePlot Data1="frequencies" />
 
 @code {
     AudioContext context = default!;
     GainNode mainNode = default!;
     AnalyserNode analyser = default!;
-    byte[] timeDomainMeasurements = Array.Empty<byte>();
+
+    OscillatorNode? violinOscillator;
+    float primaryFrequency;
+    GainNode? violinMain;
+
+    bool stopped;
+    byte[] frequencies = Array.Empty<byte>();
 
     public async Task Initialize()
     {
@@ -40,6 +71,23 @@
             var mixer = await context.GetDestinationAsync();
             await mainNode.ConnectAsync(analyser);
             await analyser.ConnectAsync(mixer);
+
+#pragma warning disable CS4014
+            Task.Run(async () =>
+            {
+                int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
+                var dataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+                stopped = false;
+                while (!stopped)
+                {
+                    await analyser.GetByteFrequencyDataAsync(dataArray);
+
+                    frequencies = await dataArray.GetAsArrayAsync();
+                    await Task.Delay(30);
+                    StateHasChanged();
+                }
+            });
+#pragma warning restore CS4014
         }
     }
 
@@ -141,11 +189,126 @@
         await midGain.LinearRampToValueAtTimeAsync(0, time + 0.3);
     }
 
+    private SemaphoreSlim violinSemaphore = new SemaphoreSlim(1, 1);
+    public async Task StartViolin(PointerEventArgs eventArgs, float primaryFrequency)
+    {
+        await Initialize();
+
+        if (!await violinSemaphore.WaitAsync(50)) return;
+
+        if (violinMain is not null)
+        {
+            await violinMain.DisconnectAsync();
+        }
+
+        this.primaryFrequency = primaryFrequency;
+        double position = eventArgs.OffsetX;
+        float frequency = (float)(primaryFrequency + position / 4 - 45);
+
+        violinOscillator = await OscillatorNode.CreateAsync(JSRuntime, context, new()
+            {
+                Type = OscillatorType.Sawtooth,
+                Frequency = frequency
+            });
+        await using var lowPassFilter = await BiquadFilterNode.CreateAsync(JSRuntime, context, new()
+            {
+                Type = BiquadFilterType.Lowpass,
+                Frequency = 6000
+            });
+        await using var highPassFilter = await BiquadFilterNode.CreateAsync(JSRuntime, context, new()
+            {
+                Type = BiquadFilterType.Highpass,
+                Frequency = 200
+            });
+
+        await using var band300 = await BiquadFilterNode.CreateAsync(JSRuntime, context, new()
+            {
+                Type = BiquadFilterType.Bandpass,
+                Frequency = 300,
+            });
+
+        await using var band700 = await BiquadFilterNode.CreateAsync(JSRuntime, context, new()
+            {
+                Type = BiquadFilterType.Bandpass,
+                Frequency = 700,
+            });
+
+        await using var brand3000 = await BiquadFilterNode.CreateAsync(JSRuntime, context, new()
+            {
+                Type = BiquadFilterType.Bandpass,
+                Frequency = 3000,
+            });
+
+        violinMain = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
+
+        await violinOscillator.ConnectAsync(lowPassFilter);
+        await lowPassFilter.ConnectAsync(highPassFilter);
+
+        await highPassFilter.ConnectAsync(band300);
+        await highPassFilter.ConnectAsync(band700);
+        await highPassFilter.ConnectAsync(brand3000);
+
+        await band300.ConnectAsync(violinMain);
+        await band700.ConnectAsync(violinMain);
+        await brand3000.ConnectAsync(violinMain);
+
+        await violinMain.ConnectAsync(mainNode);
+        await violinOscillator.StartAsync();
+
+        var time = await context.GetCurrentTimeAsync();
+        await using var amplifierGain = await violinMain.GetGainAsync();
+        await amplifierGain.LinearRampToValueAtTimeAsync(0.2f, time + 0.2);
+
+        violinSemaphore.Release();
+    }
+
+    public async Task MoveViolin(PointerEventArgs eventArgs)
+    {
+        if (violinOscillator is null) return;
+        if (!await violinSemaphore.WaitAsync(50)) return;
+        if (violinOscillator is null) return;
+
+        double position = eventArgs.OffsetX;
+        float frequency = (float)(primaryFrequency + position / 4 - 45);
+
+        await using var frequencyParameter = await violinOscillator.GetFrequencyAsync();
+        await frequencyParameter.SetValueAsync(frequency);
+
+        violinSemaphore.Release();
+    }
+
+    public async Task EndViolin(PointerEventArgs eventArgs)
+    {
+        if (!await violinSemaphore.WaitAsync(50)) return;
+
+        if (violinMain is null || violinOscillator is null) return;
+
+        var time = await context.GetCurrentTimeAsync();
+        await using var amplifierGain = await violinMain.GetGainAsync();
+        await amplifierGain.LinearRampToValueAtTimeAsync(0, time + 0.5);
+
+        var localViolinMain = violinMain;
+        violinMain = null;
+
+        var localViolinOscillator = violinOscillator;
+        violinOscillator = null;
+
+        violinSemaphore.Release();
+
+        await Task.Delay(700);
+        await localViolinMain.DisconnectAsync();
+        await localViolinMain.DisposeAsync();
+        await localViolinOscillator.DisconnectAsync();
+        await localViolinOscillator.DisposeAsync();
+    }
+
     public async Task StopSound()
     {
         if (mainNode is null || analyser is null) return;
 
         await mainNode.DisconnectAsync(analyser);
+
+        stopped = true;
     }
 
     public async ValueTask DisposeAsync()
