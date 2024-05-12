@@ -132,7 +132,7 @@
         currentPitch = null;
     }
 
-    private double Frequency(int octave, int pitch)
+    public static double Frequency(int octave, int pitch)
     {
         var noteIndex = octave * 12 + pitch;
         var a = Math.Pow(2, 1.0 / 12);

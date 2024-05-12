@@ -5,47 +5,57 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
 <PageTitle>WebAudio - Instruments</PageTitle>
-<h2>Drums</h2>
+<h2>Instruments</h2>
 
 <p>
-    Many intstrments are essentially just a combination of different enharmonic or harmonic modes each with different frequencies, amplitudes, and decay times + some noice from the kick.
+    Many intstruments are essentially just a combination of different enharmonic or harmonic modes each with different frequencies, amplitudes, and decay times + some noice.
 </p>
 
 <p>
-    Below here we have a <b style="color:orange;">Timpani Drum</b>, a <b style="color:silver;">Bass Drum</b> and <b style="color:#77F;">Violin</b> Try to hitting them!
+    Below here we have tried to simulate the sound of a <b style="color:orange;">Timpani Drum</b>, a <b style="color:silver;">Bass Drum</b>, and a <b style="color:#77F;">Violin</b>. Try to hitting them!
 </p>
 
-<svg width="200" height="200" @onpointerdown=PlayTimps>
+<svg width="200" height="200" @onpointerdown=PlayTimps style="user-select:none;touch-action:none;">
     <circle cx="100" cy="100" r="90" fill="orange" stroke="orangered"></circle>
 </svg>
 
-<svg width="180" height="180" @onpointerdown=PlayBass>
+<svg width="180" height="180" @onpointerdown=PlayBass style="user-select:none;touch-action:none;">
     <circle cx="90" cy="90" r="80" fill="silver" stroke="grey"></circle>
 </svg>
 <br />
 <br />
-<svg width="360" height="80" @onpointerup=EndViolin @onpointermove=MoveViolin>
-    <rect x="1" y="1" width="358" height="18" fill="#88F" stroke="#55F" @onpointerdown="e => StartViolin(e, 659.3f)">
-    </rect>
-    <text x="5" y="16" width="100" height="100" fill="white" style="pointer-events:none;">
-        E<sub>5</sub>
-    </text>
-    <rect x="1" y="21" width="360" height="18" fill="#77F" stroke="#55F" @onpointerdown="e => StartViolin(e, 440.0f)">
-    </rect>
-    <text x="5" y="36" width="100" height="100" fill="white" style="pointer-events:none;">
-        A<sub>4</sub>
-    </text>
-    <rect x="1" y="41" width="360" height="18" fill="#66F" stroke="#55F" @onpointerdown="e => StartViolin(e, 293.7f)">
-    </rect>
-    <text x="5" y="56" width="100" height="100" fill="white" style="pointer-events:none;">
-        D<sub>4</sub>
-    </text>
-    <rect x="1" y="61" width="360" height="18" fill="#55F" stroke="#55F" @onpointerdown="e => StartViolin(e, 196.0f)">
-    </rect>
-    <text x="5" y="76" width="100" height="100" fill="white" style="pointer-events:none;">
-        G<sub>3</sub>
-    </text>
-</svg>
+@if (melodyStopped)
+{
+    <svg width="360" height="80" style="user-select:none;touch-action:none;" @onpointerup=EndPointerViolin @onpointermove=MoveViolin>
+        <rect x="1" y="1" width="358" height="18" fill=@(primaryFrequency == 659.3f ? "#99F" : "#88F") stroke="#55F" @onpointerdown="e => StartPointerViolin(e, 659.3f)">
+        </rect>
+        <text x="5" y="16" width="100" height="100" fill="white" style="pointer-events:none;">
+            E<sub>5</sub>
+        </text>
+        <rect x="1" y="21" width="360" height="18" fill=@(primaryFrequency == 440.0f ? "#88F" : "#77F") stroke="#55F" @onpointerdown="e => StartPointerViolin(e, 440.0f)">
+        </rect>
+        <text x="5" y="36" width="100" height="100" fill="white" style="pointer-events:none;">
+            A<sub>4</sub>
+        </text>
+        <rect x="1" y="41" width="360" height="18" fill=@(primaryFrequency == 293.7f ? "#77F" : "#66F") stroke="#55F" @onpointerdown="e => StartPointerViolin(e, 293.7f)">
+        </rect>
+        <text x="5" y="56" width="100" height="100" fill="white" style="pointer-events:none;">
+            D<sub>4</sub>
+        </text>
+        <rect x="1" y="61" width="360" height="18" fill=@(primaryFrequency == 196.0f ? "#66F" : "#55F") stroke="#55F" @onpointerdown="e => StartPointerViolin(e, 196.0f)">
+        </rect>
+        <text x="5" y="76" width="100" height="100" fill="white" style="pointer-events:none;">
+            G<sub>3</sub>
+        </text>
+    </svg>
+    <br />
+    <br />
+    <button class="btn btn-primary" @onclick=PlaySadRomanceFinalFantasyX>Play Sad Romance from Final Fantasy X</button>
+}
+else
+{
+    <button class="btn btn-warning" @onclick="() => melodyStopped = true">Stop melody</button>
+}
 
 <DoublePlot Data1="frequencies" />
 
@@ -57,6 +67,8 @@
     OscillatorNode? violinOscillator;
     float primaryFrequency;
     GainNode? violinMain;
+
+    bool melodyStopped = true;
 
     bool stopped;
     byte[] frequencies = Array.Empty<byte>();
@@ -190,7 +202,8 @@
     }
 
     private SemaphoreSlim violinSemaphore = new SemaphoreSlim(1, 1);
-    public async Task StartViolin(PointerEventArgs eventArgs, float primaryFrequency)
+
+    public async Task StartPointerViolin(PointerEventArgs eventArgs, float primaryFrequency)
     {
         await Initialize();
 
@@ -205,6 +218,13 @@
         double position = eventArgs.OffsetX;
         float frequency = (float)(primaryFrequency + position / 4 - 45);
 
+        await StartViolin(frequency);
+
+        violinSemaphore.Release();
+    }
+
+    public async Task StartViolin(float frequency)
+    {
         violinOscillator = await OscillatorNode.CreateAsync(JSRuntime, context, new()
             {
                 Type = OscillatorType.Sawtooth,
@@ -225,19 +245,25 @@
             {
                 Type = BiquadFilterType.Bandpass,
                 Frequency = 300,
+                Q = 3.5f // This is equivalent to the resonance which makes this narrower than the default.
             });
+        await using var band300Amp = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.4f });
 
         await using var band700 = await BiquadFilterNode.CreateAsync(JSRuntime, context, new()
             {
                 Type = BiquadFilterType.Bandpass,
                 Frequency = 700,
+                Q = 3.5f // This is equivalent to the resonance which makes this narrower than the default.
             });
+        await using var band700Amp = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.6f });
 
         await using var brand3000 = await BiquadFilterNode.CreateAsync(JSRuntime, context, new()
             {
                 Type = BiquadFilterType.Bandpass,
                 Frequency = 3000,
+                Q = 2f // This is equivalent to the resonance which makes this a bit narrower than the default.
             });
+        await using var band3000Amp = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 5f });
 
         violinMain = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
 
@@ -245,28 +271,34 @@
         await lowPassFilter.ConnectAsync(highPassFilter);
 
         await highPassFilter.ConnectAsync(band300);
-        await highPassFilter.ConnectAsync(band700);
-        await highPassFilter.ConnectAsync(brand3000);
+        await band300.ConnectAsync(band300Amp);
+        await band300Amp.ConnectAsync(violinMain);
 
-        await band300.ConnectAsync(violinMain);
-        await band700.ConnectAsync(violinMain);
-        await brand3000.ConnectAsync(violinMain);
+        await highPassFilter.ConnectAsync(band700);
+        await band700.ConnectAsync(band700Amp);
+        await band700Amp.ConnectAsync(violinMain);
+
+        await highPassFilter.ConnectAsync(brand3000);
+        await brand3000.ConnectAsync(band3000Amp);
+        await band3000Amp.ConnectAsync(violinMain);
 
         await violinMain.ConnectAsync(mainNode);
         await violinOscillator.StartAsync();
 
         var time = await context.GetCurrentTimeAsync();
         await using var amplifierGain = await violinMain.GetGainAsync();
-        await amplifierGain.LinearRampToValueAtTimeAsync(0.2f, time + 0.2);
-
-        violinSemaphore.Release();
+        await amplifierGain.LinearRampToValueAtTimeAsync(0.1f, time + 0.2);
     }
 
     public async Task MoveViolin(PointerEventArgs eventArgs)
     {
-        if (violinOscillator is null) return;
+        if (violinMain is null || violinOscillator is null) return;
         if (!await violinSemaphore.WaitAsync(50)) return;
-        if (violinOscillator is null) return;
+        if (violinMain is null || violinOscillator is null)
+        {
+            violinSemaphore.Release();
+            return;
+        }
 
         double position = eventArgs.OffsetX;
         float frequency = (float)(primaryFrequency + position / 4 - 45);
@@ -277,15 +309,17 @@
         violinSemaphore.Release();
     }
 
-    public async Task EndViolin(PointerEventArgs eventArgs)
+    public async Task EndPointerViolin(PointerEventArgs eventArgs)
     {
-        if (!await violinSemaphore.WaitAsync(50)) return;
+        if (!await violinSemaphore.WaitAsync(200)) return;
 
-        if (violinMain is null || violinOscillator is null) return;
+        if (violinMain is null || violinOscillator is null)
+        {
+            violinSemaphore.Release();
+            return;
+        }
 
-        var time = await context.GetCurrentTimeAsync();
-        await using var amplifierGain = await violinMain.GetGainAsync();
-        await amplifierGain.LinearRampToValueAtTimeAsync(0, time + 0.5);
+        await EndViolin();
 
         var localViolinMain = violinMain;
         violinMain = null;
@@ -300,6 +334,170 @@
         await localViolinMain.DisposeAsync();
         await localViolinOscillator.DisconnectAsync();
         await localViolinOscillator.DisposeAsync();
+    }
+
+    public async Task EndViolin()
+    {
+        if (violinMain is null || violinOscillator is null) return;
+
+        var time = await context.GetCurrentTimeAsync();
+        await using var amplifierGain = await violinMain.GetGainAsync();
+        await amplifierGain.LinearRampToValueAtTimeAsync(0, time + 0.7);
+    }
+
+    private int octave = 5;
+
+    private float CFrequency => (float)Keyboard.Frequency(octave, 1);
+    private float DFrequency => (float)Keyboard.Frequency(octave, 3);
+    private float EFrequency => (float)Keyboard.Frequency(octave, 5);
+    private float FFrequency => (float)Keyboard.Frequency(octave, 6);
+    private float GFrequency => (float)Keyboard.Frequency(octave, 8);
+    private float AFrequency => (float)Keyboard.Frequency(octave, 10);
+    private float BFrequency => (float)Keyboard.Frequency(octave, 12);
+
+    private async Task PlayViolinFrequency(float frequency, int duration, int delayAfter)
+    {
+        await StartViolin(frequency);
+        await Task.Delay(duration);
+        await EndViolin();
+
+        var localViolinMain = violinMain;
+        violinMain = null;
+        var localViolinOscillator = violinOscillator;
+        violinOscillator = null;
+
+        await Task.Delay(delayAfter);
+#pragma warning disable CS4014
+        Task.Run(async () =>
+        {
+            await Task.Delay(Math.Max(800 - delayAfter, 0));
+
+            await localViolinMain!.DisconnectAsync();
+            await localViolinMain!.DisposeAsync();
+
+            await localViolinOscillator!.DisconnectAsync();
+            await localViolinOscillator!.DisposeAsync();
+        });
+#pragma warning restore CS4014
+    }
+
+    private (float frequency, int duration, int delayAfter)[] SadRomanceMelody =>
+    [
+    (EFrequency, 500, 300),
+    (EFrequency, 500, 300),
+    (EFrequency, 500, 500),
+    (EFrequency, 500, 300),
+    (GFrequency, 500, 800),
+
+    (EFrequency, 500, 300),
+    (EFrequency, 500, 300),
+    (EFrequency, 500, 500),
+    (EFrequency, 500, 300),
+    (GFrequency, 500, 800),
+
+    (EFrequency, 500, 400),
+    (DFrequency, 500, 400),
+    (CFrequency, 500, 400),
+    (BFrequency, 500, 400),
+    (GFrequency, 500, 400),
+
+    (AFrequency, 400, 300),
+    (BFrequency, 400, 300),
+    (CFrequency, 400, 400),
+
+    (BFrequency, 400, 300),
+    (CFrequency, 400, 300),
+    (DFrequency, 400, 400),
+
+    (BFrequency, 500, 400),
+    (GFrequency, 500, 400),
+    (EFrequency, 400, 300),
+    (GFrequency, 500, 400),
+    (AFrequency, 500, 400),
+
+    (GFrequency, 400, 300),
+    (FFrequency, 400, 400),
+
+    (EFrequency, 400, 400),
+
+    (AFrequency, 400, 300),
+    (BFrequency, 400, 300),
+    (CFrequency, 400, 400),
+
+    (BFrequency, 400, 300),
+    (CFrequency, 400, 300),
+    (DFrequency, 400, 400),
+
+    (BFrequency, 500, 400),
+    (GFrequency, 500, 400),
+    (EFrequency, 400, 300),
+    (GFrequency, 500, 400),
+    (AFrequency, 800, 600),
+
+    (AFrequency, 400, 300),
+    (BFrequency, 400, 300),
+    (CFrequency, 400, 400),
+
+    (BFrequency, 400, 300),
+    (CFrequency, 400, 300),
+    (DFrequency, 400, 400),
+
+    (BFrequency, 500, 400),
+    (GFrequency, 500, 400),
+    (EFrequency, 400, 300),
+    (GFrequency, 500, 400),
+    (AFrequency, 500, 400),
+
+    (GFrequency, 400, 300),
+    (FFrequency, 400, 400),
+
+    (GFrequency, 400, 500),
+
+    (AFrequency, 400, 300),
+    (BFrequency, 400, 300),
+    (CFrequency, 400, 400),
+
+    (BFrequency, 400, 300),
+    (CFrequency, 400, 300),
+    (DFrequency, 400, 400),
+
+    (EFrequency, 500, 400),
+    (BFrequency, 500, 400),
+    (GFrequency, 500, 400),
+    (AFrequency, 800, 600),
+
+    (CFrequency, 400, 300),
+    (BFrequency, 400, 300),
+    (AFrequency, 800, 600),
+
+    (EFrequency, 400, 300),
+    (GFrequency, 400, 300),
+    (GFrequency, 400, 400),
+
+    (CFrequency, 400, 300),
+    (BFrequency, 400, 300),
+    (AFrequency, 400, 400),
+
+    (GFrequency, 400, 300),
+    (EFrequency, 400, 300),
+    (FFrequency, 400, 400),
+    (GFrequency, 400, 400),
+    ];
+
+    public async Task PlaySadRomanceFinalFantasyX()
+    {
+        await Initialize();
+
+        melodyStopped = false;
+
+        foreach (var node in SadRomanceMelody)
+        {
+            if (melodyStopped || stopped) return;
+
+            await PlayViolinFrequency(node.frequency, node.duration, node.delayAfter);
+        }
+
+        melodyStopped = true;
     }
 
     public async Task StopSound()
