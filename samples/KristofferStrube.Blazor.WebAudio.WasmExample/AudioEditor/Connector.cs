@@ -81,7 +81,10 @@ public class Connector : Line, ITaskQueueable
                 var toNode = (Node?)SVG.Elements.FirstOrDefault(e => e is Node && e.Id == Element.GetAttribute("data-to-node"));
                 ulong toPort = (ulong)Element.GetAttributeOrZero("data-to-port");
                 AudioParam? toAudioParam = null;
-                _ = toNode?.AudioParams.TryGetValue(Element.GetAttribute("data-to-audioparam")!, out toAudioParam);
+                if (Element.GetAttribute("data-to-audioparam") is { } toAttribute)
+                {
+                    _ = (toNode?.AudioParams.TryGetValue(toAttribute, out toAudioParam));
+                }
                 _ = toNode?.OutgoingConnectors.Add((this, toPort));
                 to = toNode is null ? null : (toNode, toPort, toAudioParam);
             }

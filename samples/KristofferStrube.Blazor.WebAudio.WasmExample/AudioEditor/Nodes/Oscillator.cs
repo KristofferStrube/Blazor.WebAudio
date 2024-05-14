@@ -19,6 +19,10 @@ public class Oscillator : Node
             {
                 options.Frequency = f;
             }
+            if (Type is { } t)
+            {
+                options.Type = t;
+            }
             OscillatorNode oscillator = await OscillatorNode.CreateAsync(context.JSRuntime, context, options);
             await oscillator.StartAsync();
             audioNode = oscillator;
