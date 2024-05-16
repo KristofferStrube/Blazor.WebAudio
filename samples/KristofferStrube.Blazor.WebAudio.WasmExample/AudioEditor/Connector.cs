@@ -1,6 +1,5 @@
 ﻿using AngleSharp.Dom;
 using KristofferStrube.Blazor.SVGEditor;
-using KristofferStrube.Blazor.SVGEditor.Extensions;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace KristofferStrube.Blazor.WebAudio.WasmExample.AudioEditor;
@@ -20,111 +19,111 @@ public class Connector : Line, ITaskQueueable
 
     public override string StateRepresentation => base.StateRepresentation + IsHovered.ToString();
 
-    private (Node node, ulong port)? from;
-    public (Node node, ulong port)? From
+    private Node? from;
+    public Node? From
     {
         get
         {
+            // If not previous loaded, then load from attributes and connect node-node or node-audioparam pairs that it connects.
             if (from is null)
             {
                 var fromNode = (Node?)SVG.Elements.FirstOrDefault(e => e is Node && e.Id == Element.GetAttribute("data-from-node"));
-                ulong fromPort = (ulong)Element.GetAttributeOrZero("data-from-port");
-                _ = fromNode?.OutgoingConnectors.Add((this, fromPort));
+                _ = fromNode?.OutgoingConnectors.Add(this);
                 if (fromNode is null)
                 {
                     return null;
                 }
 
-                if (To is { } to)
-                {
-                    QueuedTasks.Enqueue(async context => await (await fromNode.AudioNode(context)).ConnectAsync(await to.node.AudioNode(context), fromPort, to.port));
-                }
-                from = (fromNode, fromPort);
+                QueueConnect(fromNode, To);
+
+                from = fromNode;
             }
             return from;
         }
         set
         {
-            if (from is { } previousValue)
-            {
-                _ = previousValue.node.OutgoingConnectors.Remove((this, previousValue.port));
-                QueuedTasks.Enqueue(async context => await (await previousValue.node.AudioNode(context)).DisconnectAsync(previousValue.port));
-            }
+            // We don't support updating the from-node to some new value.
+
+            // If the new value if null then remove its attribute
             if (value is null)
             {
                 _ = Element.RemoveAttribute("data-from-node");
-                _ = Element.RemoveAttribute("data-from-port");
                 from = null;
             }
-            else
+            else // If it is actually a new value
             {
-                Element.SetAttribute("data-from-node", value.Value.node.Id);
-                Element.SetAttribute("data-from-port", value.Value.port.ToString());
+                Element.SetAttribute("data-from-node", value.Id);
                 from = value;
-                _ = value.Value.node.OutgoingConnectors.Add((this, value.Value.port));
-                if (To is { } to)
+                if (value is { } newNode )
                 {
-                    QueuedTasks.Enqueue(async context => await (await value.Value.node.AudioNode(context)).ConnectAsync(await to.node.AudioNode(context), value.Value.port, to.port));
+                    _ = value.OutgoingConnectors.Add(this);
+
+                    QueueConnect(newNode, To);
                 }
             }
             Changed?.Invoke(this);
         }
     }
 
-    private (Node node, ulong port, AudioParam? param)? to;
-    public (Node node, ulong port, AudioParam? param)? To
+    private (Node node, string? audioParamIdentifier)? to;
+    public (Node node, string? audioParamIdentifier)? To
     {
         get
         {
+            // If not previous loaded, then load from attributes.
             if (to is null)
             {
                 var toNode = (Node?)SVG.Elements.FirstOrDefault(e => e is Node && e.Id == Element.GetAttribute("data-to-node"));
-                ulong toPort = (ulong)Element.GetAttributeOrZero("data-to-port");
-                AudioParam? toAudioParam = null;
-                if (Element.GetAttribute("data-to-audioparam") is { } toAttribute)
-                {
-                    _ = (toNode?.AudioParams.TryGetValue(toAttribute, out toAudioParam));
-                }
-                _ = toNode?.OutgoingConnectors.Add((this, toPort));
-                to = toNode is null ? null : (toNode, toPort, toAudioParam);
+
+                string? audioParamIdentifier = Element.GetAttribute("data-to-audioparam");
+
+                _ = toNode?.IngoingConnectors.Add(this);
+
+                to = toNode is null ? null : (toNode, audioParamIdentifier);
             }
             return to;
         }
         set
         {
-            if (to is { } previousValue)
+            // We don't support updating the to-node to some new value.
+
+            if (value is { } newValue) // If it is actually a new value
             {
-                _ = previousValue.node.IngoingConnectors.Remove((this, previousValue.port));
-                if (from is { } previouvFromValue)
+                Element.SetAttribute("data-to-node", newValue.node.Id);
+
+                if (newValue.audioParamIdentifier is not null)
                 {
-                    QueuedTasks.Enqueue(async context => await (await previouvFromValue.node.AudioNode(context)).DisconnectAsync(previouvFromValue.port));
+                    Element.SetAttribute("data-to-audioparam", newValue.audioParamIdentifier);
+                }
+
+                to = value;
+                _ = newValue.node.IngoingConnectors.Add(this);
+                if (From is not null)
+                {
+                    QueueConnect(From, newValue);
                 }
             }
-            if (value is null)
+            else // If the new value if null then remove its attribute 
             {
                 _ = Element.RemoveAttribute("data-to-node");
-                _ = Element.RemoveAttribute("data-to-port");
                 to = null;
+            }
+            Changed?.Invoke(this);
+        }
+    }
+
+    private void QueueConnect(Node fromNode, (Node node, string? audioParamIdentifier)? to)
+    {
+        if (to is { node: { } toNode })
+        {
+            if (to is { audioParamIdentifier: { } paramIdentifier })
+            {
+                QueuedTasks.Enqueue(async context => await (await fromNode.AudioNode(context)).ConnectAsync(await toNode.AudioParams[paramIdentifier](context)));
             }
             else
             {
-                Element.SetAttribute("data-to-node", value.Value.node.Id);
-                Element.SetAttribute("data-to-port", value.Value.port.ToString());
-                to = value;
-                _ = value.Value.node.IngoingConnectors.Add((this, value.Value.port));
-                if (From is { } from)
-                {
-                    if (value.Value.param is not null)
-                    {
-                        QueuedTasks.Enqueue(async context => await (await from.node.AudioNode(context)).ConnectAsync(value.Value.param, from.port));
-                    }
-                    else
-                    {
-                        QueuedTasks.Enqueue(async context => await (await from.node.AudioNode(context)).ConnectAsync(await value.Value.node.AudioNode(context), from.port, value.Value.port));
-                    }
-                }
+                QueuedTasks.Enqueue(async context => await (await fromNode.AudioNode(context)).ConnectAsync(await toNode.AudioNode(context)));
             }
-            Changed?.Invoke(this);
         }
     }
 
@@ -133,8 +132,8 @@ public class Connector : Line, ITaskQueueable
         if (SVG.EditMode is EditMode.Add)
         {
             (X2, Y2) = SVG.LocalDetransform((eventArgs.OffsetX, eventArgs.OffsetY));
-            double fromX = From!.Value.node.X + From!.Value.node.Width;
-            double fromY = From!.Value.node.Y + (From!.Value.port * 20) + 20;
+            double fromX = From!.X + From!.Width;
+            double fromY = From!.Y + 1 * 20;
             SetStart((fromX, fromY), (X2, Y2));
         }
     }
@@ -142,18 +141,15 @@ public class Connector : Line, ITaskQueueable
     public override void HandlePointerUp(PointerEventArgs eventArgs)
     {
         if (SVG.EditMode is EditMode.Add
-            && SVG.SelectedShapes.FirstOrDefault(s => s is Node node && node != From?.node) is Node { } to)
+            && SVG.SelectedShapes.FirstOrDefault(s => s is Node node && node != From) is Node { } to)
         {
-            if (to.IngoingConnectors.Any(c => c.connector.To?.node == From?.node || c.connector.From?.node == From?.node))
+            if (to.IngoingConnectors.Any(c => c.To?.node == From || c.From == From))
             {
                 Complete();
             }
             else
             {
-                if (to.CurrentActivePort is { } port)
-                {
-                    To = (to, port, to.CurrentActiveAudioParam);
-                }
+                To = (to, to.CurrentActiveAudioParamIdentifier);
                 SVG.EditMode = EditMode.None;
                 UpdateLine();
             }
@@ -169,7 +165,7 @@ public class Connector : Line, ITaskQueueable
         }
     }
 
-    public static void AddNew(SVGEditor.SVGEditor SVG, Node fromNode, ulong fromPort)
+    public static void AddNew(SVGEditor.SVGEditor SVG, Node fromNode)
     {
         IElement element = SVG.Document.CreateElement("LINE");
         element.SetAttribute("data-elementtype", "connector");
@@ -179,7 +175,7 @@ public class Connector : Line, ITaskQueueable
             Changed = SVG.UpdateInput,
             Stroke = "black",
             StrokeWidth = "5",
-            From = (fromNode, fromPort)
+            From = fromNode
         };
         SVG.EditMode = EditMode.Add;
 
@@ -209,10 +205,10 @@ public class Connector : Line, ITaskQueueable
             return;
         }
 
-        double fromX = From!.Value.node.X + From!.Value.node.Width;
-        double fromY = From!.Value.node.Y + (From!.Value.port * 20) + 20;
+        double fromX = From!.X + From!.Width;
+        double fromY = From!.Y + 20;
         double toX = To!.Value.node.X;
-        double toY = To!.Value.node.Y + (To!.Value.port * 20) + 20;
+        double toY = To!.Value.node.Y + (To?.node.Offset(To?.audioParamIdentifier) ?? 20);
         double differenceX = toX - fromX;
         double differenceY = toY - fromY;
         double distance = Math.Sqrt((differenceX * differenceX) + (differenceY * differenceY));
@@ -233,12 +229,12 @@ public class Connector : Line, ITaskQueueable
     {
         if (From is { } from)
         {
-            _ = from.node.OutgoingConnectors.Remove((this, from.port));
-            from.node.QueuedTasks.Enqueue(async context => await (await from.node.AudioNode(context)).DisconnectAsync(from.port));
+            _ = from.OutgoingConnectors.Remove(this);
+            from.QueuedTasks.Enqueue(async context => await (await from.AudioNode(context)).DisconnectAsync());
         }
         if (To is { } to)
         {
-            _ = to.node.IngoingConnectors.Remove((this, to.port));
+            _ = to.node.IngoingConnectors.Remove(this);
         }
     }
 }

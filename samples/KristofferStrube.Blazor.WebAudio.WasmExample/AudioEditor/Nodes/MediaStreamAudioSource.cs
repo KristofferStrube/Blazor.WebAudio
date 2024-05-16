@@ -47,9 +47,9 @@ public class MediaStreamAudioSource : Node
         await StopAsync(oldAudioNode);
         if (oldAudioNode is not null)
         {
-            foreach ((Connector connector, ulong port) in OutgoingConnectors.ToList())
+            foreach (Connector connector in OutgoingConnectors)
             {
-                connector.From = (this, port);
+                connector.From = this;
             }
         }
     }

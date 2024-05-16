@@ -7,7 +7,18 @@ namespace KristofferStrube.Blazor.WebAudio.WasmExample.AudioEditor;
 
 public class Oscillator : Node
 {
-    public Oscillator(IElement element, SVGEditor.SVGEditor svg) : base(element, svg) { }
+    public Oscillator(IElement element, SVGEditor.SVGEditor svg) : base(element, svg)
+    {
+        AudioParams = new()
+        {
+            ["frequency"] = async (audioContext) => await ((OscillatorNode)await AudioNode(audioContext)).GetFrequencyAsync()
+        };
+    }
+
+    public override Dictionary<string, int> AudioParamPositions { get; set; } = new()
+    {
+        ["frequency"] = 40
+    };
 
     private AudioNode? audioNode;
     public override Func<AudioContext, Task<AudioNode>> AudioNode => async (context) =>

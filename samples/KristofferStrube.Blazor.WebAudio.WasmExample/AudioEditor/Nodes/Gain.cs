@@ -6,7 +6,17 @@ namespace KristofferStrube.Blazor.WebAudio.WasmExample.AudioEditor;
 
 public class Gain : Node
 {
-    public Gain(IElement element, SVGEditor.SVGEditor svg) : base(element, svg) { }
+    public Gain(IElement element, SVGEditor.SVGEditor svg) : base(element, svg) {
+        AudioParams = new()
+        {
+            ["gain"] = async (audioContext) => await ((GainNode)await AudioNode(audioContext)).GetGainAsync()
+        };
+    }
+
+    public override Dictionary<string, int> AudioParamPositions { get; set; } = new()
+    {
+        ["gain"] = 60
+    };
 
     private AudioNode? audioNode;
     public override Func<AudioContext, Task<AudioNode>> AudioNode => async (context) =>

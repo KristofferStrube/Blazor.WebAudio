@@ -1,6 +1,6 @@
 ﻿@using BlazorContextMenu
 
-@if (Data is Port port) {﻿<Item OnClick="_ => Connector.AddNew(SVGEditor, port.Node, port.PortNumber)"><div class="icon">🧵</div> New Connector</Item>}
+@if (Data is Port port) {﻿<Item OnClick="_ => Connector.AddNew(SVGEditor, port.Node)"><div class="icon">🧵</div> New Connector</Item>}
 
 @code {
     [CascadingParameter]

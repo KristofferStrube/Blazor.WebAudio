@@ -6,7 +6,10 @@ namespace KristofferStrube.Blazor.WebAudio.WasmExample.AudioEditor;
 
 public abstract class Node : Rect, ITaskQueueable
 {
-    public Dictionary<string, AudioParam> AudioParams { get; set; } = new();
+    public Dictionary<string, Func<AudioContext, Task<AudioParam>>> AudioParams { get; set; } = new();
+    public virtual Dictionary<string, int> AudioParamPositions { get; set; } = new();
+
+    public int Offset(string? identifier = null) => identifier is not null && AudioParamPositions.TryGetValue(identifier, out int offset) ? offset : 20;
 
     public Node(IElement element, SVGEditor.SVGEditor svg) : base(element, svg)
     {
@@ -42,23 +45,21 @@ public abstract class Node : Rect, ITaskQueueable
 
     public abstract Func<AudioContext, Task<AudioNode>> AudioNode { get; }
 
-    public HashSet<(Connector connector, ulong port)> IngoingConnectors { get; } = new();
-    public HashSet<(Connector connector, ulong port)> OutgoingConnectors { get; } = new();
+    public HashSet<Connector> IngoingConnectors { get; } = new();
+    public HashSet<Connector> OutgoingConnectors { get; } = new();
 
-    public ulong? CurrentActivePort { get; set; }
-
-    public AudioParam? CurrentActiveAudioParam { get; set; }
+    public string? CurrentActiveAudioParamIdentifier { get; set; }
 
     public override void HandlePointerMove(PointerEventArgs eventArgs)
     {
         base.HandlePointerMove(eventArgs);
         if (SVG.EditMode is EditMode.Move)
         {
-            foreach ((Connector connector, ulong _) in IngoingConnectors)
+            foreach (Connector connector in IngoingConnectors)
             {
                 connector.UpdateLine();
             }
-            foreach ((Connector connector, ulong _) in OutgoingConnectors)
+            foreach (Connector connector in OutgoingConnectors)
             {
                 connector.UpdateLine();
             }
@@ -67,11 +68,11 @@ public abstract class Node : Rect, ITaskQueueable
 
     public override void BeforeBeingRemoved()
     {
-        foreach ((Connector connector, ulong _) in IngoingConnectors)
+        foreach (Connector connector in IngoingConnectors)
         {
             SVG.RemoveElement(connector);
         }
-        foreach ((Connector connector, ulong _) in OutgoingConnectors)
+        foreach (Connector connector in OutgoingConnectors)
         {
             SVG.RemoveElement(connector);
         }

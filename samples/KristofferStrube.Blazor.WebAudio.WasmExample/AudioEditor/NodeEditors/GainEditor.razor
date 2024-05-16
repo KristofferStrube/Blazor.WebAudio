@@ -31,23 +31,23 @@
                 <AudioParamSlider AudioParam="GainAudioParam" Label="Volume" Min="0" Max="5" StepSize="0.01f" UpdateCallback="f => SVGElement.GainValue = f" />
             }
         </foreignObject>
-        <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, true) { Node = SVGElement, PortNumber = 0 }) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
-            <circle @onpointerdown="() => SelectPort(0)" cx=@((SVGElement.X).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
+        <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, true)) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
+            <circle @onpointerdown="() => SelectPort()" cx=@((SVGElement.X).AsString()) cy="@((SVGElement.Y + 20).AsString())" r="10" fill="grey">
 
             </circle>
         </ContextMenuTrigger>
 
         @if (GainAudioParam is not null)
         {
-            <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, true) { Node = SVGElement, PortNumber = 0 }) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
-                <circle @onpointerdown="() => SelectAudioParam(2, GainAudioParam)" cx=@((SVGElement.X).AsString()) cy="@((SVGElement.Y+60).AsString())" r="10" fill="#1976D3">
+            <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, true)) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
+                <circle @onpointerdown=@(() => SelectAudioParam("gain")) cx=@((SVGElement.X).AsString()) cy="@((SVGElement.Y+SVGElement.Offset("gain")).AsString())" r="10" fill="#1976D3">
 
                 </circle>
             </ContextMenuTrigger>
         }
 
-        <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, 0, false)) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
-            <circle cx=@((SVGElement.X+SVGElement.Width).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
+        <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, false)) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
+            <circle cx=@((SVGElement.X+SVGElement.Width).AsString()) cy="@((SVGElement.Y + 20).AsString())" r="10" fill="grey">
 
             </circle>
         </ContextMenuTrigger>
@@ -66,8 +66,7 @@
 
         if (GainAudioParam is null && AudioContext is not null)
         {
-            GainAudioParam = await ((GainNode)(await SVGElement.AudioNode(AudioContext))).GetGainAsync();
-            SVGElement.AudioParams["gain"] = GainAudioParam;
+            GainAudioParam = await SVGElement.AudioParams["gain"](AudioContext);
             StateHasChanged();
         }
     }
