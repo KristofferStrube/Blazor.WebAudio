@@ -27,7 +27,7 @@
         <foreignObject @onpointerdown:stopPropagation=!SVGElement.Selected x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="110" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2;pointer-events:@(SVGElement.Selected ? "none" : "inherit");touch-action:@(SVGElement.Selected ? "none" : "inherit")">
             Analyser
             <br />
-            <select @bind=analyzeOutput>
+            <select @bind=SVGElement.Type>
                 <option value="TimeDomain" title="Time Domain Data.">Time Domain</option>
                 <option value="Frequency" title="Frequency Data.">Frequency</option>
             </select>
@@ -49,7 +49,6 @@
 
 @code {
     private AnalyserNode? analyser;
-    private string analyzeOutput = "TimeDomain";
 
     private byte[] measurements = Array.Empty<byte>();
 
@@ -65,7 +64,7 @@
             analyser = (AnalyserNode)await SVGElement.AudioNode(AudioContext);
 
             int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
-            Uint8Array dataArray = await Uint8Array.CreateAsync(AudioContext.JSRuntime, bufferLength);
+            await using Uint8Array dataArray = await Uint8Array.CreateAsync(AudioContext.JSRuntime, bufferLength);
 
             SVGElement.Running = true;
 
@@ -73,19 +72,34 @@
             {
                 try
                 {
-                    if (analyzeOutput is "TimeDomain")
+                    SVGElement.QueuedTasks.Enqueue(async _ =>
                     {
-                        await analyser.GetByteTimeDomainDataAsync(dataArray);
-                    }
-                    else
-                    {
-                        await analyser.GetByteFrequencyDataAsync(dataArray);
-                    }
+                        if (SVGElement.Type is "TimeDomain")
+                        {
+                            await analyser.GetByteTimeDomainDataAsync(dataArray);
+                            measurements = await dataArray.GetAsArrayAsync();
+                        }
+                        else
+                        {
+                            await analyser.GetByteFrequencyDataAsync(dataArray);
 
-                    measurements = await dataArray.GetAsArrayAsync();
-                    await Task.Delay(10);
-                    SVGElement._stateRepresentation = "";
-                    StateHasChanged();
+                            var data = (await dataArray.GetAsArrayAsync());
+                            int endOfPlateau = 1;
+                            for (int i = data.Length - 1; i >= 0; i--)
+                            {
+                                if (data[i] != 0)
+                                {
+                                    endOfPlateau = i;
+                                    break;
+                                }
+                            }
+                            measurements = data[..endOfPlateau];
+                        }
+                        SVGElement._stateRepresentation = "";
+
+                        await InvokeAsync(StateHasChanged);
+                    });
+                    await Task.Delay(50);
                 }
                 catch (Exception)
                 {

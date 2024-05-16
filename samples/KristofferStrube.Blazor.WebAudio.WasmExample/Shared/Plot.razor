@@ -1,7 +1,7 @@
-﻿<svg width="100%" height="@(Height)px" viewBox="0 -5 @Data.Length 261">
+﻿<svg width="100%" height="@(Height)px" viewBox="0 -5 2000 261">
     @for (int i = 1; i < Data.Length; i++)
     {
-        <line x1="@(i-1)" x2="@i" y1="@Data[i-1]" y2="@Data[i]" stroke="red" stroke-width="2"></line>
+        <line x1="@(((i-1) * 2000.0 / @Data.Length).AsString())" x2="@((i * 2000.0 / @Data.Length).AsString())" y1="@Data[i-1]" y2="@Data[i]" stroke="red" stroke-width="2"></line>
     }
 </svg>
 

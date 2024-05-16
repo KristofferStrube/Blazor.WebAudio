@@ -31,7 +31,7 @@
 
         while (running)
         {
-            await Task.Delay(100);
+            await Task.Delay(50);
             foreach (ITaskQueueable taskQueueable in SVGEditor.Elements.Where(e => e is ITaskQueueable))
             {
                 while (taskQueueable.QueuedTasks.TryDequeue(out var task))
