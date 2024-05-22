@@ -361,7 +361,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
         Func<DOMException, Task>? errorCallback = null)
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
-        IJSObjectReference arrayBuffer = await helper.InvokeAsync<IJSObjectReference>("toArrayBuffer", audioData);
+        await using IJSObjectReference arrayBuffer = await helper.InvokeAsync<IJSObjectReference>("toArrayBuffer", audioData);
 
         return await DecodeAudioDataAsync(arrayBuffer, successCallback, errorCallback);
     }
@@ -389,8 +389,8 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     {
         IJSObjectReference helper = new ErrorHandlingJSObjectReference(JSRuntime, await webAudioHelperTask.Value);
 
-        DotNetObjectReference<DecodeSuccessCallback>? successCallbackObjRef = successCallback is null ? null : DotNetObjectReference.Create(new DecodeSuccessCallback(JSRuntime, successCallback));
-        DotNetObjectReference<DecodeErrorCallback>? errorCallbackObjRef = errorCallback is null ? null : DotNetObjectReference.Create(new DecodeErrorCallback(JSRuntime, errorCallback));
+        using DotNetObjectReference<DecodeSuccessCallback>? successCallbackObjRef = successCallback is null ? null : DotNetObjectReference.Create(new DecodeSuccessCallback(JSRuntime, successCallback));
+        using DotNetObjectReference<DecodeErrorCallback>? errorCallbackObjRef = errorCallback is null ? null : DotNetObjectReference.Create(new DecodeErrorCallback(JSRuntime, errorCallback));
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("decodeAudioData", JSReference, audioData, successCallbackObjRef, errorCallbackObjRef);
 
         return await AudioBuffer.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });

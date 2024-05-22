@@ -64,11 +64,12 @@
         "Data/drama-cue-synth-and-cello-114417.mp3",
     };
 
+    private byte[]?[] loadedTracks = new byte[]?[4];
+
     private AudioContext context = default!;
     private AudioDestinationNode destination = default!;
     private AudioBufferSourceNode currentAudioBufferNode = default!;
     private AudioBuffer currentAudioBuffer = default!;
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -95,8 +96,19 @@
     {
         if (currentTrackLoaded) return;
 
-        byte[] trackData = await HttpClient.GetByteArrayAsync(tracks[currentTrack]);
-        await context.DecodeAudioDataAsync(trackData, (audioBuffer) => { currentAudioBuffer = audioBuffer; return Task.CompletedTask; });
+        // Dispose old audio buffer
+        if (currentAudioBuffer is not null)
+        {
+            await currentAudioBuffer.DisposeAsync();
+        }
+
+        if (loadedTracks[currentTrack] is null)
+        {
+            loadedTracks[currentTrack] = await HttpClient.GetByteArrayAsync(tracks[currentTrack]);
+        }
+        AudioBuffer nextAudioBuffer = await context.DecodeAudioDataAsync(loadedTracks[currentTrack]);
+
+        currentAudioBuffer = nextAudioBuffer;
         trackDuration = await currentAudioBuffer.GetDurationAsync();
 
         currentTrackLoaded = true;
@@ -143,6 +155,7 @@
 
         await currentAudioBufferNode.DisconnectAsync();
         await currentAudioBufferNode.StopAsync();
+        await currentAudioBufferNode.DisposeAsync();
 
         var currentTime = await context.GetCurrentTimeAsync();
         pauseTime = await context.GetCurrentTimeAsync();
