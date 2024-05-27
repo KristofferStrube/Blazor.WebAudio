@@ -242,4 +242,48 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
         IJSObjectReference helper = await webAudioHelperTask.Value;
         await helper.InvokeVoidAsync("setAttribute", JSReference, "channelCount", value);
     }
+
+    /// <summary>
+    /// Returns the <see cref="ChannelCountMode"/> which determines how channels will be counted when up-mixing and down-mixing connections to any inputs to the node.
+    /// The default value is <see cref="ChannelCountMode.Max"/>.
+    /// This attribute has no effect for nodes with no inputs.
+    /// </summary>
+    public async Task<ChannelCountMode> GetChannelCountModeAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        return await helper.InvokeAsync<ChannelCountMode>("getAttribute", JSReference, "channelCountMode");
+    }
+
+    /// <summary>
+    /// Sets the <see cref="ChannelCountMode"/> which determines how channels will be counted when up-mixing and down-mixing connections to any inputs to the node.
+    /// The default value is <see cref="ChannelCountMode.Max"/>.
+    /// This attribute has no effect for nodes with no inputs.
+    /// </summary>
+    public async Task SetChannelCountModeAsync(ChannelCountMode value)
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        await helper.InvokeVoidAsync("setAttribute", JSReference, "channelCountMode", value);
+    }
+
+    /// <summary>
+    /// Returns the <see cref="ChannelInterpretation"/> determines how individual channels will be treated when up-mixing and down-mixing connections to any inputs to the node.
+    /// The default value is <see cref="ChannelInterpretation.Speakers"/>.
+    /// This attribute has no effect for nodes with no inputs.
+    /// </summary>
+    public async Task<ChannelInterpretation> GetChannelInterpretationAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        return await helper.InvokeAsync<ChannelInterpretation>("getAttribute", JSReference, "channelInterpretation");
+    }
+
+    /// <summary>
+    /// Sets the <see cref="ChannelInterpretation"/> determines how individual channels will be treated when up-mixing and down-mixing connections to any inputs to the node.
+    /// The default value is <see cref="ChannelInterpretation.Speakers"/>.
+    /// This attribute has no effect for nodes with no inputs.
+    /// </summary>
+    public async Task SetChannelInterpretationAsync(ChannelInterpretation value)
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        await helper.InvokeVoidAsync("setAttribute", JSReference, "channelInterpretation", value);
+    }
 }

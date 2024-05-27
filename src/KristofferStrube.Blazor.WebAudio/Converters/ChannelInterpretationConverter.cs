@@ -7,7 +7,12 @@ internal class ChannelInterpretationConverter : JsonConverter<ChannelInterpretat
 {
     public override ChannelInterpretation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        throw new NotImplementedException();
+        return reader.GetString() switch
+        {
+            "speakers" => ChannelInterpretation.Speakers,
+            "discrete" => ChannelInterpretation.Discrete,
+            var value => throw new ArgumentException($"Value '{value}' was not a valid {nameof(ChannelInterpretation)}.")
+        };
     }
 
     public override void Write(Utf8JsonWriter writer, ChannelInterpretation value, JsonSerializerOptions options)

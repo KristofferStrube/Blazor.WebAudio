@@ -7,7 +7,13 @@ internal class ChannelCountModeConverter : JsonConverter<ChannelCountMode>
 {
     public override ChannelCountMode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        throw new NotImplementedException();
+        return reader.GetString() switch
+        {
+            "max" => ChannelCountMode.Max,
+            "clamped-max" => ChannelCountMode.ClampedMax,
+            "explicit" => ChannelCountMode.Explicit,
+            var value => throw new ArgumentException($"Value '{value}' was not a valid {nameof(ChannelCountMode)}.")
+        };
     }
 
     public override void Write(Utf8JsonWriter writer, ChannelCountMode value, JsonSerializerOptions options)
