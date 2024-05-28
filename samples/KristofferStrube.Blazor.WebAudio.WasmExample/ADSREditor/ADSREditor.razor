@@ -1,0 +1,63 @@
+﻿@using KristofferStrube.Blazor.SVGEditor
+
+<SVGEditor @ref=sVGEditor
+           Input=@input
+           InputUpdated="(string s) => { input = s; StateHasChanged(); }"
+           InputRendered="InputHasBeenRendered"
+           DisableScaleLabel=true
+           SnapToInteger=true />
+
+@code {
+    private string input = "";
+    private SVGEditor sVGEditor = default!;
+    private ADSRLine? polyline;
+    private bool hasBeenRendered = false;
+
+    private const int defaultAttack = 5;
+    private const int defaultDecay = 20;
+    private const int defaultSustain = 70;
+    private const int sustainLength = 20;
+    private const int defaultRelease = 20;
+
+    protected void InputHasBeenRendered()
+    {
+        sVGEditor.Scale = 1 / (120 / sVGEditor.BBox.Height);
+        sVGEditor.Translate = (10 * sVGEditor.Scale, 10 * sVGEditor.Scale);
+
+        if (!hasBeenRendered)
+        {
+            sVGEditor.DisableAllInteractions();
+            sVGEditor.DisableMoveAnchorEditMode = false;
+
+            polyline = new ADSRLine(sVGEditor.Document.CreateElement("POLYLINE"), sVGEditor)
+                {
+                    Changed = sVGEditor.UpdateInput,
+                    Stroke = "black",
+                    StrokeWidth = "3",
+                    Fill = "none",
+                    StrokeLinecap = Linecap.Round,
+                    StrokeLinejoin = Linejoin.Round,
+                    Points = [
+                        (0, 100),
+                        (defaultAttack, 0),
+                        (defaultAttack + defaultDecay, 100 - defaultSustain),
+                        (defaultAttack + defaultDecay + sustainLength, 100 - defaultSustain),
+                        (defaultAttack + defaultDecay + sustainLength + defaultRelease, 100)]
+                };
+            polyline.Element.SetAttribute("points", ADSRLine.PointsToString(polyline.Points));
+
+            sVGEditor.AddElement(polyline);
+            sVGEditor.SelectedShapes.Add(polyline);
+            StateHasChanged();
+            hasBeenRendered = true;
+        }
+    }
+
+    public double Attack => (polyline!.Points[1].x) / 100;
+
+    public double Decay => (polyline!.Points[2].x) / 100 - Attack;
+
+    public float Sustain => (float)(1 - (polyline!.Points[3].y) / 100);
+
+    public double Release => (polyline!.Points[4].x - polyline!.Points[3].x) / 100;
+}

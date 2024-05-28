@@ -1,20 +1,20 @@
 ﻿@page "/Keyboard"
 @inject IJSRuntime JSRuntime
+@using KristofferStrube.Blazor.WebAudio.WasmExample.ADSREditor
 <PageTitle>WebAudio - Keyboard</PageTitle>
 <h2>Keyboard</h2>
 
-<svg @onpointerup="StopSound"
-     @onpointerenter="StopSound"
-     @onpointerleave="StopSound"
-     width="100%"
+<svg width="100%"
      height="40vh"
      viewBox="0 0 @(keys.Count(k => k.Color == "white")*100) 600"
      style="user-select:none;touch-action:none;">
     @foreach (var i in whiteKeyIndices)
     {
         var k = i;
-        <rect @onpointerdown="(e) => PointerMove(keys[k].Octave, keys[k].Pitch, e)"
-          @onpointermove="(e) => PointerMove(keys[k].Octave, keys[k].Pitch, e)"
+        <rect @onpointerdown="e => Start(keys[k].Octave, keys[k].Pitch, e)"
+              @onpointerenter="e => Start(keys[k].Octave, keys[k].Pitch, e)"
+              @onpointerup="End"
+              @onpointerout="End"
               x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100)"
               y="0"
               width="100"
@@ -27,10 +27,10 @@
                   y="580"
                   width="100"
                   height="600"
-            fill="white"
-            stroke="black"
-            stroke-width="4"
-            style="font-size:80px;pointer-events:none;">
+                  fill="white"
+                  stroke="black"
+                  stroke-width="4"
+                  style="font-size:80px;pointer-events:none;">
                 @keys[i].Name
             </text>
         </text>
@@ -38,8 +38,10 @@
     @foreach (var i in blackKeyIndices)
     {
         var k = i;
-        <rect @onpointerdown="(e) => PointerMove(keys[k].Octave, keys[k].Pitch, e)"
-          @onpointermove="(e) => PointerMove(keys[k].Octave, keys[k].Pitch, e)"
+        <rect @onpointerdown="e => Start(keys[k].Octave, keys[k].Pitch, e)"
+              @onpointerenter="e => Start(keys[k].Octave, keys[k].Pitch, e)"
+              @onpointerup="End"
+              @onpointerout="End"
               x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100-35)"
               y="0"
               width="70"
@@ -49,23 +51,29 @@
               stroke-width="1"></rect>
     }
 </svg>
-<label for="gain">Volume</label>
-<input id="gain" type="range" min="0" max="1" step="0.01" style="width:min(200px, 100%);" @bind-value=gain>
+<GainSlider GainNode="mainNode" />
+
+<div style="height:30vh;width:100%;">
+    <ADSREditor @ref=ADSREditor />
+</div>
 
 @code {
+    ADSREditor ADSREditor = default!;
+
     AudioContext context = default!;
+    GainNode? mainNode;
+    GainNode? keyboardMain;
     OscillatorNode? oscillator;
-    GainNode? gainNode;
-    float gain = 0.05f;
-    int? currentOctave;
-    int? currentPitch;
+
+    double decayEndTime;
+
     List<(string Name, int Octave, int Pitch, string Color)> keys = new();
     int[] whiteKeyIndices = Array.Empty<int>();
     int[] blackKeyIndices = Array.Empty<int>();
 
     protected override async Task OnInitializedAsync()
     {
-        context = await AudioContext.CreateAsync(JSRuntime);
+        await InitializeContext();
 
         var letters = new List<string>() { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
         keys = Enumerable
@@ -80,66 +88,90 @@
         blackKeyIndices = keys.Where(key => key.Color == "black").Select(key => keys.IndexOf(key)).ToArray();
     }
 
-    public async Task PointerMove(int octave, int pitch, MouseEventArgs e)
+
+    public async Task InitializeContext()
     {
-        if ((e.Buttons & 1) == 1)
+        if (context is null || mainNode is null)
         {
-            await StartSound(octave, pitch);
-        }
-        else
-        {
-            await StopSound();
+            context = await AudioContext.CreateAsync(JSRuntime);
+            mainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.5f });
+            await using AudioDestinationNode destination = await context.GetDestinationAsync();
+            await mainNode.ConnectAsync(destination);
         }
     }
 
-    SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
-    public async Task StartSound(int octave, int pitch)
+    private SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
+
+    public async Task Start(int octave, int pitch, PointerEventArgs eventArgs)
     {
-        await semaphoreSlim.WaitAsync();
-        if (currentOctave != octave || currentPitch != pitch)
-        {
-            await StopSound();
-            currentOctave = octave;
-            currentPitch = pitch;
+        if ((eventArgs.Buttons & 1) != 1) return;
 
-            AudioDestinationNode destination = await context.GetDestinationAsync();
+        float frequency = Frequency(octave, pitch);
 
-            gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = gain });
-            await gainNode.ConnectAsync(destination);
+        await InitializeContext();
 
-            OscillatorOptions oscillatorOptions = new()
-                {
-                    Type = OscillatorType.Triangle,
-                    Frequency = (float)Frequency(octave, pitch)
-                };
-            oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, oscillatorOptions);
+        if (!await semaphoreSlim.WaitAsync(50)) return;
 
-            await oscillator.ConnectAsync(gainNode);
-            await oscillator.StartAsync();
-        }
+        oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, new()
+            {
+                Type = OscillatorType.Sine,
+                Frequency = frequency
+            });
+
+        keyboardMain = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
+
+        await oscillator.ConnectAsync(keyboardMain);
+        await keyboardMain.ConnectAsync(mainNode!);
+        await oscillator.StartAsync();
+
+        var time = await context.GetCurrentTimeAsync();
+        await using var amplifierGain = await keyboardMain.GetGainAsync();
+        var attackEndTime = time + ADSREditor.Attack;
+        await amplifierGain.LinearRampToValueAtTimeAsync(1f, attackEndTime);
+        decayEndTime = attackEndTime + ADSREditor.Decay;
+        await amplifierGain.LinearRampToValueAtTimeAsync(ADSREditor.Sustain, decayEndTime);
+
         semaphoreSlim.Release();
     }
 
-    public async Task StopSound()
+    public async Task End(PointerEventArgs eventArgs)
     {
-        if (oscillator is null || gainNode is null) return;
-        var currentTime = await context.GetCurrentTimeAsync();
-        var audioParam = await gainNode.GetGainAsync();
-        await audioParam.LinearRampToValueAtTimeAsync(0, currentTime + 0.3);
+        if (!await semaphoreSlim.WaitAsync(200)) return;
+
+        if (keyboardMain is null || oscillator is null)
+        {
+            semaphoreSlim.Release();
+            return;
+        }
+
+        var time = await context.GetCurrentTimeAsync();
+        await using var amplifierGain = await keyboardMain.GetGainAsync();
+        await amplifierGain.CancelScheduledValuesAsync(0);
+        await amplifierGain.LinearRampToValueAtTimeAsync(0, Math.Max(time, decayEndTime) + ADSREditor.Release);
+
+        var localKeyboardMain = keyboardMain;
+        keyboardMain = null;
+
+        var localOscillator = oscillator;
         oscillator = null;
-        gainNode = null;
-        currentOctave = null;
-        currentPitch = null;
+
+        semaphoreSlim.Release();
+
+        await Task.Delay((int)((Math.Max(0, decayEndTime - time) + ADSREditor.Release) * 1000) + 100);
+        await localKeyboardMain.DisconnectAsync();
+        await localKeyboardMain.DisposeAsync();
+        await localOscillator.DisconnectAsync();
+        await localOscillator.DisposeAsync();
     }
 
-    public static double Frequency(int octave, int pitch)
+    public static float Frequency(int octave, int pitch)
     {
         var noteIndex = octave * 12 + pitch;
         var a = Math.Pow(2, 1.0 / 12);
         var A4 = 440;
         var A4Index = 4 * 12 + 10;
         var halfStepDifference = noteIndex - A4Index;
-        return A4 * Math.Pow(a, halfStepDifference);
+        return (float)(A4 * Math.Pow(a, halfStepDifference));
     }
 }
 

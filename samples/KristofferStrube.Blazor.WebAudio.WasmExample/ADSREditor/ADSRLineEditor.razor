@@ -1,0 +1,33 @@
+﻿@using KristofferStrube.Blazor.SVGEditor.ShapeEditors
+@using KristofferStrube.Blazor.SVGEditor.Extensions
+@using KristofferStrube.Blazor.SVGEditor
+@using Microsoft.AspNetCore.Components.Web
+
+@inherits ShapeEditor<ADSRLine>
+
+<g transform="translate(@SVGElement.SVG.Translate.x.AsString() @SVGElement.SVG.Translate.y.AsString()) scale(@SVGElement.SVG.Scale.AsString())">
+    <polyline @ref=ElementReference
+              points="@SVGElement.Element.GetAttributeOrEmpty("points")"
+              stroke="@SVGElement.Stroke"
+              stroke-width="@SVGElement.StrokeWidth"
+              stroke-linecap="@SVGElement.StrokeLinecap.AsString()"
+              stroke-linejoin="@SVGElement.StrokeLinejoin.AsString()">
+    </polyline>
+    <line stroke-width="2" stroke="red"
+          x1="@SVGElement.Points[0].x" y1="@SVGElement.Points[0].y"
+          x2="@SVGElement.Points[1].x" y2="@SVGElement.Points[1].y"></line>
+    <line stroke-width="2" stroke="green"
+          x1="@SVGElement.Points[1].x" y1="@SVGElement.Points[1].y"
+          x2="@SVGElement.Points[2].x" y2="@SVGElement.Points[2].y"></line>
+    <line stroke-width="2" stroke="black"
+          x1="@SVGElement.Points[2].x" y1="@SVGElement.Points[2].y"
+          x2="@SVGElement.Points[3].x" y2="@SVGElement.Points[3].y"></line>
+    <line stroke-width="2" stroke="blue"
+          x1="@SVGElement.Points[3].x" y1="@SVGElement.Points[3].y"
+          x2="@SVGElement.Points[4].x" y2="@SVGElement.Points[4].y"></line>
+</g>
+@for (int i = 0; i < SVGElement.Points.Count(); i++)
+{
+    var j = i;
+    <Anchor OnPointerDown="() => AnchorSelect(j)" Position=SVGElement.Points[i] />
+}
