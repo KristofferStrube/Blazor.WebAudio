@@ -1,6 +1,7 @@
 ﻿@page "/Keyboard"
 @inject IJSRuntime JSRuntime
 @using KristofferStrube.Blazor.WebAudio.WasmExample.ADSREditor
+
 <PageTitle>WebAudio - Keyboard</PageTitle>
 <h2>Keyboard</h2>
 
@@ -62,6 +63,7 @@
 
     AudioContext context = default!;
     GainNode? mainNode;
+    DynamicsCompressorNode? compressor;
     GainNode? keyboardMain;
     OscillatorNode? oscillator;
 
@@ -91,11 +93,13 @@
 
     public async Task InitializeContext()
     {
-        if (context is null || mainNode is null)
+        if (context is null || mainNode is null || compressor is null)
         {
             context = await AudioContext.CreateAsync(JSRuntime);
             mainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.5f });
+            compressor = await DynamicsCompressorNode.CreateAsync(JSRuntime, context);
             await using AudioDestinationNode destination = await context.GetDestinationAsync();
+            await compressor.ConnectAsync(mainNode);
             await mainNode.ConnectAsync(destination);
         }
     }
@@ -121,7 +125,7 @@
         keyboardMain = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
 
         await oscillator.ConnectAsync(keyboardMain);
-        await keyboardMain.ConnectAsync(mainNode!);
+        await keyboardMain.ConnectAsync(compressor!);
         await oscillator.StartAsync();
 
         var time = await context.GetCurrentTimeAsync();
