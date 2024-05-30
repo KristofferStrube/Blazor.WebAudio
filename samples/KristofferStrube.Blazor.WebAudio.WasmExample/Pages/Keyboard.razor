@@ -12,10 +12,13 @@
     @foreach (var i in whiteKeyIndices)
     {
         var k = i;
-        <rect @onpointerdown="e => Start(keys[k].Octave, keys[k].Pitch, e)"
-              @onpointerenter="e => Start(keys[k].Octave, keys[k].Pitch, e)"
-              @onpointerup="End"
-              @onpointerout="End"
+        <rect @onmousedown="e => Start(keys[k].Octave, keys[k].Pitch, e)"
+              @onmouseenter="e => Start(keys[k].Octave, keys[k].Pitch, e)"
+              @onmouseup="End"
+              @onmouseout="End"
+              @ontouchstart="e => Start(keys[k].Octave, keys[k].Pitch, e)"
+              @ontouchend="End"
+
               x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100)"
               y="0"
               width="100"
@@ -39,10 +42,12 @@
     @foreach (var i in blackKeyIndices)
     {
         var k = i;
-        <rect @onpointerdown="e => Start(keys[k].Octave, keys[k].Pitch, e)"
-              @onpointerenter="e => Start(keys[k].Octave, keys[k].Pitch, e)"
-              @onpointerup="End"
-              @onpointerout="End"
+        <rect @onmousedown="e => Start(keys[k].Octave, keys[k].Pitch, e)"
+              @onmouseenter="e => Start(keys[k].Octave, keys[k].Pitch, e)"
+              @onmouseup="End"
+              @onmouseout="End"
+              @ontouchstart="e => Start(keys[k].Octave, keys[k].Pitch, e)"
+              @ontouchend="End"
               x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100-35)"
               y="0"
               width="70"
@@ -106,9 +111,9 @@
 
     private SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
 
-    public async Task Start(int octave, int pitch, PointerEventArgs eventArgs)
+    public async Task Start(int octave, int pitch, EventArgs eventArgs)
     {
-        if ((eventArgs.Buttons & 1) != 1) return;
+        if (eventArgs is MouseEventArgs { } mouse && (mouse.Buttons & 1) != 1) return;
 
         float frequency = Frequency(octave, pitch);
 
@@ -143,7 +148,7 @@
         semaphoreSlim.Release();
     }
 
-    public async Task End(PointerEventArgs eventArgs)
+    public async Task End()
     {
         if (!await semaphoreSlim.WaitAsync(200)) return;
 

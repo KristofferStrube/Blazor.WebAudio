@@ -37,38 +37,27 @@ public partial class SpectrogramPlot : IDisposable
         int bufferLength = (int)await Analyser.GetFrequencyBinCountAsync();
         Uint8Array frequencyDataArray = await Uint8Array.CreateAsync(JSRuntime, Math.Min(bufferLength, UpperFrequency - LowerFrequency));
 
-        DateTimeOffset start = DateTimeOffset.UtcNow;
-        DateTimeOffset lastTime = DateTimeOffset.UtcNow;
         while (running)
         {
-            await Analyser.GetByteFrequencyDataAsync(frequencyDataArray);
-            byte[] reading = await frequencyDataArray.GetAsArrayAsync();
-
-            DateTimeOffset currentTime = DateTimeOffset.UtcNow;
-            int intervalStart = (int)((lastTime - start).TotalMilliseconds / TimeInSeconds / 10);
-            int intervalEnd = (int)((currentTime - start).TotalMilliseconds / TimeInSeconds / 10);
-            lastTime = currentTime;
-
-            for (int i = intervalStart; i < intervalEnd; i++)
+            for (int i = 0; i < 100; i++)
             {
-                if (i > 99)
-                {
-                    start = DateTimeOffset.UtcNow;
-                    lastTime = start;
-                    break;
-                }
+                if (!running) break;
+
+                await Analyser.GetByteFrequencyDataAsync(frequencyDataArray);
+
+                await Task.Delay(1);
+
+                if (i != 0) continue;
+
+                byte[] reading = await frequencyDataArray.GetAsArrayAsync();
+
                 for (int j = 0; j < reading.Length; j++)
                 {
                     data[j, i] = reading[j];
                 }
-                //Memory2D<byte> readingAs2dMemory = reading.AsMemory2D(UpperFrequency - LowerFrequency, 1);
-                //Memory2D<byte> viewInData = buffer.Slice(0, i, UpperFrequency - LowerFrequency, 1);
-                //readingAs2dMemory.CopyTo(viewInData);
+
+                StateHasChanged();
             }
-
-            StateHasChanged();
-            await Task.Delay(10);
-
         }
     }
 
