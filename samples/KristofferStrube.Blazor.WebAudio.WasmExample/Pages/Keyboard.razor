@@ -116,6 +116,11 @@
 
         if (!await semaphoreSlim.WaitAsync(50)) return;
 
+        if (keyboardMain is not null)
+        {
+            await keyboardMain.DisconnectAsync();
+        }
+
         oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, new()
             {
                 Type = OscillatorType.Sine,
