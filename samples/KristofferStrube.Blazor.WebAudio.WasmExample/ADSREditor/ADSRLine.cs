@@ -120,7 +120,7 @@ public class ADSRLine : Polyline
         }
     }
 
-    private void UpdatePoints()
+    public void UpdatePoints()
     {
         Element.SetAttribute("points", PointsToString(Points));
         Changed?.Invoke(this);

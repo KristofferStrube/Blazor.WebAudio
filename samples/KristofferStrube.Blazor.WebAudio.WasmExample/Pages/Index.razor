@@ -43,7 +43,7 @@ Status:
         context = await AudioContext.CreateAsync(JSRuntime);
 
         AudioDestinationNode destination = await context.GetDestinationAsync();
-        gainNode = await context.CreateGainAsync();
+        gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.1f });
         await gainNode.ConnectAsync(destination);
 
         stateChangeListener = await context.AddOnStateChangeEventListener(async (e) =>

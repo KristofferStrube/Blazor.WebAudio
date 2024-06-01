@@ -45,7 +45,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         context = await AudioContext.CreateAsync(JSRuntime);
-        gainNode = await context.CreateGainAsync();
+        gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.1f });
 
         AudioDestinationNode destination = await context.GetDestinationAsync();
         await gainNode.ConnectAsync(destination);

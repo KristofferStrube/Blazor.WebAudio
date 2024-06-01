@@ -20,7 +20,9 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        await GainUpdatedAsync();
+        if (GainNode is null) return;
+        await using AudioParam audioParam = await GainNode.GetGainAsync();
+        Gain = await audioParam.GetValueAsync();
     }
 
     public async Task GainUpdatedAsync()

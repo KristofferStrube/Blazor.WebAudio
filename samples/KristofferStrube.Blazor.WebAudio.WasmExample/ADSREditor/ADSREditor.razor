@@ -10,7 +10,7 @@
 @code {
     private string input = "";
     private SVGEditor sVGEditor = default!;
-    private ADSRLine? polyline;
+    private ADSRLine? ADSRLine;
     private bool hasBeenRendered = false;
 
     private const int defaultAttack = 5;
@@ -21,15 +21,15 @@
 
     protected void InputHasBeenRendered()
     {
-        sVGEditor.Scale = 1 / (120 / sVGEditor.BBox.Height);
-        sVGEditor.Translate = (10 * sVGEditor.Scale, 10 * sVGEditor.Scale);
+        sVGEditor.Scale = 1 / (140 / sVGEditor.BBox.Height);
+        sVGEditor.Translate = (20 * sVGEditor.Scale, 20 * sVGEditor.Scale);
 
         if (!hasBeenRendered)
         {
             sVGEditor.DisableAllInteractions();
             sVGEditor.DisableMoveAnchorEditMode = false;
 
-            polyline = new ADSRLine(sVGEditor.Document.CreateElement("POLYLINE"), sVGEditor)
+            ADSRLine = new ADSRLine(sVGEditor.Document.CreateElement("POLYLINE"), sVGEditor)
                 {
                     Changed = sVGEditor.UpdateInput,
                     Stroke = "black",
@@ -37,27 +37,40 @@
                     Fill = "none",
                     StrokeLinecap = Linecap.Round,
                     StrokeLinejoin = Linejoin.Round,
-                    Points = [
-                        (0, 100),
+                    Points = [(0, 100),
                         (defaultAttack, 0),
                         (defaultAttack + defaultDecay, 100 - defaultSustain),
                         (defaultAttack + defaultDecay + sustainLength, 100 - defaultSustain),
                         (defaultAttack + defaultDecay + sustainLength + defaultRelease, 100)]
                 };
-            polyline.Element.SetAttribute("points", ADSRLine.PointsToString(polyline.Points));
+            ADSRLine.Element.SetAttribute("points", ADSRLine.PointsToString(ADSRLine.Points));
 
-            sVGEditor.AddElement(polyline);
-            sVGEditor.SelectedShapes.Add(polyline);
+            sVGEditor.AddElement(ADSRLine);
+            sVGEditor.SelectedShapes.Add(ADSRLine);
             StateHasChanged();
             hasBeenRendered = true;
         }
     }
 
-    public double Attack => (polyline!.Points[1].x) / 100;
+    public void SetPreset(int attack, int decay, int sustain, int release)
+    {
+        if (ADSRLine is null) return;
 
-    public double Decay => (polyline!.Points[2].x) / 100 - Attack;
+        ADSRLine.Points = [(0, 100),
+    (attack, 0),
+    (attack + decay, 100 - sustain),
+    (attack + decay + sustainLength, 100 - sustain),
+    (attack + decay + sustainLength + release, 100)
+        ];
 
-    public float Sustain => (float)(1 - (polyline!.Points[3].y) / 100);
+        ADSRLine.UpdatePoints();
+    }
 
-    public double Release => (polyline!.Points[4].x - polyline!.Points[3].x) / 100;
+    public double Attack => (ADSRLine!.Points[1].x) / 100;
+
+    public double Decay => (ADSRLine!.Points[2].x) / 100 - Attack;
+
+    public float Sustain => (float)(1 - (ADSRLine!.Points[3].y) / 100);
+
+    public double Release => (ADSRLine!.Points[4].x - ADSRLine!.Points[3].x) / 100;
 }
