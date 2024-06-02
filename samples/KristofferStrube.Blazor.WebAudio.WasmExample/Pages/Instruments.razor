@@ -57,7 +57,7 @@ else
     <button class="btn btn-warning" @onclick="() => melodyStopped = true">Stop melody</button>
 }
 
-<DoublePlot Data1="frequencies" />
+<SpectrogramPlot Analyser=analyser />
 
 @code {
     AudioContext context = default!;
@@ -70,9 +70,6 @@ else
 
     bool melodyStopped = true;
 
-    bool stopped;
-    byte[] frequencies = Array.Empty<byte>();
-
     public async Task Initialize()
     {
         if (context is null || mainNode is null || analyser is null)
@@ -83,23 +80,6 @@ else
             var mixer = await context.GetDestinationAsync();
             await mainNode.ConnectAsync(analyser);
             await analyser.ConnectAsync(mixer);
-
-#pragma warning disable CS4014
-            Task.Run(async () =>
-            {
-                int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
-                var dataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
-                stopped = false;
-                while (!stopped)
-                {
-                    await analyser.GetByteFrequencyDataAsync(dataArray);
-
-                    frequencies = await dataArray.GetAsArrayAsync();
-                    await Task.Delay(30);
-                    StateHasChanged();
-                }
-            });
-#pragma warning restore CS4014
         }
     }
 
@@ -492,7 +472,7 @@ else
 
         foreach (var node in SadRomanceMelody)
         {
-            if (melodyStopped || stopped) return;
+            if (melodyStopped) return;
 
             await PlayViolinFrequency(node.frequency, node.duration, node.delayAfter);
         }
@@ -505,8 +485,7 @@ else
         if (mainNode is null || analyser is null) return;
 
         await mainNode.DisconnectAsync(analyser);
-
-        stopped = true;
+        melodyStopped = true;
     }
 
     public async ValueTask DisposeAsync()

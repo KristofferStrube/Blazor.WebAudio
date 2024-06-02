@@ -1,4 +1,9 @@
+using Excubo.Blazor.Canvas;
+using Excubo.Blazor.Canvas.Contexts;
+using KristofferStrube.Blazor.CSSView;
+using KristofferStrube.Blazor.DOM;
 using KristofferStrube.Blazor.WebIDL;
+using KristofferStrube.Blazor.Window;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -8,6 +13,9 @@ public partial class SpectrogramPlot : IDisposable
 {
     private bool running;
     private byte[,]? data;
+    private Canvas canvas = default!;
+
+    private string canvasStyle => $"height:{Height}px;width:100%;";
 
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
@@ -19,7 +27,10 @@ public partial class SpectrogramPlot : IDisposable
     public int Height { get; set; } = 200;
 
     [Parameter]
-    public int TimeInSeconds { get; set; } = 4;
+    public int Width { get; set; } = 200;
+
+    [Parameter]
+    public int TimeInSeconds { get; set; } = 20;
 
     [Parameter]
     public int LowerFrequency { get; set; } = 0;
@@ -39,24 +50,26 @@ public partial class SpectrogramPlot : IDisposable
 
         while (running)
         {
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < TimeInSeconds * 10; i++)
             {
                 if (!running) break;
 
                 await Analyser.GetByteFrequencyDataAsync(frequencyDataArray);
 
-                await Task.Delay(1);
-
-                if (i != 0) continue;
-
                 byte[] reading = await frequencyDataArray.GetAsArrayAsync();
 
-                for (int j = 0; j < reading.Length; j++)
+                await using (Context2D context = await canvas.GetContext2DAsync())
                 {
-                    data[j, i] = reading[j];
-                }
+                    await context.ClearRectAsync(0, 0, Width / (double)TimeInSeconds / 10, Height);
 
-                StateHasChanged();
+                    for (int j = 0; j < reading.Length; j++)
+                    {
+                        string color = $"#F{(255 - reading[j]) / 16:X}{(255 - reading[j]) / 16:X}";
+                        await context.FillAndStrokeStyles.FillStyleAsync(color);
+                        await context.FillRectAsync(i / (double)TimeInSeconds / 10 * Width, j / (double)reading.Length * Height, Width / (double)TimeInSeconds / 10, 1);
+                    }
+                }
+                await Task.Delay(1);
             }
         }
     }
