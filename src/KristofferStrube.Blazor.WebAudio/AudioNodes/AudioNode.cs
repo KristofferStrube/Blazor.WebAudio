@@ -1,8 +1,10 @@
 ﻿using KristofferStrube.Blazor.DOM;
+using KristofferStrube.Blazor.MediaCaptureStreams.Exceptions;
 using KristofferStrube.Blazor.WebAudio.Extensions;
 using KristofferStrube.Blazor.WebIDL;
 using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
+using System.Text.Json;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -18,6 +20,11 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioNode">See the API definition here</see>.</remarks>
 public class AudioNode : EventTarget, IJSCreatable<AudioNode>
 {
+    /// <summary>
+    /// An error handling reference for the JSReference.
+    /// </summary>
+    protected readonly ErrorHandlingJSObjectReference? errorHandlingJSReference;
+
     /// <summary>
     /// A lazily evaluated task that gives access to helper methods for the Web Audio API.
     /// </summary>
@@ -39,6 +46,10 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     protected AudioNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
         webAudioHelperTask = new(jSRuntime.GetHelperAsync);
+        if (jSRuntime is not IJSInProcessRuntime || ErrorHandlingJSInterop.ErrorHandlingJSInteropHasBeenSetup)
+        {
+            errorHandlingJSReference = new ErrorHandlingJSObjectReference(jSRuntime, jSReference);
+        }
     }
 
     /// <summary>
@@ -59,7 +70,8 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     /// <returns>This method returns destination AudioNode object.</returns>
     public async Task<AudioNode> ConnectAsync(AudioNode destinationNode, ulong output = 0, ulong input = 0)
     {
-        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("connect", destinationNode.JSReference, output, input);
+        IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
+        IJSObjectReference jSInstance = await jSReference.InvokeAsync<IJSObjectReference>("connect", destinationNode.JSReference, output, input);
         return await CreateAsync(JSRuntime, jSInstance);
     }
 
@@ -78,7 +90,8 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     /// <exception cref="IndexSizeErrorException" />
     public async Task ConnectAsync(AudioParam destinationParam, ulong output = 0)
     {
-        await JSReference.InvokeVoidAsync("connect", destinationParam.JSReference, output);
+        IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
+        await jSReference.InvokeVoidAsync("connect", destinationParam.JSReference, output);
     }
 
     /// <summary>
@@ -99,7 +112,8 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     /// <exception cref="IndexSizeErrorException"></exception>
     public async Task DisconnectAsync(ulong output)
     {
-        await JSReference.InvokeVoidAsync("disconnect", output);
+        IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
+        await jSReference.InvokeVoidAsync("disconnect", output);
     }
 
     /// <summary>
@@ -112,7 +126,8 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     /// <exception cref="InvalidAccessErrorException"></exception>
     public async Task DisconnectAsync(AudioNode destinationNode)
     {
-        await JSReference.InvokeVoidAsync("disconnect", destinationNode.JSReference);
+        IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
+        await jSReference.InvokeVoidAsync("disconnect", destinationNode.JSReference);
     }
 
     /// <summary>
@@ -128,7 +143,8 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     /// <exception cref="IndexSizeErrorException"></exception>
     public async Task DisconnectAsync(AudioNode destinationNode, ulong output)
     {
-        await JSReference.InvokeVoidAsync("disconnect", destinationNode.JSReference, output);
+        IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
+        await jSReference.InvokeVoidAsync("disconnect", destinationNode.JSReference, output);
     }
 
     /// <summary>
@@ -146,7 +162,8 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     /// <exception cref="IndexSizeErrorException"></exception>
     public async Task DisconnectAsync(AudioNode destinationNode, ulong output, ulong input)
     {
-        await JSReference.InvokeVoidAsync("disconnect", destinationNode.JSReference, output, input);
+        IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
+        await jSReference.InvokeVoidAsync("disconnect", destinationNode.JSReference, output, input);
     }
 
     /// <summary>
@@ -161,7 +178,8 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     /// <exception cref="InvalidAccessErrorException"></exception>
     public async Task DisconnectAsync(AudioParam destinationParam)
     {
-        await JSReference.InvokeVoidAsync("disconnect", destinationParam.JSReference);
+        IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
+        await jSReference.InvokeVoidAsync("disconnect", destinationParam.JSReference);
     }
 
     /// <summary>
@@ -179,7 +197,8 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     /// <exception cref="IndexSizeErrorException"></exception>
     public async Task DisconnectAsync(AudioParam destinationParam, ulong output)
     {
-        await JSReference.InvokeVoidAsync("disconnect", destinationParam.JSReference, output);
+        IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
+        await jSReference.InvokeVoidAsync("disconnect", destinationParam.JSReference, output);
     }
 
     /// <summary>
