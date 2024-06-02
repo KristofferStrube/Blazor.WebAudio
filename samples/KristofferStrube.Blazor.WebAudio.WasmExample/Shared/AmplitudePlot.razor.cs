@@ -25,9 +25,6 @@ public partial class AmplitudePlot : ComponentBase, IDisposable
     [Parameter]
     public int Width { get; set; } = 200;
 
-    [Parameter]
-    public int TimeInSeconds { get; set; } = 20;
-
     protected override async Task OnAfterRenderAsync(bool _)
     {
         if (running || Analyser is null) return;
@@ -38,7 +35,7 @@ public partial class AmplitudePlot : ComponentBase, IDisposable
 
         while (running)
         {
-            for (int i = 0; i < TimeInSeconds * 10; i++)
+            for (int i = 0; i < Width; i++)
             {
                 if (!running) break;
 
@@ -49,12 +46,12 @@ public partial class AmplitudePlot : ComponentBase, IDisposable
                 await using (Context2D context = await canvas.GetContext2DAsync())
                 {
                     await context.FillAndStrokeStyles.FillStyleAsync($"#fff");
-                    await context.FillRectAsync(i / (double)TimeInSeconds / 10 * Width, 0, Width / (double)TimeInSeconds / 10, Height);
+                    await context.FillRectAsync(i, 0, 1, Height);
 
                     double height = reading.Sum(r => r) / (reading.Length * 255.0);
 
                     await context.FillAndStrokeStyles.FillStyleAsync($"#000");
-                    await context.FillRectAsync(i / (double)TimeInSeconds / 10 * Width, (Height / 2.0) - (height / 2 * Height), Width / (double)TimeInSeconds / 10, height * Height);
+                    await context.FillRectAsync(i, (Height / 2.0) - (height / 2 * Height), 1, height * Height);
                 }
                 await Task.Delay(1);
             }

@@ -25,26 +25,17 @@ public partial class SpectrogramPlot : ComponentBase, IDisposable
     [Parameter]
     public int Width { get; set; } = 200;
 
-    [Parameter]
-    public int TimeInSeconds { get; set; } = 20;
-
-    [Parameter]
-    public int LowerFrequency { get; set; } = 0;
-
-    [Parameter]
-    public int UpperFrequency { get; set; } = 100;
-
     protected override async Task OnAfterRenderAsync(bool _)
     {
         if (running || Analyser is null) return;
         running = true;
 
         int bufferLength = (int)await Analyser.GetFrequencyBinCountAsync();
-        await using Uint8Array frequencyDataArray = await Uint8Array.CreateAsync(JSRuntime, Math.Min(bufferLength, UpperFrequency - LowerFrequency));
+        await using Uint8Array frequencyDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
 
         while (running)
         {
-            for (int i = 0; i < TimeInSeconds * 10; i++)
+            for (int i = 0; i < Width; i++)
             {
                 if (!running) break;
 
@@ -55,13 +46,13 @@ public partial class SpectrogramPlot : ComponentBase, IDisposable
                 await using (Context2D context = await canvas.GetContext2DAsync())
                 {
                     await context.FillAndStrokeStyles.FillStyleAsync($"#fff");
-                    await context.FillRectAsync(i / (double)TimeInSeconds / 10 * Width, 0, Width / (double)TimeInSeconds / 10, Height);
+                    await context.FillRectAsync(i, 0, 1, Height);
 
                     for (int j = 0; j < reading.Length; j++)
                     {
                         string color = $"#F{(255 - reading[j]) / 16:X}{(255 - reading[j]) / 16:X}";
                         await context.FillAndStrokeStyles.FillStyleAsync(color);
-                        await context.FillRectAsync(i / (double)TimeInSeconds / 10 * Width, j / (double)reading.Length * Height, Width / (double)TimeInSeconds / 10, 1);
+                        await context.FillRectAsync(i, j / (double)reading.Length * Height, 1, 1);
                     }
                 }
                 await Task.Delay(1);
