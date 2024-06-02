@@ -27,6 +27,8 @@ else
     <Plot Data="timeDomainMeasurements" />
     <h3>Frequency Data</h3>
     <Plot Data="frequencyMeasurements" />
+    <h3>Amplitude Data</h3>
+    <AmplitudePlot Analyser="analyser" />
 
     @if (audioOptions.Count > 0)
     {
@@ -42,6 +44,7 @@ else
 
 @code {
     private AudioContext? context;
+    private AnalyserNode? analyser;
     private MediaDevices? mediaDevices;
     private string? error;
     private byte[] timeDomainMeasurements = Array.Empty<byte>();
@@ -86,8 +89,8 @@ else
                 }
             }
 
-            AnalyserNode analyser = await context.CreateAnalyserAsync();
-            MediaStreamAudioSourceNode mediaStreamAudioSourceNode = await context.CreateMediaStreamSourceAsync(mediaStream);
+            analyser = await context.CreateAnalyserAsync();
+            await using MediaStreamAudioSourceNode mediaStreamAudioSourceNode = await context.CreateMediaStreamSourceAsync(mediaStream);
             await mediaStreamAudioSourceNode.ConnectAsync(analyser);
 
             await Task.Delay(500);
@@ -127,6 +130,10 @@ else
         if (audioTrack is not null)
         {
             await audioTrack.StopAsync();
+        }
+        if (analyser is not null)
+        {
+            await analyser.DisposeAsync();
         }
     }
 

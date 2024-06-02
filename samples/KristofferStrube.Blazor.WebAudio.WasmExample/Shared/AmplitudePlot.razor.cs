@@ -6,7 +6,7 @@ using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio.WasmExample.Shared;
 
-public partial class SpectrogramPlot : ComponentBase, IDisposable
+public partial class AmplitudePlot : ComponentBase, IDisposable
 {
     private bool running;
     private Canvas canvas = default!;
@@ -28,19 +28,13 @@ public partial class SpectrogramPlot : ComponentBase, IDisposable
     [Parameter]
     public int TimeInSeconds { get; set; } = 20;
 
-    [Parameter]
-    public int LowerFrequency { get; set; } = 0;
-
-    [Parameter]
-    public int UpperFrequency { get; set; } = 100;
-
     protected override async Task OnAfterRenderAsync(bool _)
     {
         if (running || Analyser is null) return;
         running = true;
 
         int bufferLength = (int)await Analyser.GetFrequencyBinCountAsync();
-        await using Uint8Array frequencyDataArray = await Uint8Array.CreateAsync(JSRuntime, Math.Min(bufferLength, UpperFrequency - LowerFrequency));
+        await using Uint8Array timeDomainData = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
 
         while (running)
         {
@@ -48,21 +42,19 @@ public partial class SpectrogramPlot : ComponentBase, IDisposable
             {
                 if (!running) break;
 
-                await Analyser.GetByteFrequencyDataAsync(frequencyDataArray);
+                await Analyser.GetByteFrequencyDataAsync(timeDomainData);
 
-                byte[] reading = await frequencyDataArray.GetAsArrayAsync();
+                byte[] reading = await timeDomainData.GetAsArrayAsync();
 
                 await using (Context2D context = await canvas.GetContext2DAsync())
                 {
                     await context.FillAndStrokeStyles.FillStyleAsync($"#fff");
                     await context.FillRectAsync(i / (double)TimeInSeconds / 10 * Width, 0, Width / (double)TimeInSeconds / 10, Height);
 
-                    for (int j = 0; j < reading.Length; j++)
-                    {
-                        string color = $"#F{(255 - reading[j]) / 16:X}{(255 - reading[j]) / 16:X}";
-                        await context.FillAndStrokeStyles.FillStyleAsync(color);
-                        await context.FillRectAsync(i / (double)TimeInSeconds / 10 * Width, j / (double)reading.Length * Height, Width / (double)TimeInSeconds / 10, 1);
-                    }
+                    double height = reading.Sum(r => r) / (reading.Length * 255.0);
+
+                    await context.FillAndStrokeStyles.FillStyleAsync($"#000");
+                    await context.FillRectAsync(i / (double)TimeInSeconds / 10 * Width, (Height / 2.0) - (height / 2 * Height), Width / (double)TimeInSeconds / 10, height * Height);
                 }
                 await Task.Delay(1);
             }
