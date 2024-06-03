@@ -1,6 +1,7 @@
 ﻿@page "/Keyboard"
 @inject IJSRuntime JSRuntime
 @using KristofferStrube.Blazor.WebAudio.WasmExample.ADSREditor
+@implements IAsyncDisposable
 
 <PageTitle>WebAudio - Keyboard</PageTitle>
 <h2>Keyboard</h2>
@@ -211,6 +212,24 @@
         var A4Index = 4 * 12 + 10;
         var halfStepDifference = noteIndex - A4Index;
         return (float)(A4 * Math.Pow(a, halfStepDifference));
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (context is not null)
+        {
+            await context.DisposeAsync();
+        }
+        if (mainNode is not null)
+        {
+            await mainNode.DisconnectAsync();
+            await mainNode.DisposeAsync();
+        }
+        if (compressor is not null)
+        {
+            await compressor.DisconnectAsync();
+            await compressor.DisposeAsync();
+        }
     }
 }
 
