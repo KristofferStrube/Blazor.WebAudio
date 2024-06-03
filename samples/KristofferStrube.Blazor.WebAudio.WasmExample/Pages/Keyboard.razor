@@ -126,7 +126,7 @@
         if (context is null || mainNode is null || compressor is null)
         {
             context = await AudioContext.CreateAsync(JSRuntime);
-            mainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.5f });
+            mainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.1f });
             compressor = await DynamicsCompressorNode.CreateAsync(JSRuntime, context);
             await using AudioDestinationNode destination = await context.GetDestinationAsync();
             await compressor.ConnectAsync(mainNode);
