@@ -2,10 +2,21 @@
 @using KristofferStrube.Blazor.DOM
 @using KristofferStrube.Blazor.WebIDL;
 @using KristofferStrube.Blazor.WebAudio.WasmExample.AudioEditor
+@using System.IO.Compression
 @implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
 <PageTitle>WebAudio - Playground</PageTitle>
-<h2>Playground</h2>
+
+<div style="display:flex;flex-direction:row;">
+    <h2 style="flex-grow: 1">Playground</h2>
+    @if (Input is { Length: >= 1 })
+    {
+        <span>
+            <button class="btn btn-primary" @onclick="URLEncode">Encode in URL and paste to clipboard</button>
+        </span>
+    }
+</div>
 
 <textarea @bind="Input" @bind:event="oninput" style="width:100%;height:10vh;" @bind:after=AudioEditor.StopAsync />
 
@@ -30,15 +41,60 @@ else
 
     public string? Input { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Input ??= Code;
+        if (Code is not null)
+        {
+            Input ??= await FromGzipAsync(Code);
+        }
         Input ??= "";
+    }
+
+    private async Task URLEncode()
+    {
+        string code = ToGzip(Input!);
+
+        Dictionary<string, object?> queryStrings = new Dictionary<string, object?>()
+        {
+            { "code", code}
+        };
+
+        string url = NavigationManager.GetUriWithQueryParameters(queryStrings);
+
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", url);
     }
 
     public async ValueTask DisposeAsync()
     {
         await AudioEditor.StopAsync();
+    }
+
+    private static string ToGzip(string value)
+    {
+        var bytes = System.Text.Encoding.UTF8.GetBytes(value);
+        using var input = new MemoryStream(bytes);
+        using var output = new MemoryStream();
+        using var stream = new GZipStream(output, CompressionLevel.SmallestSize);
+
+        input.CopyTo(stream);
+
+        stream.Dispose();
+
+        var result = output.ToArray();
+        return Convert.ToBase64String(result);
+    }
+
+    private static async Task<string> FromGzipAsync(string value)
+    {
+        var bytes = Convert.FromBase64String(value);
+        await using var input = new MemoryStream(bytes);
+        await using var output = new MemoryStream();
+        await using var stream = new GZipStream(input, CompressionMode.Decompress);
+
+        await stream.CopyToAsync(output);
+        await stream.FlushAsync();
+
+        return System.Text.Encoding.UTF8.GetString(output.ToArray());
     }
 }
 
