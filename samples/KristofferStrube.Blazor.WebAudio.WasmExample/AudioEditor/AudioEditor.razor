@@ -29,8 +29,8 @@
     {
         AudioContext = await AudioContext.CreateAsync(JSRuntime);
 
+        await InvokeAsync(StateHasChanged);
         await ProcessQueue();
-        StateHasChanged();
 
         while (running)
         {
