@@ -21,10 +21,13 @@ public class Oscillator : Node
     };
 
     private AudioNode? audioNode;
+
     public override Func<AudioContext, Task<AudioNode>> AudioNode => async (context) =>
     {
+        _ = await audioNodeSlim.WaitAsync(200);
         if (audioNode is null)
         {
+            Console.WriteLine("NEW Oscillator!: " + Id);
             OscillatorOptions options = new();
             if (Frequency is { } f)
             {
@@ -38,6 +41,7 @@ public class Oscillator : Node
             await oscillator.StartAsync();
             audioNode = oscillator;
         }
+        _ = audioNodeSlim.Release();
         return audioNode;
     };
 

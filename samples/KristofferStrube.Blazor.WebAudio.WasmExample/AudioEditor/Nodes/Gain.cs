@@ -21,6 +21,7 @@ public class Gain : Node
     private AudioNode? audioNode;
     public override Func<AudioContext, Task<AudioNode>> AudioNode => async (context) =>
     {
+        _ = await audioNodeSlim.WaitAsync(200);
         if (audioNode is null)
         {
             GainOptions options = new();
@@ -31,6 +32,7 @@ public class Gain : Node
             GainNode oscillator = await GainNode.CreateAsync(context.JSRuntime, context, options);
             audioNode = oscillator;
         }
+        _ = audioNodeSlim.Release();
         return audioNode;
     };
 

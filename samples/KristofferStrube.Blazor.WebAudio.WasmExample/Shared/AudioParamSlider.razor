@@ -49,6 +49,7 @@
     public async Task AudioParamUpdatedAsync()
     {
         if (AudioParam is null) return;
+        Console.WriteLine("SET: " + value);
         await AudioParam.SetValueAsync(value);
         UpdateCallback?.Invoke(value);
     }

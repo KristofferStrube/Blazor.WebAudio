@@ -6,6 +6,8 @@ namespace KristofferStrube.Blazor.WebAudio.WasmExample.AudioEditor;
 
 public abstract class Node : Rect, ITaskQueueable
 {
+    protected readonly SemaphoreSlim audioNodeSlim = new(1, 1);
+
     public Dictionary<string, Func<AudioContext, Task<AudioParam>>> AudioParams { get; set; } = new();
     public virtual Dictionary<string, int> AudioParamPositions { get; set; } = new();
 

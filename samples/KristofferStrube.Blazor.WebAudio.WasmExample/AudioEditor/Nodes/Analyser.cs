@@ -9,12 +9,14 @@ public class Analyser : Node
     private AudioNode? audioNode;
     public override Func<AudioContext, Task<AudioNode>> AudioNode => async (context) =>
     {
+        _ = await audioNodeSlim.WaitAsync(200);
         if (audioNode is null)
         {
             AnalyserNode analyser = await AnalyserNode.CreateAsync(context.JSRuntime, context);
 
             audioNode = analyser;
         }
+        _ = audioNodeSlim.Release();
         return audioNode;
     };
 

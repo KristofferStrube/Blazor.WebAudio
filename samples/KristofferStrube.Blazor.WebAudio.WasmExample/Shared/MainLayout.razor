@@ -22,7 +22,7 @@
 
 
 @code {
-    private string relativeUri => NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+    private string relativeUri => NavigationManager.ToBaseRelativePath(NavigationManager.Uri.Split("?")[0]);
 
     protected string page => (string.IsNullOrEmpty(relativeUri) ? "Index" : relativeUri) + ".razor";
 }

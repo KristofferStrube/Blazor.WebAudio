@@ -12,6 +12,7 @@ public class BiquadFilter : Node
     private AudioNode? audioNode;
     public override Func<AudioContext, Task<AudioNode>> AudioNode => async (context) =>
     {
+        _ = await audioNodeSlim.WaitAsync(200);
         if (audioNode is null)
         {
             BiquadFilterOptions options = new();
@@ -24,6 +25,7 @@ public class BiquadFilter : Node
             BiquadFilterNode oscillator = await BiquadFilterNode.CreateAsync(context.JSRuntime, context, options);
             audioNode = oscillator;
         }
+        _ = audioNodeSlim.Release();
         return audioNode;
     };
 

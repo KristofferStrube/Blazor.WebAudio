@@ -11,11 +11,13 @@ public class MediaStreamAudioSource : Node
     private AudioNode? audioNode;
     public override Func<AudioContext, Task<AudioNode>> AudioNode => async (context) =>
     {
+        _ = await audioNodeSlim.WaitAsync(200);
         if (audioNode is null)
         {
             await SetMediaStreamAudioSourceNode(context);
         }
         return audioNode!;
+        _ = audioNodeSlim.Release();
     };
 
     public async Task SetMediaStreamAudioSourceNode(AudioContext context)

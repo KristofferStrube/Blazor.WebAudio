@@ -74,7 +74,10 @@ else
 
     public async ValueTask DisposeAsync()
     {
-        await AudioEditor.StopAsync();
+        if (AudioEditor is not null)
+        {
+            await AudioEditor.StopAsync();
+        }
     }
 
     private static string ToGzip(string value)

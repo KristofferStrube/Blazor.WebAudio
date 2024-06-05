@@ -9,7 +9,9 @@ public class AudioDestination : Node
     private AudioNode? audioNode;
     public override Func<AudioContext, Task<AudioNode>> AudioNode => async (context) =>
     {
+        _ = await audioNodeSlim.WaitAsync(200);
         audioNode ??= await context.GetDestinationAsync();
+        _ = audioNodeSlim.Release();
         return audioNode;
     };
 
