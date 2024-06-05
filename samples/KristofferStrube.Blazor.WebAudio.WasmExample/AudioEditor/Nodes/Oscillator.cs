@@ -27,7 +27,6 @@ public class Oscillator : Node
         _ = await audioNodeSlim.WaitAsync(200);
         if (audioNode is null)
         {
-            Console.WriteLine("NEW Oscillator!: " + Id);
             OscillatorOptions options = new();
             if (Frequency is { } f)
             {
