@@ -55,10 +55,8 @@
     [CascadingParameter]
     public required AudioContext AudioContext { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnParametersSetAsync()
     {
-        await base.OnAfterRenderAsync(firstRender);
-
         if (analyser is null && AudioContext is not null)
         {
             analyser = (AnalyserNode)await SVGElement.AudioNode(AudioContext);

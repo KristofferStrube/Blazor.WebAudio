@@ -11,7 +11,7 @@
                InputUpdated="async (string s) => { Input = s; await InputChanged.InvokeAsync(s); StateHasChanged(); }"
                SupportedElements=SupportedElements
                AddNewSVGElementMenuItems=AddNewMenuItems
-               ActionMenuItems=ActionMenuItems />
+               ActionMenuItems=ActionMenuItems/>
 </CascadingValue>
 
 @code {
@@ -29,15 +29,23 @@
     {
         AudioContext = await AudioContext.CreateAsync(JSRuntime);
 
+        await ProcessQueue();
+        StateHasChanged();
+
         while (running)
         {
             await Task.Delay(50);
-            foreach (ITaskQueueable taskQueueable in SVGEditor.Elements.Where(e => e is ITaskQueueable))
+            await ProcessQueue();
+        }
+    }
+
+    private async Task ProcessQueue()
+    {
+        foreach (ITaskQueueable taskQueueable in SVGEditor.Elements.Where(e => e is ITaskQueueable))
+        {
+            while (taskQueueable.QueuedTasks.TryDequeue(out var task))
             {
-                while (taskQueueable.QueuedTasks.TryDequeue(out var task))
-                {
-                    await task(AudioContext);
-                }
+                await task(AudioContext);
             }
         }
     }
@@ -49,14 +57,14 @@
 
     protected List<SupportedElement> SupportedElements { get; set; } = new()
     {
-        new(typeof(G), element => element.TagName == "G"),
-        new(typeof(Oscillator), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "oscillator"),
-        new(typeof(AudioDestination), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "audio-destination"),
-        new(typeof(Gain), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "gain"),
-        new(typeof(Analyser), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "analyser"),
-        new(typeof(BiquadFilter), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "biquad-filter"),
-        new(typeof(MediaStreamAudioSource), element => element.TagName is "RECT" && element.GetAttribute("data-elementtype") == "media-stream-audio-source"),
-        new(typeof(Connector), element => element.TagName is "LINE" && element.GetAttribute("data-elementtype") == "connector"),
+        new(typeof(G), element => element.TagName == "g"),
+        new(typeof(Oscillator), element => element.TagName is "rect" && element.GetAttribute("data-elementtype") == "oscillator"),
+        new(typeof(AudioDestination), element => element.TagName is "rect" && element.GetAttribute("data-elementtype") == "audio-destination"),
+        new(typeof(Gain), element => element.TagName is "rect" && element.GetAttribute("data-elementtype") == "gain"),
+        new(typeof(Analyser), element => element.TagName is "rect" && element.GetAttribute("data-elementtype") == "analyser"),
+        new(typeof(BiquadFilter), element => element.TagName is "rect" && element.GetAttribute("data-elementtype") == "biquad-filter"),
+        new(typeof(MediaStreamAudioSource), element => element.TagName is "rect" && element.GetAttribute("data-elementtype") == "media-stream-audio-source"),
+        new(typeof(Connector), element => element.TagName is "line" && element.GetAttribute("data-elementtype") == "connector"),
     };
 
     protected List<SupportedAddNewSVGElementMenuItem> AddNewMenuItems { get; set; } = new()

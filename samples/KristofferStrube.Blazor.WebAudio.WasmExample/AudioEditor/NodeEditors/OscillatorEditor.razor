@@ -62,10 +62,8 @@
     [CascadingParameter]
     public required AudioContext AudioContext { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnParametersSetAsync()
     {
-        await base.OnAfterRenderAsync(firstRender);
-
         if (FrequencyAudioParam is null && AudioContext is not null)
         {
             FrequencyAudioParam = await SVGElement.AudioParams["frequency"](AudioContext);
