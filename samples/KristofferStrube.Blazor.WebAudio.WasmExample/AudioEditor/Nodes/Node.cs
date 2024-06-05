@@ -16,7 +16,7 @@ public abstract class Node : Rect, ITaskQueueable
         string? id = element.GetAttribute("id");
         if (id is null || svg.Elements.Any(e => e.Id == id))
         {
-            Id = Guid.NewGuid().ToString();
+            Id = Guid.NewGuid().ToString()[..8];
         }
     }
 

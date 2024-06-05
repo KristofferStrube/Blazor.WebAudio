@@ -18,7 +18,7 @@
     }
 </div>
 
-<textarea @bind="Input" @bind:event="oninput" style="width:100%;height:10vh;" @bind:after=AudioEditor.StopAsync />
+<textarea @bind="Input" @bind:event="oninput" style="width:100%;height:10vh;" @bind:after=StopAudioEditor />
 
 @if (Code is null)
 {
@@ -48,6 +48,14 @@ else
             Input ??= await FromGzipAsync(Code);
         }
         Input ??= "";
+    }
+
+    private async Task StopAudioEditor()
+    {
+        if (AudioEditor is not null)
+        {
+            await AudioEditor.StopAsync();
+        }
     }
 
     private async Task URLEncode()
