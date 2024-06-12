@@ -13,6 +13,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// These constraints ensure that the input to the node is either mono or stereo.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#ConvolverNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class ConvolverNode : AudioNode, IJSCreatable<ConvolverNode>
 {
     /// <inheritdoc/>

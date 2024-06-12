@@ -12,6 +12,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// In most use cases, only a single <see cref="AudioContext"/> is used per document.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioContext">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class AudioContext : BaseAudioContext, IJSCreatable<AudioContext>
 {
     /// <inheritdoc/>

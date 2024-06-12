@@ -7,6 +7,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// <see cref="PeriodicWave"/> represents an arbitrary periodic waveform to be used with an <see cref="OscillatorNode"/>.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#periodicwave">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class PeriodicWave : BaseJSWrapper, IJSCreatable<PeriodicWave>
 {
     /// <inheritdoc/>

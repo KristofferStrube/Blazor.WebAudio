@@ -13,6 +13,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The default delayTime is <c>0</c> seconds (no delay).
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#DelayNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class DelayNode : AudioNode, IJSCreatable<DelayNode>
 {
     /// <inheritdoc/>

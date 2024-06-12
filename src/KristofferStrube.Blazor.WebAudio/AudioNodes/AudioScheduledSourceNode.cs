@@ -10,6 +10,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// <see cref="AudioScheduledSourceNode"/> cannot be instantiated directly, but is instead extended by the concrete interfaces for the source nodes.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioScheduledSourceNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class AudioScheduledSourceNode : AudioNode, IJSCreatable<AudioScheduledSourceNode>
 {
     /// <inheritdoc/>

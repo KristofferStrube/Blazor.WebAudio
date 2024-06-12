@@ -9,6 +9,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The user agent can then create classes registered on the WorkletGlobalScopes and invoke their methods.
 /// </summary>
 /// <remarks><see href="https://html.spec.whatwg.org/multipage/worklets.html#worklet">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class Worklet : BaseJSWrapper, IJSCreatable<Worklet>
 {
     /// <summary>

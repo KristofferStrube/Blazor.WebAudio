@@ -8,6 +8,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// Changing the gain of an audio signal is a fundamental operation in audio applications. This interface is an <see cref="AudioNode"/> with a single input and single output.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#GainNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class GainNode : AudioNode, IJSCreatable<GainNode>
 {
     /// <inheritdoc/>

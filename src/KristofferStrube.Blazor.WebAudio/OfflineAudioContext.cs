@@ -12,6 +12,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// It does not render to the audio hardware, but instead renders as quickly as possible, fulfilling the returned promise with the rendered result as an <see cref="AudioBuffer"/>.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#offlineaudiocontext">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class OfflineAudioContext : BaseAudioContext, IJSCreatable<OfflineAudioContext>
 {
     /// <summary>

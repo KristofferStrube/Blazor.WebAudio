@@ -11,6 +11,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// Once enabled, a port can never be disabled again (though messages in the queue can get moved to another queue or removed altogether, which has much the same effect).
 /// </summary>
 /// <remarks><see href="https://html.spec.whatwg.org/multipage/web-messaging.html#messageport">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class MessagePort : EventTarget, IJSCreatable<MessagePort>
 {
     /// <inheritdoc/>

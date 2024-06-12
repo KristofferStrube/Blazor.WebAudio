@@ -9,6 +9,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The node is different from other processing nodes as it is retained in memory and perform audio processing in the absence of any connected inputs.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#audioworkletnode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class AudioWorkletNode : AudioNode, IJSCreatable<AudioWorkletNode>
 {
     /// <inheritdoc/>

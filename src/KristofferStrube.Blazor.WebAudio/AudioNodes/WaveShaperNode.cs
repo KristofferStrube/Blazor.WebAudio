@@ -10,6 +10,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The number of channels of the output always equals the number of channels of the input.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#WaveShaperNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class WaveShaperNode : AudioNode, IJSCreatable<WaveShaperNode>
 {
     /// <inheritdoc/>

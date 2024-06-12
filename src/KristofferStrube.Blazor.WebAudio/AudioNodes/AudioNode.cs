@@ -1,10 +1,8 @@
 ﻿using KristofferStrube.Blazor.DOM;
-using KristofferStrube.Blazor.MediaCaptureStreams.Exceptions;
 using KristofferStrube.Blazor.WebAudio.Extensions;
 using KristofferStrube.Blazor.WebIDL;
 using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
-using System.Text.Json;
 
 namespace KristofferStrube.Blazor.WebAudio;
 
@@ -18,6 +16,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// But, in general, an <see cref="AudioNode"/> will process its inputs (if it has any), and generate audio for its outputs (if it has any).
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class AudioNode : EventTarget, IJSCreatable<AudioNode>
 {
     /// <summary>

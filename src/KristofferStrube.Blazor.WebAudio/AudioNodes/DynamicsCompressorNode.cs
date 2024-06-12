@@ -12,6 +12,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// It is especially important in games and musical applications where large numbers of individual sounds are played simultaneous to control the overall signal level and help avoid clipping (distorting) the audio output to the speakers.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#DynamicsCompressorNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class DynamicsCompressorNode : AudioNode, IJSCreatable<DynamicsCompressorNode>
 {
     /// <inheritdoc/>

@@ -9,6 +9,7 @@ namespace KristofferStrube.Blazor.WebAudio.Events;
 /// This is an <see cref="Event"/> object which is dispatched to <see cref="OfflineAudioContext"/> for legacy reasons.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#OfflineAudioCompletionEvent">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class OfflineAudioCompletionEvent : Event, IJSCreatable<OfflineAudioCompletionEvent>
 {
     /// <summary>

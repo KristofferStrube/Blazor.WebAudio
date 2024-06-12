@@ -8,6 +8,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// <see cref="OscillatorNode"/> represents an audio source generating a periodic waveform. It can be set to a few commonly used waveforms. Additionally, it can be set to an arbitrary periodic waveform through the use of a <see cref="PeriodicWave"/> object.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#OscillatorNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class OscillatorNode : AudioScheduledSourceNode, IJSCreatable<OscillatorNode>
 {
     /// <inheritdoc/>

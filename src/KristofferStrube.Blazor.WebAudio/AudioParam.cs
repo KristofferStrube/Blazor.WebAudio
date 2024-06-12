@@ -12,6 +12,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// Additionally, audio signals from the outputs of <see cref="AudioNode"/>s can be connected to an <see cref="AudioParam"/>, summing with the intrinsic parameter value.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioParam">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class AudioParam : BaseJSWrapper, IJSCreatable<AudioParam>
 {
     /// <inheritdoc/>

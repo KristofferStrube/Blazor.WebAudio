@@ -9,6 +9,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// Messages in server-sent events, cross-document messaging, channel messaging, broadcast channels, and WebSockets use the <see cref="MessageEvent"/> interface for their message events.
 /// </summary>
 /// <remarks><see href="https://html.spec.whatwg.org/#messageevent">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class MessageEvent : Event, IJSCreatable<MessageEvent>
 {
     /// <summary>

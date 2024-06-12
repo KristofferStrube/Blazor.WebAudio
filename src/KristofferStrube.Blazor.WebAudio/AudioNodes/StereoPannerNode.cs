@@ -11,6 +11,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The output of this node is hard-coded to stereo (2 channels) and cannot be configured.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#StereoPannerNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class StereoPannerNode : AudioNode, IJSCreatable<StereoPannerNode>
 {
     /// <inheritdoc/>

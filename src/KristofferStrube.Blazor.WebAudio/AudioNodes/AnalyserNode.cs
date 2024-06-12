@@ -10,6 +10,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The audio stream will be passed un-processed from input to output.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AnalyserNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
 {
     /// <inheritdoc/>

@@ -10,6 +10,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The single output of this node consists of one channel (mono).
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#ConstantSourceNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class ConstantSourceNode : AudioScheduledSourceNode, IJSCreatable<ConstantSourceNode>
 {
     /// <inheritdoc/>

@@ -15,6 +15,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// These two vectors are expected to be linearly independent.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioListener">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class AudioListener : BaseJSWrapper, IJSCreatable<AudioListener>
 {
     /// <inheritdoc/>

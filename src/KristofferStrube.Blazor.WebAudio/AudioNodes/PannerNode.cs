@@ -8,6 +8,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The spatialization is in relation to the <see cref="BaseAudioContext"/>'s <see cref="AudioListener"/> (listener attribute).
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#PannerNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class PannerNode : AudioNode, IJSCreatable<PannerNode>
 {
     /// <inheritdoc/>

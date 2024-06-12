@@ -15,6 +15,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// Once created, the coefficients of the IIR filter cannot be changed.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#IIRFilterNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class IIRFilterNode : AudioNode, IJSCreatable<IIRFilterNode>
 {
     /// <inheritdoc/>

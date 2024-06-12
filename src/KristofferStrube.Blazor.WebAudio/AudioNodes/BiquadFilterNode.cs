@@ -14,6 +14,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// The default filter type is <see cref="BiquadFilterType.Lowpass"/>.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#BiquadFilterNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class BiquadFilterNode : AudioNode, IJSCreatable<BiquadFilterNode>
 {
     /// <inheritdoc/>

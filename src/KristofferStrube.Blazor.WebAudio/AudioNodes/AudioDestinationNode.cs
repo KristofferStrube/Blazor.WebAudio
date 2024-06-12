@@ -10,6 +10,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// There is only a single <see cref="AudioDestinationNode"/> per <see cref="AudioContext"/>, provided through the <see cref="BaseAudioContext.GetDestinationAsync"/> method.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioDestinationNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class AudioDestinationNode : AudioNode, IJSCreatable<AudioDestinationNode>
 {
     /// <inheritdoc/>

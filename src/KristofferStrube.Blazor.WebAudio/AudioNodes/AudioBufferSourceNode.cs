@@ -11,6 +11,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// If sample-accurate playback of network- or disk-backed assets is required, an implementer should use <see cref="AudioWorkletNode"/> to implement playback.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioBufferSourceNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class AudioBufferSourceNode : AudioScheduledSourceNode, IJSCreatable<AudioBufferSourceNode>
 {
     /// <inheritdoc/>

@@ -16,6 +16,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// Changing input streams does not affect the order of output channels.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#ChannelMergerNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class ChannelMergerNode : AudioNode, IJSCreatable<ChannelMergerNode>
 {
     /// <inheritdoc/>

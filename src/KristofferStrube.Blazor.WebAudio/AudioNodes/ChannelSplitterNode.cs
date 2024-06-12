@@ -15,6 +15,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// Any outputs which are not <c>"active"</c> will output silence and would typically not be connected to anything.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#ChannelSplitterNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class ChannelSplitterNode : AudioNode, IJSCreatable<ChannelSplitterNode>
 {
     /// <inheritdoc/>

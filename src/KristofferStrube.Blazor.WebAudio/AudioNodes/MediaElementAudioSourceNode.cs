@@ -7,6 +7,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// This interface represents an audio source from an audio or video element.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#MediaElementAudioSourceNode">See the API definition here</see>.</remarks>
+[IJSWrapperConverter]
 public class MediaElementAudioSourceNode : AudioNode, IJSCreatable<MediaElementAudioSourceNode>
 {
     /// <inheritdoc/>
