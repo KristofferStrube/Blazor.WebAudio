@@ -28,10 +28,10 @@ public class MediaStreamAudioSourceNode : AudioNode, IJSCreatable<MediaStreamAud
     /// Creates a <see cref="MediaStreamAudioSourceNode"/> using the standard constructor.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="MediaStreamAudioSourceNode"/> will be associated with.</param>
+    /// <param name="context">The <see cref="AudioContext"/> this new <see cref="MediaStreamAudioSourceNode"/> will be associated with.</param>
     /// <param name="options">Initial parameter value for this <see cref="MediaStreamAudioSourceNode"/>.</param>
     /// <returns>A new instance of a <see cref="MediaStreamAudioSourceNode"/>.</returns>
-    public static async Task<MediaStreamAudioSourceNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, MediaStreamAudioSourceOptions options)
+    public static async Task<MediaStreamAudioSourceNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, MediaStreamAudioSourceOptions options)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructMediaStreamAudioSourceNode", context, options);
