@@ -387,10 +387,11 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
         Func<AudioBuffer, Task>? successCallback = null,
         Func<DOMException, Task>? errorCallback = null)
     {
-        IJSObjectReference helper = new ErrorHandlingJSObjectReference(JSRuntime, await webAudioHelperTask.Value);
+        ErrorHandlingJSObjectReference helper = new(JSRuntime, await webAudioHelperTask.Value);
 
         using DotNetObjectReference<DecodeSuccessCallback>? successCallbackObjRef = successCallback is null ? null : DotNetObjectReference.Create(new DecodeSuccessCallback(JSRuntime, successCallback));
         using DotNetObjectReference<DecodeErrorCallback>? errorCallbackObjRef = errorCallback is null ? null : DotNetObjectReference.Create(new DecodeErrorCallback(JSRuntime, errorCallback));
+
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("decodeAudioData", JSReference, audioData, successCallbackObjRef, errorCallbackObjRef);
 
         return await AudioBuffer.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });

@@ -87,9 +87,10 @@ export function constructOfflineAudioCompletionEvent(type, eventInitDict) {
 }
 
 export async function decodeAudioData(audioContext, audioData, successCallbackObjRef, errorCallbackObjRef) {
-    let successCallback = successCallbackObjRef == null ? null : async (decodedData) => await successCallbackObjRef.invokeMethodAsync('Invoke', DotNet.createJSObjectReference(decodedData));
-    let errorCallback = errorCallbackObjRef == null ? null : async (error) => await errorCallbackObjRef.invokeMethodAsync('Invoke', DOMExceptionInformation(error));
-    return audioContext.decodeAudioData(audioData, successCallback, errorCallback)
+    let successCallback = successCallbackObjRef == null ? () => { } : async (decodedData) => await successCallbackObjRef.invokeMethodAsync('Invoke', DotNet.createJSObjectReference(decodedData));
+    let errorCallback = errorCallbackObjRef == null ? () => { } : async (error) => await errorCallbackObjRef.invokeMethodAsync('Invoke', DOMExceptionInformation(error));
+
+    return audioContext.decodeAudioData(audioData, successCallback, errorCallback);
 }
 
 function DOMExceptionInformation(error) {
