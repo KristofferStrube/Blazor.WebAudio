@@ -378,7 +378,7 @@ public class BaseAudioContext : EventTarget, IJSCreatable<BaseAudioContext>
     /// It throws an <see cref="DataCloneErrorException"/> if the array is detached.<br />
     /// It throws an <see cref="EncodingErrorException"/> if <see href="https://mimesniff.spec.whatwg.org/#matching-an-audio-or-video-type-pattern">MIME Sniffing §6.2 Matching an audio or video type pattern</see> doesn't find a MIME type or if it failed to decode it into a linear PCM (pulse code modulation).<br />
     /// </remarks>
-    /// <param name="audioData">An <see cref="IJSObjectReference"/> to an existing AudioBuffer containing compressed audio data.</param>
+    /// <param name="audioData">An <see cref="IJSObjectReference"/> to an <see cref="ArrayBuffer"/> containing compressed audio data.</param>
     /// <param name="successCallback">A callback function which will be invoked when the decoding is finished. The single argument to this callback is an <see cref="AudioBuffer"/> representing the decoded PCM audio data.</param>
     /// <param name="errorCallback">A callback function which will be invoked if there is an error decoding the audio file.</param>
     /// <returns>A new <see cref="AudioBuffer"/>.</returns>
