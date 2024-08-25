@@ -70,7 +70,7 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     public async Task<AudioNode> ConnectAsync(AudioNode destinationNode, ulong output = 0, ulong input = 0)
     {
         IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
-        IJSObjectReference jSInstance = await jSReference.InvokeAsync<IJSObjectReference>("connect", destinationNode.JSReference, output, input);
+        IJSObjectReference jSInstance = await jSReference.InvokeAsync<IJSObjectReference>("connect", destinationNode, output, input);
         return await CreateAsync(JSRuntime, jSInstance);
     }
 
@@ -90,7 +90,7 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     public async Task ConnectAsync(AudioParam destinationParam, ulong output = 0)
     {
         IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
-        await jSReference.InvokeVoidAsync("connect", destinationParam.JSReference, output);
+        await jSReference.InvokeVoidAsync("connect", destinationParam, output);
     }
 
     /// <summary>
@@ -126,7 +126,7 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     public async Task DisconnectAsync(AudioNode destinationNode)
     {
         IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
-        await jSReference.InvokeVoidAsync("disconnect", destinationNode.JSReference);
+        await jSReference.InvokeVoidAsync("disconnect", destinationNode);
     }
 
     /// <summary>
@@ -143,7 +143,7 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     public async Task DisconnectAsync(AudioNode destinationNode, ulong output)
     {
         IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
-        await jSReference.InvokeVoidAsync("disconnect", destinationNode.JSReference, output);
+        await jSReference.InvokeVoidAsync("disconnect", destinationNode, output);
     }
 
     /// <summary>
@@ -162,7 +162,7 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     public async Task DisconnectAsync(AudioNode destinationNode, ulong output, ulong input)
     {
         IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
-        await jSReference.InvokeVoidAsync("disconnect", destinationNode.JSReference, output, input);
+        await jSReference.InvokeVoidAsync("disconnect", destinationNode, output, input);
     }
 
     /// <summary>
@@ -178,7 +178,7 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     public async Task DisconnectAsync(AudioParam destinationParam)
     {
         IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
-        await jSReference.InvokeVoidAsync("disconnect", destinationParam.JSReference);
+        await jSReference.InvokeVoidAsync("disconnect", destinationParam);
     }
 
     /// <summary>
@@ -197,7 +197,7 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     public async Task DisconnectAsync(AudioParam destinationParam, ulong output)
     {
         IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
-        await jSReference.InvokeVoidAsync("disconnect", destinationParam.JSReference, output);
+        await jSReference.InvokeVoidAsync("disconnect", destinationParam, output);
     }
 
     /// <summary>

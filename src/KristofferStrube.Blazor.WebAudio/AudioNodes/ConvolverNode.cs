@@ -38,7 +38,7 @@ public class ConvolverNode : AudioNode, IJSCreatable<ConvolverNode>
     public static async Task<ConvolverNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, ConvolverOptions? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructConvolverNode", context.JSReference, options);
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructConvolverNode", context, options);
         return new ConvolverNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
@@ -66,7 +66,7 @@ public class ConvolverNode : AudioNode, IJSCreatable<ConvolverNode>
     public async Task SetBufferAsync(AudioBuffer? value)
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
-        await helper.InvokeVoidAsync("setAttribute", JSReference, "buffer", value?.JSReference);
+        await helper.InvokeVoidAsync("setAttribute", JSReference, "buffer", value);
     }
 
     /// <summary>

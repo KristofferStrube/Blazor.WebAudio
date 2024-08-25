@@ -113,7 +113,7 @@ public class AudioBuffer : BaseJSWrapper, IJSCreatable<AudioBuffer>
     /// <exception cref="IndexSizeErrorException"></exception>
     public async Task CopyFromChannelAsync(Float32Array destination, ulong channelNumber, ulong bufferOffset = 0)
     {
-        await JSReference.InvokeVoidAsync("copyFromChannel", destination.JSReference, channelNumber, bufferOffset);
+        await JSReference.InvokeVoidAsync("copyFromChannel", destination, channelNumber, bufferOffset);
     }
 
     /// <summary>
@@ -128,6 +128,6 @@ public class AudioBuffer : BaseJSWrapper, IJSCreatable<AudioBuffer>
     /// <exception cref="IndexSizeErrorException"></exception>
     public async Task CopyToChannelAsync(Float32Array source, ulong channelNumber, ulong bufferOffset = 0)
     {
-        await JSReference.InvokeVoidAsync("copyToChannel", source.JSReference, channelNumber, bufferOffset);
+        await JSReference.InvokeVoidAsync("copyToChannel", source, channelNumber, bufferOffset);
     }
 }

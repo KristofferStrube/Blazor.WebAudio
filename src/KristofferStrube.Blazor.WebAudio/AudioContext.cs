@@ -124,7 +124,7 @@ public class AudioContext : BaseAudioContext, IJSCreatable<AudioContext>
     /// <returns>A new <see cref="MediaElementAudioSourceNode"/>.</returns>
     public async Task<MediaElementAudioSourceNode> CreateMediaElementSourceAsync(EventTarget mediaElement)
     {
-        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createMediaElementSource", mediaElement.JSReference);
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createMediaElementSource", mediaElement);
         return await MediaElementAudioSourceNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
@@ -135,7 +135,7 @@ public class AudioContext : BaseAudioContext, IJSCreatable<AudioContext>
     /// <returns>A new <see cref="MediaStreamAudioSourceNode"/>.</returns>
     public async Task<MediaStreamAudioSourceNode> CreateMediaStreamSourceAsync(MediaStream mediaStream)
     {
-        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createMediaStreamSource", mediaStream.JSReference);
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createMediaStreamSource", mediaStream);
         return await MediaStreamAudioSourceNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
@@ -150,7 +150,7 @@ public class AudioContext : BaseAudioContext, IJSCreatable<AudioContext>
     /// <returns>A new <see cref="MediaStreamTrackAudioSourceNode"/>.</returns>
     public async Task<MediaStreamTrackAudioSourceNode> CreateMediaStreamTrackSourceAsync(MediaStreamTrack mediaStreamTrack)
     {
-        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createMediaStreamTrackSource", mediaStreamTrack.JSReference);
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("createMediaStreamTrackSource", mediaStreamTrack);
         return await MediaStreamTrackAudioSourceNode.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 

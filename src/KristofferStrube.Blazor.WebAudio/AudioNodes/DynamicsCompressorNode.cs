@@ -37,7 +37,7 @@ public class DynamicsCompressorNode : AudioNode, IJSCreatable<DynamicsCompressor
     public static async Task<DynamicsCompressorNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, DynamicsCompressorOptions? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructDynamicsCompressorNode", context.JSReference, options);
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructDynamicsCompressorNode", context, options);
         return new DynamicsCompressorNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 

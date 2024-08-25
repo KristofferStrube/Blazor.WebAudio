@@ -33,7 +33,7 @@ public class GainNode : AudioNode, IJSCreatable<GainNode>
     public static async Task<GainNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, GainOptions? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructGainNode", context.JSReference, options);
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructGainNode", context, options);
         return new GainNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 

@@ -35,7 +35,7 @@ public class AudioWorkletNode : AudioNode, IJSCreatable<AudioWorkletNode>
     public static async Task<AudioWorkletNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, string name, AudioWorkletNodeOptions? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructAudioWorkletNode", context.JSReference, name, options);
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructAudioWorkletNode", context, name, options);
         return new AudioWorkletNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 

@@ -38,7 +38,7 @@ public class DelayNode : AudioNode, IJSCreatable<DelayNode>
     public static async Task<DelayNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, DelayOptions? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructDelayNode", context.JSReference, options);
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructDelayNode", context, options);
         return new DelayNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 

@@ -33,7 +33,7 @@ public class OscillatorNode : AudioScheduledSourceNode, IJSCreatable<OscillatorN
     public static async Task<OscillatorNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, OscillatorOptions? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructOcillatorNode", context.JSReference, options);
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructOcillatorNode", context, options);
         return new OscillatorNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 

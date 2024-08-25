@@ -202,6 +202,7 @@
             await Pause();
         }
         tracks = tracks.OrderBy(x => Random.Shared.Next()).ToList();
+        loadedTracks = new byte[]?[4];
         currentTrackLoaded = false;
         currentTrack = 0;
         offset = 0;

@@ -43,7 +43,7 @@ public class MessagePortInProcess : MessagePort, IJSInProcessCreatable<MessagePo
 
     public void PostMessage(object message, ITransferable[]? transfer = null)
     {
-        JSReference.InvokeVoid("postMessage", message, transfer?.Select(e => e.JSReference).ToArray());
+        JSReference.InvokeVoid("postMessage", message, transfer?.Select(e => e).ToArray());
     }
 
     /// <inheritdoc/>

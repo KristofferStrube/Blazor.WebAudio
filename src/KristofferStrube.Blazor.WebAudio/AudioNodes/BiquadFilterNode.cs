@@ -39,7 +39,7 @@ public class BiquadFilterNode : AudioNode, IJSCreatable<BiquadFilterNode>
     public static async Task<BiquadFilterNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, BiquadFilterOptions? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructBiquadFilterNode", context.JSReference, options);
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructBiquadFilterNode", context, options);
         return new BiquadFilterNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
@@ -128,6 +128,6 @@ public class BiquadFilterNode : AudioNode, IJSCreatable<BiquadFilterNode>
     /// <returns></returns>
     public async Task GetFrequencyResponseAsync(Float32Array frequencyHz, Float32Array magResponse, Float32Array phaseResponse)
     {
-        await JSReference.InvokeVoidAsync("getFrequencyResponse", frequencyHz.JSReference, magResponse.JSReference, phaseResponse.JSReference);
+        await JSReference.InvokeVoidAsync("getFrequencyResponse", frequencyHz, magResponse, phaseResponse);
     }
 }

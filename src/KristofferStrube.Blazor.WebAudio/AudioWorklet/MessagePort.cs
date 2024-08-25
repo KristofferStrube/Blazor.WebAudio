@@ -33,7 +33,7 @@ public class MessagePort : EventTarget, IJSCreatable<MessagePort>
 
     public async Task PostMessageAsync(object message, ITransferable[]? transfer = null)
     {
-        await JSReference.InvokeVoidAsync("postMessage", message, transfer?.Select(e => e.JSReference).ToArray());
+        await JSReference.InvokeVoidAsync("postMessage", message, transfer?.Select(e => e).ToArray());
     }
 
     public async Task StartAsync()

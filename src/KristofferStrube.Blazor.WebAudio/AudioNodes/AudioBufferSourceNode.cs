@@ -67,7 +67,7 @@ public class AudioBufferSourceNode : AudioScheduledSourceNode, IJSCreatable<Audi
     public async Task SetBufferAsync(AudioBuffer? value)
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
-        await helper.InvokeVoidAsync("setAttribute", JSReference, "buffer", value?.JSReference);
+        await helper.InvokeVoidAsync("setAttribute", JSReference, "buffer", value);
     }
 
     /// <summary>

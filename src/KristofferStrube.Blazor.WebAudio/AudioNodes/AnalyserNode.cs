@@ -35,7 +35,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     public static async Task<AnalyserNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, AnalyserOptions? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructAnalyzerNode", context.JSReference, options);
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructAnalyzerNode", context, options);
         return new AnalyserNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
@@ -56,7 +56,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     /// <param name="array">This parameter is where the frequency-domain analysis data will be copied.</param>
     public async Task GetFloatFrequencyDataAsync(Float32Array array)
     {
-        await JSReference.InvokeVoidAsync("getFloatFrequencyData", array.JSReference);
+        await JSReference.InvokeVoidAsync("getFloatFrequencyData", array);
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     /// <param name="array">This parameter is where the time-domain sample data will be copied.</param>
     public async Task GetByteFrequencyDataAsync(Uint8Array array)
     {
-        await JSReference.InvokeVoidAsync("getByteFrequencyData", array.JSReference);
+        await JSReference.InvokeVoidAsync("getByteFrequencyData", array);
     }
 
     /// <summary>
@@ -86,7 +86,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     /// <param name="array">This parameter is where the time-domain sample data will be copied.</param>
     public async Task GetFloatTimeDomainDataAsync(Float32Array array)
     {
-        await JSReference.InvokeVoidAsync("getFloatTimeDomainData", array.JSReference);
+        await JSReference.InvokeVoidAsync("getFloatTimeDomainData", array);
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     /// <param name="array">This parameter is where the time-domain sample data will be copied.</param>
     public async Task GetByteTimeDomainDataAsync(Uint8Array array)
     {
-        await JSReference.InvokeVoidAsync("getByteTimeDomainData", array.JSReference);
+        await JSReference.InvokeVoidAsync("getByteTimeDomainData", array);
     }
 
     /// <summary>

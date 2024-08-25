@@ -34,7 +34,7 @@ public class MediaStreamAudioSourceNode : AudioNode, IJSCreatable<MediaStreamAud
     public static async Task<MediaStreamAudioSourceNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, MediaStreamAudioSourceOptions options)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructMediaStreamAudioSourceNode", context, options);
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructMediaStreamAudioSourceNode", context, new {});
         return new MediaStreamAudioSourceNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 

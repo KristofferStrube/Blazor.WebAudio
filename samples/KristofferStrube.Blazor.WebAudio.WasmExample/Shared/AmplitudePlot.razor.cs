@@ -23,14 +23,14 @@ public partial class AmplitudePlot : ComponentBase, IDisposable
     public int Height { get; set; } = 200;
 
     [Parameter]
-    public int Width { get; set; } = 200;
+    public int Width { get; set; } = 180;
 
     protected override async Task OnAfterRenderAsync(bool _)
     {
         if (running || Analyser is null) return;
         running = true;
 
-        int bufferLength = (int)await Analyser.GetFrequencyBinCountAsync();
+        int bufferLength = (int)await Analyser.GetFftSizeAsync();
         await using Uint8Array timeDomainData = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
 
         while (running)
@@ -39,20 +39,27 @@ public partial class AmplitudePlot : ComponentBase, IDisposable
             {
                 if (!running) break;
 
-                await Analyser.GetByteFrequencyDataAsync(timeDomainData);
+                await Analyser.GetByteTimeDomainDataAsync(timeDomainData);
 
                 byte[] reading = await timeDomainData.GetAsArrayAsync();
 
+                double amplitude = reading.Max(r => Math.Abs(r - 128)) / 128.0;
+
                 await using (Context2D context = await canvas.GetContext2DAsync())
                 {
-                    await context.FillAndStrokeStyles.FillStyleAsync($"#fff");
-                    await context.FillRectAsync(i, 0, 1, Height);
+                    if (i == 0)
+                    {
+                        await context.FillAndStrokeStyles.FillStyleAsync($"#fff");
+                        await context.FillRectAsync(0, 0, Width * 10, Height * 10);
+                    }
 
-                    double height = reading.Sum(r => r) / (reading.Length * 255.0);
+                    await context.FillAndStrokeStyles.FillStyleAsync($"#fff");
+                    await context.FillRectAsync(i * 10, 0, 10, Height * 10);
 
                     await context.FillAndStrokeStyles.FillStyleAsync($"#000");
-                    await context.FillRectAsync(i, (Height / 2.0) - (height / 2 * Height), 1, height * Height);
+                    await context.FillRectAsync(i * 10, (Height * 10 / 2.0) - (amplitude * Height * 10), 10, amplitude * 2 * Height * 10);
                 }
+
                 await Task.Delay(1);
             }
         }
