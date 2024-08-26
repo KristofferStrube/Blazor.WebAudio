@@ -1,4 +1,5 @@
-﻿using KristofferStrube.Blazor.WebIDL;
+﻿using KristofferStrube.Blazor.DOM;
+using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
@@ -28,6 +29,26 @@ public class AudioScheduledSourceNode : AudioNode, IJSCreatable<AudioScheduledSo
     /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
     protected AudioScheduledSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
+    }
+
+    /// <summary>
+    /// Adds an <see cref="EventListener{TEvent}"/> for when the <see cref="AudioScheduledSourceNode"/> ends.
+    /// </summary>
+    /// <param name="callback">Callback that will be invoked when the event is dispatched.</param>
+    /// <param name="options"><inheritdoc cref="EventTarget.AddEventListenerAsync{TEvent}(string, EventListener{TEvent}?, AddEventListenerOptions?)" path="/param[@name='options']"/></param>
+    public async Task AddOnEndedEventListenerAsync(EventListener<Event> callback, AddEventListenerOptions? options = null)
+    {
+        await AddEventListenerAsync("ended", callback, options);
+    }
+
+    /// <summary>
+    /// Removes the event listener from the event listener list if it has been parsed to <see cref="AddOnEndedEventListenerAsync"/> previously.
+    /// </summary>
+    /// <param name="callback">The callback <see cref="EventListener{TEvent}"/> that you want to stop listening to events.</param>
+    /// <param name="options"><inheritdoc cref="EventTarget.RemoveEventListenerAsync{TEvent}(string, EventListener{TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
+    public async Task RemoveOnErrorEventListenerAsync(EventListener<Event> callback, EventListenerOptions? options = null)
+    {
+        await RemoveEventListenerAsync("ended", callback, options);
     }
 
     /// <summary>
