@@ -25,6 +25,9 @@ public partial class AmplitudePlot : ComponentBase, IDisposable
     [Parameter]
     public int Width { get; set; } = 180;
 
+    [Parameter]
+    public string Color { get; set; } = "#000";
+
     protected override async Task OnAfterRenderAsync(bool _)
     {
         if (running || Analyser is null)
@@ -50,7 +53,7 @@ public partial class AmplitudePlot : ComponentBase, IDisposable
 
                 byte[] reading = await timeDomainData.GetAsArrayAsync();
 
-                double amplitude = reading.Max(r => Math.Abs(r - 128)) / 128.0;
+                double amplitude = reading.Average(r => Math.Abs(r - 128)) / 128.0;
 
                 await using (Context2D context = await canvas.GetContext2DAsync())
                 {
@@ -63,7 +66,7 @@ public partial class AmplitudePlot : ComponentBase, IDisposable
                     await context.FillAndStrokeStyles.FillStyleAsync($"#fff");
                     await context.FillRectAsync(i * 10, 0, 10, Height * 10);
 
-                    await context.FillAndStrokeStyles.FillStyleAsync($"#000");
+                    await context.FillAndStrokeStyles.FillStyleAsync(Color);
                     await context.FillRectAsync(i * 10, (Height * 10 / 2.0) - (amplitude * Height * 10), 10, amplitude * 2 * Height * 10);
                 }
 

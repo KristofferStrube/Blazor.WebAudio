@@ -1,0 +1,248 @@
+﻿@page "/RecordMediaStream"
+@using KristofferStrube.Blazor.DOM
+@using KristofferStrube.Blazor.FileAPI
+@using KristofferStrube.Blazor.MediaCaptureStreams
+@using KristofferStrube.Blazor.MediaStreamRecording
+@using KristofferStrube.Blazor.WebIDL
+@using KristofferStrube.Blazor.WebIDL.Exceptions
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+@inject IMediaDevicesService MediaDevicesService
+<PageTitle>WebAudio - Record MediaStream</PageTitle>
+<h2>Record MediaStream</h2>
+
+<p>
+    On this page we open a <code>MediaStream</code> using the <a href="https://github.com/KristofferStrube/Blazor.MediaCaptureStreams">Blazor.MediaCaptureStreams</a> library
+    and and record it using a <code>MediaRecorder</code> from the <a href="https://github.com/KristofferStrube/Blazor.MediaStreamRecording">Blazor.MediaStreamRecording</a> library.
+
+    Once the recording is done we analyze the data using an <code>AnalyserNode</code> to find its most prominent frequency and then make it possible to play the sound at another playback rate in order to match some input frequency.
+
+</p>
+
+@if (error is { } errorMessage)
+{
+    <p style="color: red;">@errorMessage</p>
+}
+else if (peakFrequencyCount > 0)
+{
+    <span>Average Max Peak: @(Math.Round(peakFrequencySum / peakFrequencyCount, 0)) Hz</span>
+    <Plot Data="frequencyMeasurements" />
+}
+else if (audioBuffer is not null)
+{
+    <button class="btn btn-primary" @onclick="AnalyseFrequency">Analyze</button>
+}
+else if (mediaStream is null)
+{
+    <button class="btn btn-primary" @onclick="OpenAudio">Load Audio</button>
+}
+else
+{
+    <AmplitudePlot Analyser="analyser" Color="@(recording ? "#F00" : "#000")" />
+    if (!recording)
+    {
+        <button class="btn btn-primary" @onclick="Record">Record</button>
+
+        @if (audioOptions.Count > 0)
+        {
+            <label for="audioSource">Audio Source</label>
+            <select id="audioSource" @bind=selectedAudioSource @bind:after="OpenAudio">
+                @foreach (var option in audioOptions)
+                {
+                    <option value="@option.id" selected="@(option.id == selectedAudioSource)">@option.label</option>
+                }
+            </select>
+        }
+    }
+    else
+    {
+        <button class="btn btn-danger" @onclick="StopRecording">Stop Record</button>
+    }
+}
+
+@code {
+    private AudioContext? context;
+    private AnalyserNode? analyser;
+    private MediaDevices? mediaDevices;
+    private string? error;
+    private byte[] frequencyMeasurements = Array.Empty<byte>();
+    private bool makeMeasurements = false;
+    private MediaStream? mediaStream;
+    private List<(string label, string id)> audioOptions = new();
+    private string? selectedAudioSource;
+    private double peakFrequencySum = 0;
+    private double peakFrequencyCount = 0;
+    bool recording = false;
+
+    MediaRecorder? recorder;
+    EventListener<BlobEvent>? dataAvailableEventListener;
+    List<Blob> blobsRecorded = new();
+    AudioBuffer? audioBuffer;
+
+    async Task OpenAudio()
+    {
+        await StopAudioTrack();
+
+        try
+        {
+            if (context is null)
+            {
+                context = await AudioContext.CreateAsync(JSRuntime);
+            }
+            if (mediaDevices is null)
+            {
+                mediaDevices = await MediaDevicesService.GetMediaDevicesAsync();
+            }
+
+            MediaTrackConstraints mediaTrackConstraints = new MediaTrackConstraints
+                {
+                    EchoCancellation = true,
+                    NoiseSuppression = true,
+                    AutoGainControl = false,
+                    DeviceId = selectedAudioSource is null ? null : new ConstrainDomString(selectedAudioSource)
+                };
+            mediaStream = await mediaDevices.GetUserMediaAsync(new MediaStreamConstraints() { Audio = mediaTrackConstraints });
+
+            var deviceInfos = await mediaDevices.EnumerateDevicesAsync();
+            audioOptions.Clear();
+            foreach (var device in deviceInfos)
+            {
+                if (await device.GetKindAsync() is MediaDeviceKind.AudioInput)
+                {
+                    audioOptions.Add((await device.GetLabelAsync(), await device.GetDeviceIdAsync()));
+                }
+            }
+
+            analyser = await context.CreateAnalyserAsync();
+            await using MediaStreamAudioSourceNode mediaStreamAudioSourceNode = await context.CreateMediaStreamSourceAsync(mediaStream);
+            await mediaStreamAudioSourceNode.ConnectAsync(analyser);
+        }
+        catch (WebIDLException ex)
+        {
+            error = $"{ex.GetType().Name}: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            error = $"An unexpected error of type '{ex.GetType().Name}' happened.";
+        }
+        StateHasChanged();
+    }
+
+    async Task Record()
+    {
+        if (mediaStream is null)
+            return;
+
+        recording = true;
+        StateHasChanged();
+
+        // List to collect each recording part.
+        blobsRecorded.Clear();
+
+        // Create new MediaRecorder from some existing MediaStream.
+        recorder = await MediaRecorder.CreateAsync(JSRuntime, mediaStream);
+
+        // Add event listener for when each data part is available.
+        dataAvailableEventListener =
+            await EventListener<BlobEvent>.CreateAsync(JSRuntime, async (BlobEvent e) =>
+            {
+                Blob blob = await e.GetDataAsync();
+                blobsRecorded.Add(blob);
+            });
+        await recorder.AddOnDataAvailableEventListenerAsync(dataAvailableEventListener);
+
+        // Starts Recording
+        await recorder.StartAsync();
+    }
+
+    async Task StopRecording()
+    {
+        if (recorder is null || context is null)
+            return;
+
+        recording = false;
+
+        // Stops recording
+        await recorder.StopAsync();
+
+        // Combines and collects the total audio data.
+        await using Blob combinedBlob = await Blob.CreateAsync(JSRuntime, [.. blobsRecorded]);
+
+        byte[] audioData = await combinedBlob.ArrayBufferAsync();
+        audioBuffer = await context.DecodeAudioDataAsync(audioData);
+
+        // Dispose of blob parts created while recording.
+        foreach (Blob blob in blobsRecorded)
+            await blob.DisposeAsync();
+
+        await StopAudioTrack();
+    }
+
+    async Task AnalyseFrequency()
+    {
+        if (context is null || audioBuffer is null)
+            return;
+
+        await using AudioBufferSourceNode sourceNode = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        {
+            Buffer = audioBuffer,
+            PlaybackRate = 2
+        });
+
+        analyser = await context.CreateAnalyserAsync();
+        await using AudioDestinationNode destination = await context.GetDestinationAsync();
+        await sourceNode.ConnectAsync(analyser);
+        await analyser.ConnectAsync(destination);
+
+        int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
+        var frequencyDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+
+        var sampleRate = await context.GetSampleRateAsync();
+        var fftSize = await analyser.GetFftSizeAsync();
+
+        await using EventListener<Event> endedListener = await EventListener<Event>.CreateAsync(JSRuntime, _ =>
+        {
+            makeMeasurements = false;
+        });
+        await sourceNode.AddOnEndedEventListenerAsync(endedListener);
+
+        await sourceNode.StartAsync();
+
+        makeMeasurements = true;
+        while (makeMeasurements)
+        {
+            await analyser.GetByteFrequencyDataAsync(frequencyDataArray);
+
+            frequencyMeasurements = await frequencyDataArray.GetAsArrayAsync();
+
+            byte largestMeasurement = frequencyMeasurements.Max();
+            var largestFrequencyIndex = frequencyMeasurements.ToList().IndexOf(largestMeasurement);
+            peakFrequencySum += largestFrequencyIndex * sampleRate / fftSize * largestMeasurement;
+            peakFrequencyCount += largestMeasurement;
+            await Task.Delay(1);
+            StateHasChanged();
+        }
+    }
+
+    async Task StopAudioTrack()
+    {
+        makeMeasurements = false;
+        if (mediaStream is null) return;
+        var audioTrack = (await mediaStream.GetAudioTracksAsync()).FirstOrDefault();
+        if (audioTrack is not null)
+        {
+            await audioTrack.StopAsync();
+        }
+        if (analyser is not null)
+        {
+            await analyser.DisposeAsync();
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await StopAudioTrack();
+    }
+}
+
+

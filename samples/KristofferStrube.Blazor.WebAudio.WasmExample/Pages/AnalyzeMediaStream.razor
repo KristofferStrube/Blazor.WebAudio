@@ -26,6 +26,7 @@ else
     <h3>Time Domain Data</h3>
     <Plot Data="timeDomainMeasurements" />
     <h3>Frequency Data</h3>
+    <span>Peak frequency: @Math.Round(peakFrequency, 0) Hz</span>
     <Plot Data="frequencyMeasurements" />
     <h3>Amplitude Data</h3>
     <AmplitudePlot Analyser="analyser" />
@@ -53,7 +54,7 @@ else
     private MediaStream? mediaStream;
     private List<(string label, string id)> audioOptions = new();
     private string? selectedAudioSource;
-
+    private double peakFrequency = 0;
 
     async Task OpenAudio()
     {
@@ -99,6 +100,9 @@ else
             var timeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
             var frequencyDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
 
+            var sampleRate = await context.GetSampleRateAsync();
+            var fftSize = await analyser.GetFftSizeAsync();
+
             makeMeasurements = true;
             while (makeMeasurements)
             {
@@ -107,6 +111,10 @@ else
 
                 timeDomainMeasurements = await timeDomainDataArray.GetAsArrayAsync();
                 frequencyMeasurements = await frequencyDataArray.GetAsArrayAsync();
+
+                var largestFrequencyIndex = frequencyMeasurements.ToList().IndexOf(frequencyMeasurements.Max());
+                peakFrequency = largestFrequencyIndex * sampleRate / fftSize;
+
                 await Task.Delay(1);
                 StateHasChanged();
             }
