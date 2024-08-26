@@ -6,7 +6,8 @@ namespace KristofferStrube.Blazor.WebAudio.WasmExample.AudioEditor;
 
 public class Gain : Node
 {
-    public Gain(IElement element, SVGEditor.SVGEditor svg) : base(element, svg) {
+    public Gain(IElement element, SVGEditor.SVGEditor svg) : base(element, svg)
+    {
         AudioParams = new()
         {
             ["gain"] = async (audioContext) => await ((GainNode)await AudioNode(audioContext)).GetGainAsync()

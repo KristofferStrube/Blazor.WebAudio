@@ -57,7 +57,7 @@ public class MediaStreamAudioSource : Node
     }
 
     public string? SelectedAudioSource { get; set; }
-    public List<(string label, string id)> AudioOptions { get; set; } = new();
+    public List<(string label, string id)> AudioOptions { get; set; } = [];
 
     public override Type Presenter => typeof(MediaStreamAudioSourceEditor);
 

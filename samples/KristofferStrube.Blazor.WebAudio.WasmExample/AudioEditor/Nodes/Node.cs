@@ -8,10 +8,13 @@ public abstract class Node : Rect, ITaskQueueable
 {
     protected readonly SemaphoreSlim audioNodeSlim = new(1, 1);
 
-    public Dictionary<string, Func<AudioContext, Task<AudioParam>>> AudioParams { get; set; } = new();
-    public virtual Dictionary<string, int> AudioParamPositions { get; set; } = new();
+    public Dictionary<string, Func<AudioContext, Task<AudioParam>>> AudioParams { get; set; } = [];
+    public virtual Dictionary<string, int> AudioParamPositions { get; set; } = [];
 
-    public int Offset(string? identifier = null) => identifier is not null && AudioParamPositions.TryGetValue(identifier, out int offset) ? offset : 20;
+    public int Offset(string? identifier = null)
+    {
+        return identifier is not null && AudioParamPositions.TryGetValue(identifier, out int offset) ? offset : 20;
+    }
 
     public Node(IElement element, SVGEditor.SVGEditor svg) : base(element, svg)
     {
@@ -47,8 +50,8 @@ public abstract class Node : Rect, ITaskQueueable
 
     public abstract Func<AudioContext, Task<AudioNode>> AudioNode { get; }
 
-    public HashSet<Connector> IngoingConnectors { get; } = new();
-    public HashSet<Connector> OutgoingConnectors { get; } = new();
+    public HashSet<Connector> IngoingConnectors { get; } = [];
+    public HashSet<Connector> OutgoingConnectors { get; } = [];
 
     public string? CurrentActiveAudioParamIdentifier { get; set; }
 

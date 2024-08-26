@@ -54,7 +54,7 @@ public class Connector : Line, ITaskQueueable
             {
                 Element.SetAttribute("data-from-node", value.Id);
                 from = value;
-                if (value is { } newNode )
+                if (value is { } newNode)
                 {
                     _ = value.OutgoingConnectors.Add(this);
 

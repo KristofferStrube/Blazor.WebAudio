@@ -27,7 +27,11 @@ public partial class AmplitudePlot : ComponentBase, IDisposable
 
     protected override async Task OnAfterRenderAsync(bool _)
     {
-        if (running || Analyser is null) return;
+        if (running || Analyser is null)
+        {
+            return;
+        }
+
         running = true;
 
         int bufferLength = (int)await Analyser.GetFftSizeAsync();
@@ -37,7 +41,10 @@ public partial class AmplitudePlot : ComponentBase, IDisposable
         {
             for (int i = 0; i < Width; i++)
             {
-                if (!running) break;
+                if (!running)
+                {
+                    break;
+                }
 
                 await Analyser.GetByteTimeDomainDataAsync(timeDomainData);
 
