@@ -14,7 +14,7 @@ public partial class AudioSlicer : ComponentBase, IDisposable
     private ElementReference wrapper;
     private readonly List<float> amplitudes = [];
 
-    private string canvasStyle => $"height:{Height}px;width:100%;";
+    private string canvasStyle => $"height:{Height}px;width:100%;user-select:none;touch-action:none;";
 
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }

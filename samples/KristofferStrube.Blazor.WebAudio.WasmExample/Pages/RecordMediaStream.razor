@@ -50,11 +50,10 @@ else if (mediaStream is null)
 }
 else
 {
-    <AmplitudePlot Analyser="analyser" Color="@(recording ? "#F00" : "#000")" />
     if (!recording)
     {
         <button class="btn btn-primary" @onclick="Record">Record</button>
-
+        <br />
         @if (audioOptions.Count > 0)
         {
             <label for="audioSource">Audio Source</label>
@@ -69,6 +68,10 @@ else
     else
     {
         <button class="btn btn-danger" @onclick="StopRecording">Stop Record</button>
+    }
+    if (analyser is not null)
+    {
+        <AmplitudePlot Analyser="analyser" Color="@(recording ? "#F00" : "#000")" />
     }
 }
 
@@ -98,6 +101,8 @@ else
     async Task OpenAudio()
     {
         await StopAudioTrack();
+
+        await InvokeAsync(StateHasChanged);
 
         try
         {
@@ -271,6 +276,7 @@ else
         {
             await analyser.DisposeAsync();
         }
+        analyser = null;
     }
 
     public async ValueTask DisposeAsync()
