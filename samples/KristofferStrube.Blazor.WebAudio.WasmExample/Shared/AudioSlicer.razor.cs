@@ -34,6 +34,18 @@ public partial class AudioSlicer : ComponentBase, IDisposable
     [Parameter]
     public bool PlaySoundWhenEndingMark { get; set; } = true;
 
+    [Parameter]
+    public double MarkedOffset { get; set; }
+
+    [Parameter]
+    public EventCallback<double> MarkedOffsetChanged { get; set; }
+
+    [Parameter]
+    public double MarkedDuration { get; set; }
+
+    [Parameter]
+    public EventCallback<double> MarkedDurationChanged { get; set; }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)
@@ -52,13 +64,11 @@ public partial class AudioSlicer : ComponentBase, IDisposable
 
         for (ulong i = 0; i < length; i += samples)
         {
+            // We intentionally only take 1 value from each sample slice as we only need this for a visualization
             float amplitude = 0;
-            for (ulong j = 0; j < samples && j + i < length; j++)
+            for (ulong k = 0; k < numberOfChannels; k++)
             {
-                for (ulong k = 0; k < numberOfChannels; k++)
-                {
-                    amplitude += await data[k].AtAsync((long)(i + j));
-                }
+                amplitude += await data[k].AtAsync((long)i);
             }
             amplitudes.Add(amplitude / samples / numberOfChannels);
         }
@@ -142,14 +152,18 @@ public partial class AudioSlicer : ComponentBase, IDisposable
         await using AudioDestinationNode destination = await context.GetDestinationAsync();
         await using AudioNode __ = await source.ConnectAsync(destination);
 
-        double duration = await AudioBuffer.GetDurationAsync();
+        double bufferDuration = await AudioBuffer.GetDurationAsync();
 
         double left = start < end ? start : end;
         double right = end < start ? start : end;
 
-        await source.StartAsync(0, left * duration, (right - left) * duration);
+        double offset = left * bufferDuration;
+        double duration = (right - left) * bufferDuration;
 
-        await Task.Delay(10_000);
+        await source.StartAsync(0, offset, duration);
+
+        await MarkedOffsetChanged.InvokeAsync(offset);
+        await MarkedDurationChanged.InvokeAsync(duration);
     }
 
     private async Task UpdateEnd(double x)

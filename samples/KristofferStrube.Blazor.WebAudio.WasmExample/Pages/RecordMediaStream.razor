@@ -25,13 +25,23 @@
 }
 else if (peakFrequencyCount > 0)
 {
-    <span>Average Max Peak: @(Math.Round(peakFrequencySum / peakFrequencyCount, 0)) Hz</span>
+    <button class="btn btn-primary" @onclick="AnalyseFrequency">Analyze</button><br />
+
+    <label for="playbackRate">Playback Rate</label>
+    <input id="playbackRate" @bind-value=playbackRate />
+    <button class="btn btn-primary btn-sm" @onclick="() => MakePlaybackMatchFrequency(220)">Match 220 Hz</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => MakePlaybackMatchFrequency(440)">Match 440 Hz</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => MakePlaybackMatchFrequency(880)">Match 880 Hz</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => MakePlaybackMatchFrequency(1760)">Match 1760 Hz</button>
+    <br />
+    
+    <span>Average Max Peak: @(Math.Round(peakFrequencySum / peakFrequencyCount, 0)) Hz</span><br />
     <Plot Data="frequencyMeasurements" />
 }
 else if (audioBuffer is not null)
 {
     <button class="btn btn-primary" @onclick="AnalyseFrequency">Analyze</button>
-    <AudioSlicer AudioBuffer="audioBuffer" />
+    <AudioSlicer AudioBuffer="audioBuffer" @bind-MarkedOffset=offset @bind-MarkedDuration=duration />
 }
 else if (mediaStream is null)
 {
@@ -67,13 +77,17 @@ else
     private MediaDevices? mediaDevices;
     private string? error;
     private byte[] frequencyMeasurements = Array.Empty<byte>();
-    private bool makeMeasurements = false;
     private MediaStream? mediaStream;
     private List<(string label, string id)> audioOptions = new();
     private string? selectedAudioSource;
     private double peakFrequencySum = 0;
     private double peakFrequencyCount = 0;
     bool recording = false;
+
+    double offset = 0;
+    double duration = 0;
+
+    float playbackRate = 1;
 
     MediaRecorder? recorder;
     EventListener<BlobEvent>? dataAvailableEventListener;
@@ -187,7 +201,7 @@ else
         await using AudioBufferSourceNode sourceNode = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
         {
             Buffer = audioBuffer,
-            PlaybackRate = 2
+            PlaybackRate = playbackRate
         });
 
         analyser = await context.CreateAnalyserAsync();
@@ -196,25 +210,35 @@ else
         await analyser.ConnectAsync(destination);
 
         int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
-        var frequencyDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+        await using var frequencyDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
 
         var sampleRate = await context.GetSampleRateAsync();
         var fftSize = await analyser.GetFftSizeAsync();
 
+        bool makeMeasurements;
         await using EventListener<Event> endedListener = await EventListener<Event>.CreateAsync(JSRuntime, _ =>
         {
             makeMeasurements = false;
         });
         await sourceNode.AddOnEndedEventListenerAsync(endedListener);
 
-        await sourceNode.StartAsync();
+        await sourceNode.StartAsync(when: 0, offset, duration);
 
+        peakFrequencySum = 0;
+        peakFrequencyCount = 1;
         makeMeasurements = true;
         while (makeMeasurements)
         {
             await analyser.GetByteFrequencyDataAsync(frequencyDataArray);
 
-            frequencyMeasurements = await frequencyDataArray.GetAsArrayAsync();
+            try
+            {
+                frequencyMeasurements = await frequencyDataArray.GetAsArrayAsync(); 
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Attempted to deserialize an invalid array.");
+            }
 
             byte largestMeasurement = frequencyMeasurements.Max();
             var largestFrequencyIndex = frequencyMeasurements.ToList().IndexOf(largestMeasurement);
@@ -225,9 +249,14 @@ else
         }
     }
 
+    public async Task MakePlaybackMatchFrequency(float frequency)
+    {
+        playbackRate = (float)(playbackRate * frequency / (peakFrequencySum / peakFrequencyCount));
+        await AnalyseFrequency();
+    }
+
     async Task StopAudioTrack()
     {
-        makeMeasurements = false;
         if (mediaStream is null) return;
         var audioTrack = (await mediaStream.GetAudioTracksAsync()).FirstOrDefault();
         if (audioTrack is not null)
