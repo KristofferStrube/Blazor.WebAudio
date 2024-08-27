@@ -31,6 +31,7 @@ else if (peakFrequencyCount > 0)
 else if (audioBuffer is not null)
 {
     <button class="btn btn-primary" @onclick="AnalyseFrequency">Analyze</button>
+    <AudioSlicer AudioBuffer="audioBuffer" />
 }
 else if (mediaStream is null)
 {

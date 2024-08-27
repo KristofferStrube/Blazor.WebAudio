@@ -1,0 +1,5 @@
+﻿@using Excubo.Blazor.Canvas
+
+<div @ref=wrapper @onpointerdown=PointerDown @onpointermove=PointerMove @onpointerup=PointerStop @onpointerout=PointerStop>
+    <Canvas @ref="canvas" height="@(Height * 10)" width="@(amplitudes.Count * 10)" style="@canvasStyle" />
+</div>
