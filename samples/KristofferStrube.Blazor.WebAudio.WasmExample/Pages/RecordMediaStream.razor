@@ -33,6 +33,7 @@ else if (peakFrequencyCount > 0)
     <button class="btn btn-primary btn-sm" @onclick="() => MakePlaybackMatchFrequency(440)">Match 440 Hz</button>
     <button class="btn btn-primary btn-sm" @onclick="() => MakePlaybackMatchFrequency(880)">Match 880 Hz</button>
     <button class="btn btn-primary btn-sm" @onclick="() => MakePlaybackMatchFrequency(1760)">Match 1760 Hz</button>
+    <button class="btn btn-primary btn-sm" @onclick="() => MakePlaybackMatchFrequency(3520)">Match 3520 Hz</button>
     <br />
     
     <span>Average Max Peak: @(Math.Round(peakFrequencySum / peakFrequencyCount, 0)) Hz</span><br />
