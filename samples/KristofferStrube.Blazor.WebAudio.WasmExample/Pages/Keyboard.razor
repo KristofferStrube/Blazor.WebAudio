@@ -78,7 +78,7 @@
     GainNode? mainNode;
     DynamicsCompressorNode? compressor;
     GainNode? keyboardMain;
-    OscillatorNode? oscillator;
+    AudioScheduledSourceNode? audioSource;
 
     double decayEndTime;
 
@@ -152,17 +152,12 @@
             await keyboardMain.DisconnectAsync();
         }
 
-        oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, new()
-            {
-                Type = OscillatorType.Sine,
-                Frequency = frequency
-            });
+        audioSource = await CreateAudioSouce(frequency);
 
         keyboardMain = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0 });
 
-        await oscillator.ConnectAsync(keyboardMain);
+        await audioSource.ConnectAsync(keyboardMain);
         await keyboardMain.ConnectAsync(compressor!);
-        await oscillator.StartAsync();
 
         var time = await context.GetCurrentTimeAsync();
         await using var amplifierGain = await keyboardMain.GetGainAsync();
@@ -174,11 +169,36 @@
         semaphoreSlim.Release();
     }
 
+    public static (AudioBuffer buffer, double offset, double duration, float playbackRateToMatch440)? AudioBufferSource;
+
+    private async Task<AudioScheduledSourceNode> CreateAudioSouce(float frequency)
+    {
+        if (AudioBufferSource is { } recordedBufferSource)
+        {
+            AudioBufferSourceNode bufferSource = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+                {
+                    Buffer = recordedBufferSource.buffer,
+                    PlaybackRate = recordedBufferSource.playbackRateToMatch440 * frequency / 440
+                });
+
+            await bufferSource.StartAsync(when: 0, recordedBufferSource.offset, recordedBufferSource.duration);
+            return bufferSource;
+        }
+
+        var oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, new()
+            {
+                Type = OscillatorType.Sine,
+                Frequency = frequency
+            });
+        await oscillator.StartAsync();
+        return oscillator;
+    }
+
     public async Task End()
     {
         if (!await semaphoreSlim.WaitAsync(200)) return;
 
-        if (keyboardMain is null || oscillator is null)
+        if (keyboardMain is null || audioSource is null)
         {
             semaphoreSlim.Release();
             return;
@@ -192,8 +212,8 @@
         var localKeyboardMain = keyboardMain;
         keyboardMain = null;
 
-        var localOscillator = oscillator;
-        oscillator = null;
+        var localOscillator = audioSource;
+        audioSource = null;
 
         semaphoreSlim.Release();
 

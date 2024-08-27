@@ -252,9 +252,12 @@ else
 
     public async Task MakePlaybackMatchFrequency(float frequency)
     {
-        playbackRate = (float)(playbackRate * frequency / (peakFrequencySum / peakFrequencyCount));
+        playbackRate = CalcPlaybackRate(frequency);
+        Keyboard.AudioBufferSource = (audioBuffer!, offset, duration, CalcPlaybackRate(440));
         await AnalyseFrequency();
     }
+
+    private float CalcPlaybackRate(float frequency) => (float)(playbackRate * frequency / (peakFrequencySum / peakFrequencyCount));
 
     async Task StopAudioTrack()
     {

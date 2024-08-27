@@ -91,7 +91,7 @@ public partial class AudioSlicer : ComponentBase, IDisposable
         await using Context2D context = await canvas.GetContext2DAsync();
 
         await context.FillAndStrokeStyles.FillStyleAsync($"#fff");
-        await context.FillRectAsync(0, 0, amplitudes.Count * 10, Height * 10);
+        await context.FillRectAsync(0, 0, amplitudes.Count, Height);
 
         float maxAmplitude = amplitudes.Max();
 
@@ -101,7 +101,7 @@ public partial class AudioSlicer : ComponentBase, IDisposable
             string color = start != 0 && end != 1 && left < percentage && percentage < right ? MarkColor : Color;
             float amplitude = amplitudes[i];
             await context.FillAndStrokeStyles.FillStyleAsync(color);
-            await context.FillRectAsync(i * 10, (Height * 10 / 2.0) - (amplitude / maxAmplitude / 2 * Height * 10), 10, amplitude / maxAmplitude * Height * 10);
+            await context.FillRectAsync(i, (Height / 2.0) - (amplitude / maxAmplitude / 2 * Height), 1, amplitude / maxAmplitude * Height);
         }
     }
 
