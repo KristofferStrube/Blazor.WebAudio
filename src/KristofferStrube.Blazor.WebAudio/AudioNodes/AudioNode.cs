@@ -59,19 +59,18 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     /// It is possible to connect more than one <see cref="AudioNode"/> output to a single <see cref="AudioParam"/> with multiple calls to <see cref="ConnectAsync(AudioNode, ulong, ulong)"/>. Thus, "fan-in" is supported.<br />
     /// It throws an <see cref="InvalidAccessErrorException"/> if <paramref name="destinationNode"/> is an <see cref="AudioNode"/> that has been created using another <see cref="AudioContext"/>.<br/>
     /// It throws an <see cref="IndexSizeErrorException"/> if the <paramref name="output"/> is out of bounds.<br />
-    /// It throws an <see cref="IndexSizeErrorException"/> if the <paramref name="input"/> is out of bounds.
+    /// It throws an <see cref="IndexSizeErrorException"/> if the <paramref name="input"/> is out of bounds.<br />
+    /// It does not return anything even though the specification says that it should return the <paramref name="destinationNode"/> as chaining is not possible in async code.
     /// </remarks>
     /// <param name="destinationNode">The destination parameter is the <see cref="AudioNode"/> to connect to.</param>
     /// <param name="output">The output parameter is an index describing which output of the <see cref="AudioNode"/> from which to connect.</param>
     /// <param name="input">The input parameter is an index describing which input of the destination <see cref="AudioNode"/> to connect to.</param>
     /// <exception cref="InvalidAccessErrorException" />
     /// <exception cref="IndexSizeErrorException" />
-    /// <returns>This method returns destination AudioNode object.</returns>
-    public async Task<AudioNode> ConnectAsync(AudioNode destinationNode, ulong output = 0, ulong input = 0)
+    public async Task ConnectAsync(AudioNode destinationNode, ulong output = 0, ulong input = 0)
     {
         IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
-        IJSObjectReference jSInstance = await jSReference.InvokeAsync<IJSObjectReference>("connect", destinationNode, output, input);
-        return await CreateAsync(JSRuntime, jSInstance);
+        await jSReference.InvokeVoidAsync("connect", destinationNode, output, input);
     }
 
     /// <summary>
