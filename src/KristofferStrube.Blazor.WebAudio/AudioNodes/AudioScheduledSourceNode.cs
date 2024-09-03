@@ -46,7 +46,7 @@ public class AudioScheduledSourceNode : AudioNode, IJSCreatable<AudioScheduledSo
     /// </summary>
     /// <param name="callback">The callback <see cref="EventListener{TEvent}"/> that you want to stop listening to events.</param>
     /// <param name="options"><inheritdoc cref="EventTarget.RemoveEventListenerAsync{TEvent}(string, EventListener{TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
-    public async Task RemoveOnErrorEventListenerAsync(EventListener<Event> callback, EventListenerOptions? options = null)
+    public async Task RemoveOnEndedEventListenerAsync(EventListener<Event> callback, EventListenerOptions? options = null)
     {
         await RemoveEventListenerAsync("ended", callback, options);
     }
