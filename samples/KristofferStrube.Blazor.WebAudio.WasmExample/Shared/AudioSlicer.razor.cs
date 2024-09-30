@@ -150,7 +150,7 @@ public partial class AudioSlicer : ComponentBase, IDisposable
         await using AudioBufferSourceNode source = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, options);
 
         await using AudioDestinationNode destination = await context.GetDestinationAsync();
-        await using AudioNode __ = await source.ConnectAsync(destination);
+        await source.ConnectAsync(destination);
 
         double bufferDuration = await AudioBuffer.GetDurationAsync();
 
