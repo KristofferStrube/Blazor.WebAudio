@@ -36,10 +36,10 @@
             }
             <br />
             <label for="noise-suppression">Noise Suppression</label>
-            <input type="checkbox" id="noise-suppression" @bind-value=SVGElement.NoiseSuppresion @bind-value:after="SetMediaStreamAudioSourceNode" />
+            <input type="checkbox" id="noise-suppression" @bind=SVGElement.NoiseSuppresion @bind:after="SetMediaStreamAudioSourceNode" />
             <br />
-            <label for="echo-cancellation">EchoCancellation</label>
-            <input type="checkbox" id="echo-cancellation" @bind-value=SVGElement.EchoCancellation @bind-value:after="SetMediaStreamAudioSourceNode" />
+            <label for="echo-cancellation">Echo Cancellation</label>
+            <input type="checkbox" id="echo-cancellation" @bind=SVGElement.EchoCancellation @bind:after="SetMediaStreamAudioSourceNode" />
         </foreignObject>
         <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, false)) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
             <circle cx=@((SVGElement.X+SVGElement.Width).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
@@ -60,7 +60,7 @@
         if (mediaStreamAudioSourceNode is null && AudioContext is not null)
         {
             mediaStreamAudioSourceNode = (MediaStreamAudioSourceNode)await SVGElement.AudioNode(AudioContext);
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
         }
     }
 

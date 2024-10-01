@@ -28,7 +28,6 @@ public class MediaStreamAudioSource : Node
 
     public async Task SetMediaStreamAudioSourceNode(AudioContext context)
     {
-
         MediaDevicesService mediaDevicesService = new(context.JSRuntime);
         MediaDevices mediaDevices = await mediaDevicesService.GetMediaDevicesAsync();
 
@@ -101,6 +100,8 @@ public class MediaStreamAudioSource : Node
             StrokeWidth = "2",
             Height = 100,
             Width = 250,
+            NoiseSuppresion = true,
+            EchoCancellation = true,
         };
 
         (node.X, node.Y) = SVG.LocalDetransform(SVG.LastRightClick);
