@@ -28,6 +28,8 @@ public class MediaStreamAudioSource : Node
 
         MediaTrackConstraints mediaTrackConstraints = new()
         {
+            NoiseSuppression = false,
+            EchoCancellation = false,
             AutoGainControl = false,
             DeviceId = SelectedAudioSource is null ? null : new ConstrainDomString(SelectedAudioSource)
         };
