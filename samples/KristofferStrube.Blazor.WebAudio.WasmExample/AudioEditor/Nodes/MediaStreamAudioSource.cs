@@ -20,6 +20,12 @@ public class MediaStreamAudioSource : Node
         _ = audioNodeSlim.Release();
     };
 
+    public new float Height
+    {
+        get => 120;
+        set => base.Height = 120;
+    }
+
     public async Task SetMediaStreamAudioSourceNode(AudioContext context)
     {
 
@@ -28,8 +34,8 @@ public class MediaStreamAudioSource : Node
 
         MediaTrackConstraints mediaTrackConstraints = new()
         {
-            NoiseSuppression = false,
-            EchoCancellation = false,
+            NoiseSuppression = NoiseSuppresion,
+            EchoCancellation = EchoCancellation,
             AutoGainControl = false,
             DeviceId = SelectedAudioSource is null ? null : new ConstrainDomString(SelectedAudioSource)
         };
@@ -60,6 +66,26 @@ public class MediaStreamAudioSource : Node
 
     public string? SelectedAudioSource { get; set; }
     public List<(string label, string id)> AudioOptions { get; set; } = [];
+
+    public bool NoiseSuppresion
+    {
+        get => Element.GetAttribute("data-noise-suppression") is { } value ? bool.Parse(value) : true;
+        set
+        {
+            Element.SetAttribute("data-noise-suppression", value.ToString());
+            Changed?.Invoke(this);
+        }
+    }
+
+    public bool EchoCancellation
+    {
+        get => Element.GetAttribute("data-echo-cancellation") is { } value ? bool.Parse(value) : true;
+        set
+        {
+            Element.SetAttribute("data-echo-cancellation", value.ToString());
+            Changed?.Invoke(this);
+        }
+    }
 
     public override Type Presenter => typeof(MediaStreamAudioSourceEditor);
 

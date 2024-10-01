@@ -23,7 +23,7 @@
               fill="@SVGElement.Fill"
               style="filter:brightness(@(SVGElement.Selected ? "0.9" : "1"))">
         </rect>
-        <foreignObject @onpointermove:stopPropagation=!ChildContentIsNoninteractive x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="80" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2;pointer-events:@(ChildContentIsNoninteractive ? "none" : "inherit");touch-action:@(ChildContentIsNoninteractive ? "none" : "inherit");">
+        <foreignObject @onpointermove:stopPropagation=!ChildContentIsNoninteractive x="@((SVGElement.X+10).AsString())" y="@((SVGElement.Y+10).AsString())" height="@((SVGElement.Height-20).AsString())" width="200" style="border:solid @(SVGElement.StrokeWidth)px @(SVGElement.Stroke);padding:2;pointer-events:@(ChildContentIsNoninteractive ? "none" : "inherit");touch-action:@(ChildContentIsNoninteractive ? "none" : "inherit");">
             <label for="audioSource">MediaStream Source</label>
             @if (SVGElement.AudioOptions.Count > 0)
             {
@@ -34,6 +34,12 @@
                     }
                 </select>
             }
+            <br />
+            <label for="noise-suppression">Noise Suppression</label>
+            <input type="checkbox" id="noise-suppression" @bind-value=SVGElement.NoiseSuppresion @bind-value:after="SetMediaStreamAudioSourceNode" />
+            <br />
+            <label for="echo-cancellation">EchoCancellation</label>
+            <input type="checkbox" id="echo-cancellation" @bind-value=SVGElement.EchoCancellation @bind-value:after="SetMediaStreamAudioSourceNode" />
         </foreignObject>
         <ContextMenuTrigger MenuId="SVGMenu" WrapperTag="g" Data=@(new Port(SVGElement, false)) MouseButtonTrigger="SVGElement.ShouldTriggerContextMenu ? MouseButtonTrigger.Right : (MouseButtonTrigger)4">
             <circle cx=@((SVGElement.X+SVGElement.Width).AsString()) cy="@((SVGElement.Y+20).AsString())" r="10" fill="grey">
