@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Title>Blazor Web Audio API wrapper</Title>
@@ -34,7 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="KristofferStrube.Blazor.MediaCaptureStreams" Version="0.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.15" />
+    <PackageReference Include="KristofferStrube.Blazor.MediaCaptureStreams" Version="0.4.0" />
   </ItemGroup>
 </Project>
