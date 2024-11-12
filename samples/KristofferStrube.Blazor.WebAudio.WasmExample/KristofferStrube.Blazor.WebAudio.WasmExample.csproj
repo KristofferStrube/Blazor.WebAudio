@@ -21,11 +21,4 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\KristofferStrube.Blazor.WebAudio\KristofferStrube.Blazor.WebAudio.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="Shared\AudioSlicer.razor">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
-  </ItemGroup>
-
 </Project>

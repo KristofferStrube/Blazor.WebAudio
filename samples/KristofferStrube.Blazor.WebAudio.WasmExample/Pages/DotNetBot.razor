@@ -1,0 +1,162 @@
+﻿@page "/DotNetBot"
+@using KristofferStrube.Blazor.MediaCaptureStreams;
+@using KristofferStrube.Blazor.WebIDL;
+@using KristofferStrube.Blazor.WebIDL.Exceptions;
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+@inject IMediaDevicesService MediaDevicesService
+<PageTitle>WebAudio - DotNet Bot</PageTitle>
+<h2>.NET Bot</h2>
+
+<p>
+    On this page we will use your microphone input and then use an analyzer to make the .NET BOT "dance" to the tune of whatever music you hear.
+</p>
+
+<svg width="400px" height="400px" viewBox="0 0 1000 1000">
+    <radialGradient id="botGradient">
+        <stop offset="0.2" style="stop-color:#A08BE8"></stop>
+        <stop offset="0.8" style="stop-color:#8065E0"></stop>
+    </radialGradient>
+    <g id="legs">
+        <path stroke="black" stroke-width="1" fill="url(#botGradient)" d="m 400 650 q -90 @(130 - CalcLeftLeg / 2) -60 @(300 - CalcLeftLeg) q 50 20 70 0 q -60 @(-90 + CalcLeftLeg / 2) 20 -300 z"></path>
+        <path stroke="black" stroke-width="1" fill="url(#botGradient)" d="m 600 650 q 90 @(130 - CalcRightLeg / 2) 60 @(300 - CalcRightLeg) q -50 20 -70 0 q 60 @(-90 + CalcRightLeg / 2) -20 -300 z"></path>
+    </g>
+    <g id="body">
+        <circle cx="500" cy="500" r="200" fill="url(#botGradient)"></circle>
+    </g>
+</svg>
+
+<br />
+@if (legValues.Count > 0)
+{
+    <input type="range" max="255" min="0" value="@legValues.First()" />
+}
+<br />
+@if (error is { } errorMessage)
+{
+    <p style="color: red;">@errorMessage</p>
+}
+else if (mediaStreamAudioSourceNode is null)
+{
+    <button class="btn btn-primary" @onclick="OpenAudio">Load Microphone</button>
+}
+else
+{
+    @if (audioOptions.Count > 0)
+    {
+        <label for="audioSource">Audio Source</label>
+        <select id="audioSource" @bind=selectedAudioSource @bind:after="OpenAudio">
+            @foreach (var option in audioOptions)
+            {
+                <option value="@option.id" selected="@(option.id == selectedAudioSource)">@option.label</option>
+            }
+        </select>
+    }
+}
+
+@code {
+    AudioContext audioContext = default!;
+    string? error;
+    bool stopped;
+
+    private byte[] frequencies = Array.Empty<byte>();
+
+    Queue<double> legValues = new();
+    byte arms = 0;
+
+    double CalcLeftLeg => Math.Round(legValues.Count > 0 ? ((legValues.Take(5).Average() - legValues.Min()) / (legValues.Max() - (float)legValues.Min())) * 255 : 1);
+
+    double CalcRightLeg => Math.Round(legValues.Count > 0 ? (1 - ((legValues.Take(5).Average() - legValues.Min()) / (legValues.Max() - (float)legValues.Min()))) * 255 : 1);
+
+    MediaDevices? mediaDevices;
+    MediaStream? mediaStream;
+    MediaStreamAudioSourceNode? mediaStreamAudioSourceNode;
+    List<(string label, string id)> audioOptions = new();
+    string? selectedAudioSource;
+
+    async Task OpenAudio()
+    {
+        await StopAudioTrack();
+
+        try
+        {
+            if (audioContext is null)
+            {
+                audioContext = await AudioContext.CreateAsync(JSRuntime);
+            }
+            if (mediaDevices is null)
+            {
+                mediaDevices = await MediaDevicesService.GetMediaDevicesAsync();
+            }
+
+            MediaTrackConstraints mediaTrackConstraints = new MediaTrackConstraints
+                {
+                    EchoCancellation = false,
+                    NoiseSuppression = false,
+                    AutoGainControl = false,
+                    DeviceId = selectedAudioSource is null ? null : new ConstrainDomString(selectedAudioSource)
+                };
+            mediaStream = await mediaDevices.GetUserMediaAsync(new MediaStreamConstraints() { Audio = mediaTrackConstraints });
+
+            var deviceInfos = await mediaDevices.EnumerateDevicesAsync();
+            audioOptions.Clear();
+            foreach (var device in deviceInfos)
+            {
+                if (await device.GetKindAsync() is MediaDeviceKind.AudioInput)
+                {
+                    audioOptions.Add((await device.GetLabelAsync(), await device.GetDeviceIdAsync()));
+                }
+            }
+
+            mediaStreamAudioSourceNode = await audioContext.CreateMediaStreamSourceAsync(mediaStream);
+
+            var analyserNode = await audioContext.CreateAnalyserAsync();
+
+            await mediaStreamAudioSourceNode.ConnectAsync(analyserNode);
+
+            await Task.Delay(500);
+
+            int bufferLength = (int)await analyserNode.GetFrequencyBinCountAsync();
+            var dataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+
+            for (int i = 0; i < 200; i++)
+            {
+                legValues.Enqueue(0);
+            }
+
+            stopped = false;
+            while (!stopped)
+            {
+                await analyserNode.GetByteFrequencyDataAsync(dataArray);
+
+                frequencies = await dataArray.GetAsArrayAsync();
+                legValues.Enqueue(frequencies[20]);
+                legValues.Dequeue();
+                await Task.Delay(10);
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            error = $"{ex.GetType().Name}: {ex.Message}";
+        }
+    }
+
+    async Task StopAudioTrack()
+    {
+        stopped = true;
+        if (mediaStream is null) return;
+        var audioTrack = (await mediaStream.GetAudioTracksAsync()).FirstOrDefault();
+        if (audioTrack is not null)
+        {
+            await audioTrack.StopAsync();
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await StopAudioTrack();
+    }
+}
+
+
