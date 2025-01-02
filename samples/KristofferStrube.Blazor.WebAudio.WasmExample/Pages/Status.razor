@@ -9,26 +9,30 @@
     @($"{percentImplemented:00%}") Covered!
 </div>
 
-<pre><code>@((MarkupString)compareText)</code></pre>
+<pre><code>
+        @for (int i = 0; i < compareLines.Count; i++)
+        {
+    <span style="background-color:@(compareLines[i].color);display:block;min-height:21px;">@($"{new string(' ', 3 - i.ToString().Length)}{i}") @compareLines[i].text</span>
+        }
+    </code></pre>
 
 @code {
-    private string compareText = "";
+    private List<(string text, string color)> compareLines = [];
     private double percentImplemented = 0;
     private string color => $"#{(int)(255 - 111 * percentImplemented):X2}{(int)(192 + 46 * percentImplemented):X2}{(int)(203 - 59 * percentImplemented):X2}";
 
     protected override async Task OnInitializedAsync()
     {
-        var compareLines = new List<string>();
-        var lines = webIDL.Replace("<", "&lt;").Split('\n');
+        compareLines = [];
+        var lines = webIDL.Split('\n');
         for (int i = 0; i < lines.Count(); i++)
         {
             var color = supportedRows.Any(interval => i >= interval.start && i <= interval.end) ? "lightgreen" : "pink";
-            compareLines.Add($"""<span style="background-color:{color};display:block;min-height:21px;">{lines[i]}</span>""");
+            compareLines.Add((lines[i], color));
         }
 
-        compareText = string.Join("", compareLines);
         var percentImplementedTotal = supportedRows.Sum(r => r.end - r.start + 1) / (float)webIDL.Split('\n').Count();
-        double delta = 0.00005;
+        double delta = 0.0005;
         while (percentImplemented < percentImplementedTotal)
         {
             await Task.Delay(1);
@@ -46,7 +50,8 @@
         (46, 266),
         (269, 269),
         (285, 396),
-        (421, 468),
+        (421, 497),
+        (500, 517),
         (582, 583),
         (585, 592),
         (594, 602)
