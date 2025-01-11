@@ -1,4 +1,5 @@
-﻿using KristofferStrube.Blazor.WebIDL;
+﻿using KristofferStrube.Blazor.WebAudio.Extensions;
+using KristofferStrube.Blazor.WebIDL;
 using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
 
@@ -12,6 +13,20 @@ namespace KristofferStrube.Blazor.WebAudio;
 [IJSWrapperConverter]
 public class PannerNode : AudioNode, IJSCreatable<PannerNode>
 {
+    /// <summary>
+    /// Creates an <see cref="PannerNode"/> using the standard constructor.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="PannerNode"/> will be associated with.</param>
+    /// <param name="options">Optional initial parameter value for this <see cref="PannerNode"/>.</param>
+    /// <returns>A new instance of an <see cref="PannerNode"/>.</returns>
+    public static async Task<PannerNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, PannerOptions? options = null)
+    {
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructPannerNode", context, options);
+        return new PannerNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
+    }
+
     /// <inheritdoc/>
     public static new async Task<PannerNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {

@@ -11,6 +11,15 @@ namespace KristofferStrube.Blazor.WebAudio;
 public class PannerOptions : AudioNodeOptions
 {
     /// <summary>
+    /// <see cref="ChannelCountMode"/> determines how channels will be counted when up-mixing and down-mixing connections to any inputs to the node.
+    /// </summary>
+    /// <remarks>
+    /// The default value is <see cref="ChannelCountMode.ClampedMax"/>.
+    /// </remarks>
+    [JsonPropertyName("channelCountMode")]
+    public override ChannelCountMode ChannelCountMode { get; set; } = ChannelCountMode.ClampedMax;
+
+    /// <summary>
     /// The panning model to use for the node.
     /// </summary>
     /// <remarks>

@@ -1,0 +1,35 @@
+﻿@using KristofferStrube.Blazor.SVGEditor
+@using KristofferStrube.Blazor.SVGEditor.ShapeEditors
+@using KristofferStrube.Blazor.SVGEditor.Extensions﻿
+@inherits ShapeEditor<Circle>
+
+<g transform="translate(@SVGElement.SVG.Translate.x.AsString() @SVGElement.SVG.Translate.y.AsString()) scale(@SVGElement.SVG.Scale.AsString())">
+    <circle @ref=ElementReference
+            @onfocusin="FocusElement"
+            @onfocusout="UnfocusElement"
+            @onpointerdown="SelectAsync"
+            @onkeyup="KeyUp" tabindex="@(SVGElement.IsChildElement ? -1 : 0)"
+            cx=@SVGElement.Cx.AsString()
+            cy=@SVGElement.Cy.AsString()
+            r=@SVGElement.R.AsString()
+            fill="@SVGElement.Fill">
+    </circle>
+    <circle @onfocusin="FocusElement"
+            @onfocusout="UnfocusElement"
+            @onpointerdown="SelectAsync"
+            @onkeyup="KeyUp" tabindex="@(SVGElement.IsChildElement ? -1 : 0)"
+            cx=@((SVGElement.Cx - SVGElement.R).AsString())
+            cy=@SVGElement.Cy.AsString()
+            r=@((SVGElement.R / 2).AsString())
+            fill="@SVGElement.Fill">
+    </circle>
+    <circle @onfocusin="FocusElement"
+            @onfocusout="UnfocusElement"
+            @onpointerdown="SelectAsync"
+            @onkeyup="KeyUp" tabindex="@(SVGElement.IsChildElement ? -1 : 0)"
+            cx=@((SVGElement.Cx + SVGElement.R).AsString())
+            cy=@SVGElement.Cy.AsString()
+            r=@((SVGElement.R / 2).AsString())
+            fill="@SVGElement.Fill">
+    </circle>
+</g>

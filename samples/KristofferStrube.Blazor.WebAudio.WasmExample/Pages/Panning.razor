@@ -1,0 +1,190 @@
+﻿@page "/Panning"
+@using KristofferStrube.Blazor.DOM
+@using KristofferStrube.Blazor.SVGEditor
+@using KristofferStrube.Blazor.WebAudio.WasmExample.AudioPannerEditor
+@using KristofferStrube.Blazor.WebIDL
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+<PageTitle>WebAudio - Panning</PageTitle>
+<h2>Panning</h2>
+
+<p>On this page we present a view of two speakers directed towards the listener.
+    The speakers can then be moved using a <code>PannerNode</code> in 3D space and be directed towards another orientation.
+    To simplify this demo we have limited ourselves to only edit the position in 2 dimensions</p>
+
+@if (oscillatorDark is null)
+{
+    <button class="btn btn-success" @onclick=PlaySound>Play Sound 🔊</button>
+}
+else
+{
+    <button class="btn btn-warning" @onclick=StopSound>Stop Sound 🔊</button>
+}
+<br />
+<GainSlider GainNode="gainNode" />
+
+<div style="height: 40vh;">
+    <SVGEditor @ref=sVGEditor
+    Input=@input
+    InputUpdated="(string s) => { input = s; StateHasChanged(); }"
+    SupportedElements="supportedElements"
+    InputRendered="EditorLoaded" />
+</div>
+
+<h3>Left speaker</h3>
+<Plot Data="leftTimeDomainMeasurements" />
+
+<h3>Right speaker</h3>
+<Plot Data="rightTimeDomainMeasurements" />
+
+@code {
+    AudioContext context = default!;
+    PannerNode pannerLight = default!;
+    PannerNode pannerDark = default!;
+    GainNode gainNode = default!;
+    ChannelSplitterNode splitterNode = default!;
+    AnalyserNode leftAnalyzerNode = default!;
+    AnalyserNode rightAnalyzerNode = default!;
+    OscillatorNode? oscillatorLight;
+    OscillatorNode? oscillatorDark;
+
+    SVGEditor sVGEditor = default!;
+    string input = "";
+    List<SupportedElement> supportedElements = [
+        new SupportedElement(typeof(PannerNodeShape), (element) => element.TagName.ToUpper() == "RECT"),
+    new SupportedElement(typeof(ListenerShape), (element) => element.TagName.ToUpper() == "CIRCLE"),
+    ];
+    PannerNodeShape speakerLight = default!;
+    PannerNodeShape speakerDark = default!;
+
+    private byte[] leftTimeDomainMeasurements = Array.Empty<byte>();
+    private byte[] rightTimeDomainMeasurements = Array.Empty<byte>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        context = await AudioContext.CreateAsync(JSRuntime);
+
+        pannerLight = await PannerNode.CreateAsync(JSRuntime, context, new()
+            {
+                ConeInnerAngle = 20,
+                ConeOuterAngle = 40,
+            });
+        pannerDark = await PannerNode.CreateAsync(JSRuntime, context, new()
+            {
+                ConeInnerAngle = 20,
+                ConeOuterAngle = 40,
+            });
+        gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.1f });
+        AudioDestinationNode destination = await context.GetDestinationAsync();
+
+        splitterNode = await ChannelSplitterNode.CreateAsync(JSRuntime, context);
+
+        leftAnalyzerNode = await AnalyserNode.CreateAsync(JSRuntime, context);
+        rightAnalyzerNode = await AnalyserNode.CreateAsync(JSRuntime, context);
+
+        await pannerLight.ConnectAsync(gainNode);
+        await pannerDark.ConnectAsync(gainNode);
+        await pannerLight.ConnectAsync(splitterNode);
+        await pannerDark.ConnectAsync(splitterNode);
+        await splitterNode.ConnectAsync(leftAnalyzerNode, 0);
+        await splitterNode.ConnectAsync(rightAnalyzerNode, 1);
+        await gainNode.ConnectAsync(destination);
+
+        int bufferLength = (int)await leftAnalyzerNode.GetFrequencyBinCountAsync();
+        await using var timeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+
+        while(true)
+        {
+            await Task.Delay(500);
+
+            await leftAnalyzerNode.GetByteTimeDomainDataAsync(timeDomainDataArray);
+            leftTimeDomainMeasurements = await timeDomainDataArray.GetAsArrayAsync();
+
+            await rightAnalyzerNode.GetByteTimeDomainDataAsync(timeDomainDataArray);
+            rightTimeDomainMeasurements = await timeDomainDataArray.GetAsArrayAsync();
+
+            await Task.Delay(50);
+            StateHasChanged();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        while (true)
+        {
+            StateHasChanged();
+            await Task.Delay(50);
+            if (speakerLight is null) continue;
+
+            await UpdatePannerPositionAndOrientation(pannerLight, speakerLight);
+            await UpdatePannerPositionAndOrientation(pannerDark, speakerDark);
+        }
+    }
+
+    public async Task UpdatePannerPositionAndOrientation(PannerNode panner, PannerNodeShape speaker)
+    {
+        double time = await context.GetCurrentTimeAsync();
+
+        await using AudioParam zPosition = await panner.GetPositionZAsync();
+        await zPosition.LinearRampToValueAtTimeAsync((float)(speaker.Y + speaker.Width / 2 + Math.Cos(-speaker.Rotation / 180 * MathF.PI) * speaker.Width / 2), time + 0.1);
+
+        await using AudioParam xPosition = await panner.GetPositionXAsync();
+        await xPosition.LinearRampToValueAtTimeAsync((float)(speaker.X + speaker.Height / 2 + Math.Sin(-speaker.Rotation / 180 * MathF.PI) * speaker.Width / 2), time + 0.1);
+
+        await using AudioParam zOrientation = await panner.GetOrientationZAsync();
+        await zOrientation.LinearRampToValueAtTimeAsync((float)Math.Cos(-speaker.Rotation / 180 * MathF.PI), time + 0.1);
+
+        await using AudioParam xOrientation = await panner.GetOrientationXAsync();
+        await xOrientation.LinearRampToValueAtTimeAsync((float)Math.Sin(-speaker.Rotation / 180 * MathF.PI), time + 0.1);
+    }
+
+    public void EditorLoaded()
+    {
+        if (speakerLight is not null || sVGEditor.BBox is null) return;
+
+        ListenerShape.AddNew(sVGEditor, 0, 0);
+
+        speakerLight = PannerNodeShape.AddNew(sVGEditor, -6, -5, rotation: -45, color: "red");
+        speakerDark = PannerNodeShape.AddNew(sVGEditor, +4, -5, rotation: 45, color: "blue");
+
+        sVGEditor.FitViewportToAllShapes(padding: 100);
+    }
+
+    public async Task PlaySound()
+    {
+        oscillatorLight = await OscillatorNode.CreateAsync(JSRuntime, context);
+        await oscillatorLight.ConnectAsync(pannerLight);
+        await oscillatorLight.StartAsync();
+        oscillatorDark = await OscillatorNode.CreateAsync(JSRuntime, context, new()
+            {
+                Frequency = 220
+            });
+        await oscillatorDark.ConnectAsync(pannerDark);
+        await oscillatorDark.StartAsync();
+    }
+
+    public async Task StopSound()
+    {
+        if (oscillatorLight is not null)
+        {
+            await oscillatorLight.StopAsync();
+            await oscillatorLight.DisconnectAsync();
+            oscillatorLight = null;
+        }
+        if (oscillatorDark is not null)
+        {
+            await oscillatorDark.StopAsync();
+            await oscillatorDark.DisconnectAsync();
+            oscillatorDark = null;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await StopSound();
+    }
+}
+
+

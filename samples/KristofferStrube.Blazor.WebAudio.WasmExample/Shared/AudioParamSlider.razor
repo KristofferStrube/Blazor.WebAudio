@@ -40,7 +40,7 @@
     [Parameter]
     public Action<float>? UpdateCallback { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         if (AudioParam is null) return;
         value = await AudioParam.GetValueAsync();

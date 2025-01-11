@@ -74,6 +74,10 @@ export function constructMediaStreamAudioDestinationNode(context, options) {
     return new MediaStreamAudioDestinationNode(context, options);
 }
 
+export function constructPannerNode(context, options) {
+    return new PannerNode(context, options);
+}
+
 export function constructAudioWorkletNode(context, name, options) {
     return new AudioWorkletNode(context, name, options);
 }
