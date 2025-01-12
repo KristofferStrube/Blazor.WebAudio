@@ -8,9 +8,11 @@
 <PageTitle>WebAudio - Panning</PageTitle>
 <h2>Panning</h2>
 
-<p>On this page we present a view of two speakers directed towards the listener.
+<p>
+    On this page we present a view of two speakers directed towards the listener.
     The speakers can then be moved using a <code>PannerNode</code> in 3D space and be directed towards another orientation.
-    To simplify this demo we have limited ourselves to only edit the position in 2 dimensions</p>
+    To simplify this demo we have limited ourselves to only edit the position in 2 dimensions
+</p>
 
 @if (oscillatorDark is null)
 {
@@ -23,19 +25,19 @@ else
 <br />
 <GainSlider GainNode="gainNode" />
 
-<div style="height: 40vh;">
+<div style="height: 30vh;">
     <SVGEditor @ref=sVGEditor
-    Input=@input
-    InputUpdated="(string s) => { input = s; StateHasChanged(); }"
-    SupportedElements="supportedElements"
-    InputRendered="EditorLoaded" />
+               Input=@input
+               InputUpdated="(string s) => { input = s; StateHasChanged(); }"
+               SupportedElements="supportedElements"
+               InputRendered="EditorLoaded" />
 </div>
 
 <h3>Left speaker</h3>
-<Plot Data="leftTimeDomainMeasurements" />
+<Plot Height=100 Data="leftTimeDomainMeasurements" />
 
 <h3>Right speaker</h3>
-<Plot Data="rightTimeDomainMeasurements" />
+<Plot Height=100 Data="rightTimeDomainMeasurements" />
 
 @code {
     AudioContext context = default!;
@@ -68,12 +70,15 @@ else
             {
                 ConeInnerAngle = 20,
                 ConeOuterAngle = 40,
+                MaxDistance = 10
             });
         pannerDark = await PannerNode.CreateAsync(JSRuntime, context, new()
             {
                 ConeInnerAngle = 20,
                 ConeOuterAngle = 40,
+                MaxDistance = 10
             });
+
         gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.1f });
         AudioDestinationNode destination = await context.GetDestinationAsync();
 
@@ -91,19 +96,20 @@ else
         await gainNode.ConnectAsync(destination);
 
         int bufferLength = (int)await leftAnalyzerNode.GetFrequencyBinCountAsync();
-        await using var timeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+        await using var leftTimeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+        await using var rightTimeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
 
-        while(true)
+        while (true)
         {
             await Task.Delay(500);
 
-            await leftAnalyzerNode.GetByteTimeDomainDataAsync(timeDomainDataArray);
-            leftTimeDomainMeasurements = await timeDomainDataArray.GetAsArrayAsync();
+            await leftAnalyzerNode.GetByteTimeDomainDataAsync(leftTimeDomainDataArray);
+            leftTimeDomainMeasurements = await leftTimeDomainDataArray.GetAsArrayAsync();
 
-            await rightAnalyzerNode.GetByteTimeDomainDataAsync(timeDomainDataArray);
-            rightTimeDomainMeasurements = await timeDomainDataArray.GetAsArrayAsync();
+            await rightAnalyzerNode.GetByteTimeDomainDataAsync(rightTimeDomainDataArray);
+            rightTimeDomainMeasurements = await rightTimeDomainDataArray.GetAsArrayAsync();
 
-            await Task.Delay(50);
+            await Task.Delay(10);
             StateHasChanged();
         }
     }

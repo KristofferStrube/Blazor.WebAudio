@@ -4,6 +4,7 @@
 @inherits ShapeEditor<PannerNodeShape>
 
 <g transform="translate(@SVGElement.SVG.Translate.x.AsString() @SVGElement.SVG.Translate.y.AsString()) scale(@SVGElement.SVG.Scale.AsString())">
+
     <rect @ref=ElementReference
           @onfocusin="FocusElement"
           @onfocusout="UnfocusElement"
@@ -17,6 +18,16 @@
           fill="@SVGElement.Fill"
           transform="rotate(@(SVGElement.Rotation.AsString()) @((SVGElement.X + SVGElement.Width / 2).AsString()) @((SVGElement.Y + SVGElement.Height / 2).AsString()))">
     </rect>
+    <polygon points=@Cone(20)
+             fill="red"
+             opacity="0.2"
+             transform="rotate(@(SVGElement.Rotation.AsString()) @((SVGElement.X + SVGElement.Width / 2).AsString()) @((SVGElement.Y + SVGElement.Height / 2).AsString()))">
+    </polygon>
+    <polygon points=@Cone(10)
+             fill="red"
+             opacity="0.2"
+             transform="rotate(@(SVGElement.Rotation.AsString()) @((SVGElement.X + SVGElement.Width / 2).AsString()) @((SVGElement.Y + SVGElement.Height / 2).AsString()))">
+    </polygon>
 </g>
 @if (SVGElement.Selected && SVGElement.SVG.EditMode is not EditMode.Add)
 {
@@ -29,4 +40,16 @@
             x: SVGElement.X + SVGElement.Width / 2 + Math.Sin(-SVGElement.Rotation / 180 * Math.PI) * SVGElement.Height,
             y: SVGElement.Y + SVGElement.Height / 2 + Math.Cos(-SVGElement.Rotation / 180 * Math.PI) * SVGElement.Height
         );
+
+    public string Cone(double angle)
+    {
+        List<(double x, double y)> points =
+        [
+            (SVGElement.X + SVGElement.Width / 2, SVGElement.Y + SVGElement.Height),
+    (SVGElement.X + SVGElement.Width / 2 + 10 * Math.Sin(angle / 180 * Math.PI), SVGElement.Y + SVGElement.Height + 10 * Math.Cos(angle / 180 * Math.PI)),
+    (SVGElement.X + SVGElement.Width / 2 + 10 * Math.Sin(-angle / 180 * Math.PI), SVGElement.Y + SVGElement.Height + 10 * Math.Cos(-angle / 180 * Math.PI)),
+    ];
+
+        return string.Join(" ", points.Select(point => $"{point.x.AsString()},{point.y.AsString()}"));
+    }
 }
