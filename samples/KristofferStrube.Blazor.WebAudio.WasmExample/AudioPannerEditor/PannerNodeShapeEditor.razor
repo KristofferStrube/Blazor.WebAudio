@@ -29,16 +29,13 @@
              transform="rotate(@(SVGElement.Rotation.AsString()) @((SVGElement.X + SVGElement.Width / 2).AsString()) @((SVGElement.Y + SVGElement.Height / 2).AsString()))">
     </polygon>
 </g>
-@if (SVGElement.Selected && SVGElement.SVG.EditMode is not EditMode.Add)
-{
-    <Anchor OnPointerDown="() => AnchorSelect(4)" Position="anchorPosition" />
-}
+<Anchor OnPointerDown="() => AnchorSelect(4)" Position="anchorPosition" />
 
 @code {
     private (double x, double y) anchorPosition =>
         (
-            x: SVGElement.X + SVGElement.Width / 2 + Math.Sin(-SVGElement.Rotation / 180 * Math.PI) * SVGElement.Height,
-            y: SVGElement.Y + SVGElement.Height / 2 + Math.Cos(-SVGElement.Rotation / 180 * Math.PI) * SVGElement.Height
+            x: SVGElement.X + SVGElement.Width / 2 + Math.Sin(-SVGElement.Rotation / 180 * Math.PI) * 10,
+            y: SVGElement.Y + SVGElement.Height / 2 + Math.Cos(-SVGElement.Rotation / 180 * Math.PI) * 10
         );
 
     public string Cone(double angle)

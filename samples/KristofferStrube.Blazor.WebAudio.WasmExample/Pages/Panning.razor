@@ -99,10 +99,10 @@ else
         await using var leftTimeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
         await using var rightTimeDomainDataArray = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
 
+        await Task.Delay(500);
+
         while (true)
         {
-            await Task.Delay(500);
-
             await leftAnalyzerNode.GetByteTimeDomainDataAsync(leftTimeDomainDataArray);
             leftTimeDomainMeasurements = await leftTimeDomainDataArray.GetAsArrayAsync();
 
