@@ -104,9 +104,11 @@ else
         while (true)
         {
             await leftAnalyzerNode.GetByteTimeDomainDataAsync(leftTimeDomainDataArray);
+            await Task.Delay(10);
             leftTimeDomainMeasurements = await leftTimeDomainDataArray.GetAsArrayAsync();
 
             await rightAnalyzerNode.GetByteTimeDomainDataAsync(rightTimeDomainDataArray);
+            await Task.Delay(10);
             rightTimeDomainMeasurements = await rightTimeDomainDataArray.GetAsArrayAsync();
 
             await Task.Delay(10);
