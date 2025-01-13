@@ -9,6 +9,8 @@ public class ListenerShape : Circle
     {
     }
 
+    public override Type Presenter => typeof(ListenerShapeEditor);
+
     public static ListenerShape AddNew(SVGEditor.SVGEditor SVG, double x, double y)
     {
         IElement element = SVG.Document.CreateElement("CIRCLE");
