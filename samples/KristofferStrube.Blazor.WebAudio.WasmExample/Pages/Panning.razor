@@ -61,6 +61,8 @@ else
     PannerNodeShape speakerLight = default!;
     PannerNodeShape speakerDark = default!;
 
+    bool disposed = false;
+
     private byte[] leftTimeDomainMeasurements = Array.Empty<byte>();
     private byte[] rightTimeDomainMeasurements = Array.Empty<byte>();
 
@@ -103,7 +105,7 @@ else
 
         await Task.Delay(500);
 
-        while (true)
+        while (!disposed)
         {
             try
             {
@@ -115,7 +117,7 @@ else
             }
             catch
             {
-                
+
             }
 
             await Task.Delay(10);
@@ -127,11 +129,10 @@ else
     {
         if (!firstRender) return;
 
-        while (true)
+        while (!disposed)
         {
-            StateHasChanged();
             await Task.Delay(50);
-            if (speakerLight is null) continue;
+            if (speakerLight is null || context is null) continue;
 
             await UpdatePannerPositionAndOrientation(pannerLight, speakerLight);
             await UpdatePannerPositionAndOrientation(pannerDark, speakerDark);
@@ -143,16 +144,16 @@ else
         double time = await context.GetCurrentTimeAsync();
 
         await using AudioParam zPosition = await panner.GetPositionZAsync();
-        await zPosition.LinearRampToValueAtTimeAsync((float)(speaker.Y + speaker.Width / 2 + Math.Cos(-speaker.Rotation / 180 * MathF.PI) * speaker.Width / 2), time + 0.1);
+        await zPosition.LinearRampToValueAtTimeAsync((float)(speaker.Y + speaker.Width / 2 + Math.Cos(-speaker.Rotation / 180 * MathF.PI) * speaker.Width / 2), time + 0.05);
 
         await using AudioParam xPosition = await panner.GetPositionXAsync();
-        await xPosition.LinearRampToValueAtTimeAsync((float)(speaker.X + speaker.Height / 2 + Math.Sin(-speaker.Rotation / 180 * MathF.PI) * speaker.Width / 2), time + 0.1);
+        await xPosition.LinearRampToValueAtTimeAsync((float)(speaker.X + speaker.Height / 2 + Math.Sin(-speaker.Rotation / 180 * MathF.PI) * speaker.Width / 2), time + 0.05);
 
         await using AudioParam zOrientation = await panner.GetOrientationZAsync();
-        await zOrientation.LinearRampToValueAtTimeAsync((float)Math.Cos(-speaker.Rotation / 180 * MathF.PI), time + 0.1);
+        await zOrientation.LinearRampToValueAtTimeAsync((float)Math.Cos(-speaker.Rotation / 180 * MathF.PI), time + 0.05);
 
         await using AudioParam xOrientation = await panner.GetOrientationXAsync();
-        await xOrientation.LinearRampToValueAtTimeAsync((float)Math.Sin(-speaker.Rotation / 180 * MathF.PI), time + 0.1);
+        await xOrientation.LinearRampToValueAtTimeAsync((float)Math.Sin(-speaker.Rotation / 180 * MathF.PI), time + 0.05);
     }
 
     public void EditorLoaded()
@@ -198,7 +199,42 @@ else
 
     public async ValueTask DisposeAsync()
     {
+        disposed = true;
         await StopSound();
+        if (context is not null)
+        {
+            await context.DisposeAsync();
+            context = default!;
+        }
+        if (pannerLight is not null)
+        {
+            await pannerLight.DisconnectAsync();
+            await pannerLight.DisposeAsync();
+        }
+        if (pannerDark is not null)
+        {
+            await pannerDark.DisconnectAsync();
+            await pannerDark.DisposeAsync();
+        }
+        if (gainNode is not null)
+        {
+            await gainNode.DisconnectAsync();
+            await gainNode.DisposeAsync();
+        }
+        if (splitterNode is not null)
+        {
+            await splitterNode.DisposeAsync();
+        }
+        if (leftAnalyzerNode is not null)
+        {
+            await leftAnalyzerNode.DisconnectAsync();
+            await leftAnalyzerNode.DisposeAsync();
+        }
+        if (rightAnalyzerNode is not null)
+        {
+            await rightAnalyzerNode.DisconnectAsync();
+            await rightAnalyzerNode.DisposeAsync();
+        }
     }
 }
 
