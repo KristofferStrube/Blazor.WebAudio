@@ -161,10 +161,10 @@ else
 
         ListenerShape.AddNew(sVGEditor, 0, 0);
 
-        speakerLight = PannerNodeShape.AddNew(sVGEditor, -6, -5, rotation: -45, color: "red");
-        speakerDark = PannerNodeShape.AddNew(sVGEditor, +4, -5, rotation: 45, color: "blue");
+        speakerLight = PannerNodeShape.AddNew(sVGEditor, -10, -9, rotation: -45, color: "red");
+        speakerDark = PannerNodeShape.AddNew(sVGEditor, +8, -9, rotation: 45, color: "blue");
 
-        sVGEditor.FitViewportToAllShapes(padding: 100);
+        sVGEditor.FitViewportToAllShapes(padding: 50);
     }
 
     public async Task PlaySound()

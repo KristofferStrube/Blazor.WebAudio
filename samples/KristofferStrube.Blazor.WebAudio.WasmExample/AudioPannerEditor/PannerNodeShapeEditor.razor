@@ -19,13 +19,15 @@
           transform="rotate(@(SVGElement.Rotation.AsString()) @((SVGElement.X + SVGElement.Width / 2).AsString()) @((SVGElement.Y + SVGElement.Height / 2).AsString()))">
     </rect>
     <polygon points=@Cone(20)
-             fill="red"
-             opacity="0.2"
+             fill="@SVGElement.Fill"
+             opacity="0.1"
+             style="pointer-events:none;"
              transform="rotate(@(SVGElement.Rotation.AsString()) @((SVGElement.X + SVGElement.Width / 2).AsString()) @((SVGElement.Y + SVGElement.Height / 2).AsString()))">
     </polygon>
     <polygon points=@Cone(10)
-             fill="red"
-             opacity="0.2"
+             fill="@SVGElement.Fill"
+             opacity="0.1"
+             style="pointer-events:none;"
              transform="rotate(@(SVGElement.Rotation.AsString()) @((SVGElement.X + SVGElement.Width / 2).AsString()) @((SVGElement.Y + SVGElement.Height / 2).AsString()))">
     </polygon>
 </g>
