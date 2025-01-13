@@ -27,12 +27,12 @@ else
 
 <div style="height: 30vh;">
     <SVGEditor @ref=sVGEditor
-               Input=@input
-               InputUpdated="(string s) => { input = s; StateHasChanged(); }"
-               SupportedElements="supportedElements"
-               InputRendered="EditorLoaded"
-               DisableContextMenu="true"
-               DisableBoxSelection="true" />
+    Input=@input
+    InputUpdated="(string s) => { input = s; StateHasChanged(); }"
+    SupportedElements="supportedElements"
+    InputRendered="EditorLoaded"
+    DisableContextMenu="true"
+    DisableBoxSelection="true" />
 </div>
 
 <h3>Left speaker</h3>
@@ -105,13 +105,18 @@ else
 
         while (true)
         {
-            await leftAnalyzerNode.GetByteTimeDomainDataAsync(leftTimeDomainDataArray);
-            await Task.Delay(10);
-            leftTimeDomainMeasurements = await leftTimeDomainDataArray.GetAsArrayAsync();
+            try
+            {
+                await leftAnalyzerNode.GetByteTimeDomainDataAsync(leftTimeDomainDataArray);
+                leftTimeDomainMeasurements = await leftTimeDomainDataArray.GetAsArrayAsync();
 
-            await rightAnalyzerNode.GetByteTimeDomainDataAsync(rightTimeDomainDataArray);
-            await Task.Delay(10);
-            rightTimeDomainMeasurements = await rightTimeDomainDataArray.GetAsArrayAsync();
+                await rightAnalyzerNode.GetByteTimeDomainDataAsync(rightTimeDomainDataArray);
+                rightTimeDomainMeasurements = await rightTimeDomainDataArray.GetAsArrayAsync();
+            }
+            catch
+            {
+                
+            }
 
             await Task.Delay(10);
             StateHasChanged();
