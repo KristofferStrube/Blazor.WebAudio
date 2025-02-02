@@ -20,7 +20,8 @@ public class PeriodicWaveOptions : PeriodicWaveConstraints
     /// The third represents the first overtone and so on.
     /// </summary>
     [JsonPropertyName("imag")]
-    public required float[] Imag { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public float[]? Imag { get; set; }
 
     /// <summary>
     /// The real parameter represents an array of cosine terms.
@@ -29,5 +30,6 @@ public class PeriodicWaveOptions : PeriodicWaveConstraints
     /// The third represents the first overtone and so on.
     /// </summary>
     [JsonPropertyName("real")]
-    public required float[] Real { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public float[]? Real { get; set; }
 }
