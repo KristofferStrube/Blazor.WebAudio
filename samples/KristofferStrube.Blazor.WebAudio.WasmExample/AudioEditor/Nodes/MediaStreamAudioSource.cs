@@ -16,8 +16,8 @@ public class MediaStreamAudioSource : Node
         {
             await SetMediaStreamAudioSourceNode(context);
         }
-        return audioNode!;
         _ = audioNodeSlim.Release();
+        return audioNode!;
     };
 
     public new float Height

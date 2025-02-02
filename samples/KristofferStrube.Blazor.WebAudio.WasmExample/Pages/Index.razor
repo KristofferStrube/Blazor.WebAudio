@@ -1,5 +1,8 @@
 ﻿@page "/"
 @using KristofferStrube.Blazor.DOM
+@using KristofferStrube.Blazor.FormulaEditor
+@using KristofferStrube.Blazor.FormulaEditor.Expressions
+@using KristofferStrube.Blazor.WebAudio.WasmExample.CustomPeriodicWaves
 @implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
 <PageTitle>WebAudio - Playing Sound</PageTitle>
@@ -27,24 +30,92 @@ Status:
         {
             <button class="btn btn-warning" @onclick=StopSound>Stop Sound 🔊</button>
         }
+        <EnumSelector @bind-Value=oscillatorType Disabled=@(oscillator is not null) />
     }
 </div>
+@if (oscillatorType is OscillatorType.Custom)
+{
+    <div>
+        <label for="presets">Custom wave preset formula:</label>
+        <select id="presets" @bind=@selectedFormulaPreset @bind:after=CustomWavePresetUpdated>
+            <option value="sine">Sine</option>
+            <option value="square">Square</option>
+            <option value="sawtooth">Sawtooth</option>
+            <option value="triangle">Triangle</option>
+        </select>
+        <input type="number" @bind=coefficientSeriesLength @bind:after=CoefficientSeriesLengthUpdated min="0" step="1" />
+        <br />
+        <MathEditor @bind-Expression="customFormula" AvailableIdentifiers="identifiers" />
+        <button class="btn btn-primary" @onclick=CalculateCoefficients>Evaluate formula</button>
+        <br />
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    @for (int i = 0; i < coefficientSeriesLength; i++)
+                    {
+                        <th><b>@i</b></th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>Real Coefficients</th>
+                    @for (int i = 0; i < coefficientSeriesLength; i++)
+                    {
+                        int k = i;
+                        <td><input @bind=@realCoefficients[k] style="width:50px;" /></td>
+                    }
+                </tr>
+                <tr>
+                    <th>Imaginary Coefficients</th>
+                    @for (int i = 0; i < coefficientSeriesLength; i++)
+                    {
+                        int k = i;
+                        <td><input @bind=@imagCoefficients[k] style="width:50px;" /></td>
+                    }
+                </tr>
+            </tbody>
+        </table>
+    </div>
+}
 <GainSlider GainNode=gainNode />
+<TimeDomainPlot Analyser=analyser />
 
 @code {
     AudioContext context = default!;
     GainNode gainNode = default!;
+    AnalyserNode analyser = default!;
     EventListener<Event> stateChangeListener = default!;
     AudioContextState state = AudioContextState.Closed;
     OscillatorNode? oscillator;
+    OscillatorType oscillatorType = OscillatorType.Sine;
+    PeriodicWave? customWave;
+
+    private double n = 0;
+    private Identifier nIdentifier = default!;
+    private List<Identifier> identifiers = default!;
+    NumberReturningExpression customFormula = default!;
+    private string selectedFormulaPreset = "triangle";
+    float[] realCoefficients = new float[10];
+    float[] imagCoefficients = new float[10];
+    int coefficientSeriesLength = 10;
 
     protected override async Task OnInitializedAsync()
     {
+        nIdentifier = new Identifier("n", () => n);
+        identifiers = [nIdentifier];
+        CustomWavePresetUpdated();
+        CalculateCoefficients();
+
         context = await AudioContext.CreateAsync(JSRuntime);
 
         AudioDestinationNode destination = await context.GetDestinationAsync();
         gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.1f });
+        analyser = await AnalyserNode.CreateAsync(JSRuntime, context);
+
         await gainNode.ConnectAsync(destination);
+        await gainNode.ConnectAsync(analyser);
 
         stateChangeListener = await context.AddOnStateChangeEventListener(async (e) =>
         {
@@ -56,10 +127,24 @@ Status:
 
     public async Task PlaySound()
     {
+        if (oscillatorType is OscillatorType.Custom)
+        {
+            customWave = await PeriodicWave.CreateAsync(JSRuntime, context, new()
+                {
+                    Real = realCoefficients,
+                    Imag = imagCoefficients,
+                });
+        }
+        else
+        {
+            customWave = null;
+        }
+
         OscillatorOptions oscillatorOptions = new()
             {
-                Type = OscillatorType.Sine,
-                Frequency = Random.Shared.Next(100, 500)
+                Type = oscillatorType,
+                Frequency = 440,
+                PeriodicWave = customWave
             };
         oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, oscillatorOptions);
         await oscillator.ConnectAsync(gainNode);
@@ -68,15 +153,64 @@ Status:
 
     public async Task StopSound()
     {
-        if (oscillator is null) return;
-        await oscillator.StopAsync();
-        oscillator = null;
+        if (oscillator is not null)
+        {
+            await oscillator.StopAsync();
+            await oscillator.DisconnectAsync();
+            oscillator = null;
+        }
+        if (customWave is not null)
+        {
+            await customWave.DisposeAsync();
+        }
+    }
+
+    public void CustomWavePresetUpdated()
+    {
+        customFormula = selectedFormulaPreset switch
+        {
+            "sine" => ExpressionTemplates.SineWave(nIdentifier),
+            "square" => ExpressionTemplates.SquareWave(nIdentifier),
+            "sawtooth" => ExpressionTemplates.SawtoothWave(nIdentifier),
+            _ => ExpressionTemplates.TriangleWave(nIdentifier),
+        };
+    }
+
+    public void CalculateCoefficients()
+    {
+        imagCoefficients = new float[coefficientSeriesLength];
+        for (int i = 1; i < coefficientSeriesLength; i++)
+        {
+            n = i;
+
+            imagCoefficients[i] = (float)customFormula.Evaluate();
+        }
+        realCoefficients = new float[coefficientSeriesLength];
+    }
+
+    public void CoefficientSeriesLengthUpdated()
+    {
+        Array.Resize(ref realCoefficients, coefficientSeriesLength);
+        Array.Resize(ref imagCoefficients, coefficientSeriesLength);
     }
 
     public async ValueTask DisposeAsync()
     {
         await context.RemoveOnStateChangeEventListener(stateChangeListener);
         await StopSound();
+        if (context is not null)
+        {
+            await context.DisposeAsync();
+        }
+        if (gainNode is not null)
+        {
+            await gainNode.DisconnectAsync();
+            await gainNode.DisposeAsync();
+        }
+        if (analyser is not null)
+        {
+            await analyser.DisposeAsync();
+        }
     }
 }
 

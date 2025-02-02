@@ -1,0 +1,24 @@
+﻿@typeparam TEnum where TEnum : Enum
+
+<select @bind=Value @bind:after=OnValueChanged disabled=@Disabled>
+    @foreach (TEnum option in Enum.GetValues(typeof(TEnum)))
+    {
+        <option value="@option">@option</option>
+    }
+</select>
+
+@code {
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    [Parameter, EditorRequired]
+    public required TEnum Value { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback<TEnum> ValueChanged { get; set; }
+
+    private async Task OnValueChanged()
+    {
+        await ValueChanged.InvokeAsync(Value);
+    }
+}

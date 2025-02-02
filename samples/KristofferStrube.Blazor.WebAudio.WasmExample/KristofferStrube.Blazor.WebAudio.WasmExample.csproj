@@ -12,6 +12,7 @@
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.2.2" />
     <PackageReference Include="Excubo.Blazor.Canvas" Version="3.2.50" />
     <PackageReference Include="KristofferStrube.Blazor.CSSView" Version="0.1.0-alpha.0" />
+    <PackageReference Include="KristofferStrube.Blazor.FormulaEditor" Version="0.1.0-alpha.2" />
     <PackageReference Include="KristofferStrube.Blazor.MediaStreamRecording" Version="0.1.0-alpha.1" />
     <PackageReference Include="KristofferStrube.Blazor.SVGEditor" Version="0.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.0" />
