@@ -255,7 +255,7 @@ public class PannerNode : AudioNode, IJSCreatable<PannerNode>
     }
 
     /// <summary>
-    /// Gets the parameter for directional audio sources that is an angle, in degrees, outside of which the volume will be reduced to a constant value of <see cref="GetConeOuterGain"/>.
+    /// Gets the parameter for directional audio sources that is an angle, in degrees, outside of which the volume will be reduced to a constant value of <see cref="GetConeOuterGainAsync"/>.
     /// The default value is <c>360</c>.
     /// The behavior is undefined if the angle is outside the interval <c>[0, 360]</c>.
     /// </summary>
@@ -266,7 +266,7 @@ public class PannerNode : AudioNode, IJSCreatable<PannerNode>
     }
 
     /// <summary>
-    /// Sets the parameter for directional audio sources that is an angle, in degrees, outside of which the volume will be reduced to a constant value of <see cref="GetConeOuterGain"/>.
+    /// Sets the parameter for directional audio sources that is an angle, in degrees, outside of which the volume will be reduced to a constant value of <see cref="GetConeOuterGainAsync"/>.
     /// The default value is <c>360</c>.
     /// The behavior is undefined if the angle is outside the interval <c>[0, 360]</c>.
     /// </summary>
