@@ -78,6 +78,10 @@ export function constructPannerNode(context, options) {
     return new PannerNode(context, options);
 }
 
+export function constructStereoPannerNode(context, options) {
+    return new StereoPannerNode(context, options);
+}
+
 export function constructPeriodicWave(context, options) {
     return new PeriodicWave(context, options);
 }

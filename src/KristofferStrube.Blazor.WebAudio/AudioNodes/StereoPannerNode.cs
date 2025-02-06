@@ -1,4 +1,5 @@
-﻿using KristofferStrube.Blazor.WebIDL;
+﻿using KristofferStrube.Blazor.WebAudio.Extensions;
+using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
@@ -26,8 +27,32 @@ public class StereoPannerNode : AudioNode, IJSCreatable<StereoPannerNode>
         return Task.FromResult(new StereoPannerNode(jSRuntime, jSReference, options));
     }
 
+    /// <summary>
+    /// Creates a <see cref="StereoPannerNode"/> using the standard constructor.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="StereoPannerNode"/> will be associated with.</param>
+    /// <param name="options">Optional initial parameter value for this <see cref="StereoPannerNode"/>.</param>
+    /// <returns>A new instance of a <see cref="StereoPannerNode"/>.</returns>
+    public static async Task<StereoPannerNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, StereoPannerOptions? options = null)
+    {
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructStereoPannerNode", context, options);
+        return new StereoPannerNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
+    }
+
     /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
     protected StereoPannerNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
+    }
+
+    /// <summary>
+    /// The position of the input in the output’s stereo image. <c>-1</c> represents full left, <c>+1</c> represents full right.
+    /// </summary>
+    public async Task<AudioParam> GetPanAsync()
+    {
+        IJSObjectReference helper = await webAudioHelperTask.Value;
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "pan");
+        return await AudioParam.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 }
