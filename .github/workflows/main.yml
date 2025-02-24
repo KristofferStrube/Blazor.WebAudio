@@ -24,8 +24,20 @@ jobs:
         # Added Ahead-Of-Time workload
         - name: Add AOT Workload
           run: |
-            dotnet workload install wasm-tools-net7
+            dotnet workload install wasm-tools
             dotnet workload restore
+
+        # Build 
+        - name: Build
+          run: dotnet build
+
+        # Install PlayWright
+        - name: Install PlayWright
+          run: pwsh tests/IntegrationTests/bin/Debug/net8.0/playwright.ps1 install --with-deps
+
+        # Run tests 
+        - name: Test
+          run: dotnet test
 
         # Generate the website
         - name: Publish
