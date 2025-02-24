@@ -17,7 +17,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioNode">See the API definition here</see>.</remarks>
 [IJSWrapperConverter]
-public class AudioNode : EventTarget, IJSCreatable<AudioNode>
+public abstract class AudioNode : EventTarget
 {
     /// <summary>
     /// An error handling reference for the JSReference.
@@ -29,19 +29,7 @@ public class AudioNode : EventTarget, IJSCreatable<AudioNode>
     /// </summary>
     protected readonly Lazy<Task<IJSObjectReference>> webAudioHelperTask;
 
-    /// <inheritdoc/>
-    public static new async Task<AudioNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
-    {
-        return await CreateAsync(jSRuntime, jSReference, new());
-    }
-
-    /// <inheritdoc/>
-    public static new Task<AudioNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
-    {
-        return Task.FromResult(new AudioNode(jSRuntime, jSReference, options));
-    }
-
-    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    /// <inheritdoc cref="IJSCreatable{AudioNode}.CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
     protected AudioNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
         webAudioHelperTask = new(jSRuntime.GetHelperAsync);

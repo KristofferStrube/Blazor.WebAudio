@@ -1,4 +1,5 @@
-﻿using KristofferStrube.Blazor.WebIDL;
+﻿using KristofferStrube.Blazor.WebAudio.Extensions;
+using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
@@ -23,6 +24,20 @@ public class WaveShaperNode : AudioNode, IJSCreatable<WaveShaperNode>
     public static new Task<WaveShaperNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
     {
         return Task.FromResult(new WaveShaperNode(jSRuntime, jSReference, options));
+    }
+
+    /// <summary>
+    /// Creates an <see cref="WaveShaperNode"/> using the standard constructor.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="WaveShaperNode"/> will be associated with.</param>
+    /// <param name="options">Optional initial parameter value for this <see cref="WaveShaperNode"/>.</param>
+    /// <returns>A new instance of a <see cref="WaveShaperNode"/>.</returns>
+    public static async Task<WaveShaperNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, WaveShaperOptions? options = null)
+    {
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructWaveShaperNode", context, options);
+        return new WaveShaperNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>

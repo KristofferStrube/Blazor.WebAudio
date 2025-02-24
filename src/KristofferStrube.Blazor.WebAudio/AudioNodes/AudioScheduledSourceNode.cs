@@ -12,21 +12,9 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#AudioScheduledSourceNode">See the API definition here</see>.</remarks>
 [IJSWrapperConverter]
-public class AudioScheduledSourceNode : AudioNode, IJSCreatable<AudioScheduledSourceNode>
+public abstract class AudioScheduledSourceNode : AudioNode
 {
-    /// <inheritdoc/>
-    public static new async Task<AudioScheduledSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
-    {
-        return await CreateAsync(jSRuntime, jSReference, new());
-    }
-
-    /// <inheritdoc/>
-    public static new Task<AudioScheduledSourceNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
-    {
-        return Task.FromResult(new AudioScheduledSourceNode(jSRuntime, jSReference, options));
-    }
-
-    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    /// <inheritdoc cref="IJSCreatable{AudioScheduledSourceNode}.CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
     protected AudioScheduledSourceNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
     }

@@ -1,4 +1,5 @@
-﻿using KristofferStrube.Blazor.WebIDL;
+﻿using KristofferStrube.Blazor.WebAudio.Extensions;
+using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio;
@@ -28,6 +29,20 @@ public class IIRFilterNode : AudioNode, IJSCreatable<IIRFilterNode>
     public static new Task<IIRFilterNode> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
     {
         return Task.FromResult(new IIRFilterNode(jSRuntime, jSReference, options));
+    }
+
+    /// <summary>
+    /// Creates an <see cref="IIRFilterNode"/> using the standard constructor.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="context">The <see cref="BaseAudioContext"/> this new <see cref="IIRFilterNode"/> will be associated with.</param>
+    /// <param name="options">Initial parameter value for this <see cref="IIRFilterNode"/>.</param>
+    /// <returns>A new instance of a <see cref="IIRFilterNode"/>.</returns>
+    public static async Task<IIRFilterNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, IIRFilterOptions options)
+    {
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructIIRFilterNode", context, options);
+        return new IIRFilterNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>

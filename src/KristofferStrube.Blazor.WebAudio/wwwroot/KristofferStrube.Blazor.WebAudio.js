@@ -82,12 +82,24 @@ export function constructStereoPannerNode(context, options) {
     return new StereoPannerNode(context, options);
 }
 
-export function constructPeriodicWave(context, options) {
-    return new PeriodicWave(context, options);
+export function constructIIRFilterNode(context, options) {
+    return new IIRFilterNode(context, options);
+}
+
+export function constructMediaElementAudioSourceNode(context, options) {
+    return new MediaElementAudioSourceNode(context, options);
 }
 
 export function constructAudioWorkletNode(context, name, options) {
     return new AudioWorkletNode(context, name, options);
+}
+
+export function constructWaveShaperNode(context, options) {
+    return new WaveShaperNode(context, options);
+}
+
+export function constructPeriodicWave(context, options) {
+    return new PeriodicWave(context, options);
 }
 
 export function constructAudioBuffer(options) {
