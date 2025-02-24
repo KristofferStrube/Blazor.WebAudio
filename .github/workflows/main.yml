@@ -33,7 +33,7 @@ jobs:
 
         # Install PlayWright
         - name: Install PlayWright
-          run: pwsh tests/IntegrationTests/bin/Debug/net8.0/playwright.ps1 install --with-deps
+          run: pwsh tests/IntegrationTests/bin/Debug/net9.0/playwright.ps1 install --with-deps
 
         # Run tests 
         - name: Test
