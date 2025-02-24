@@ -1,0 +1,28 @@
+﻿@page "/"
+
+<span data-testid="result">@result</span>
+
+@code {
+    string? result;
+
+    [Inject]
+    public required EvaluationContext EvaluationContext { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        try
+        {
+            if (EvaluationContext.AfterRenderAsync is not null)
+            {
+                EvaluationContext.Result = await EvaluationContext.AfterRenderAsync.Invoke();
+            }
+        }
+        catch (Exception e)
+        {
+            EvaluationContext.Exception = e;
+        }
+        result = "done";
+        StateHasChanged();
+    }
+}
