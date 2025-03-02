@@ -1,9 +1,9 @@
-﻿namespace IntegrationTests.AudioNodeTests;
+﻿using Microsoft.JSInterop;
 
-public class AnalyserNodeTest : AudioNodeTest<AnalyserNode>
+namespace IntegrationTests.AudioNodeTests;
+
+public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, AnalyserOptions>
 {
-    public override async Task<AnalyserNode> GetDefaultInstanceAsync()
-    {
-        return await AnalyserNode.CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext());
-    }
+    public override Task<AnalyserNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, AnalyserOptions? options)
+        => AnalyserNode.CreateAsync(jSRuntime, context, options);
 }

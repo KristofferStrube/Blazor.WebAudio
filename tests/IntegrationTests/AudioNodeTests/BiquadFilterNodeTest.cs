@@ -1,9 +1,9 @@
-﻿namespace IntegrationTests.AudioNodeTests;
+﻿using Microsoft.JSInterop;
 
-public class BiquadFilterNodeTest : AudioNodeTest<BiquadFilterNode>
+namespace IntegrationTests.AudioNodeTests;
+
+public class BiquadFilterNodeTest : AudioNodeWithAudioNodeOptions<BiquadFilterNode, BiquadFilterOptions>
 {
-    public override async Task<BiquadFilterNode> GetDefaultInstanceAsync()
-    {
-        return await BiquadFilterNode.CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext());
-    }
+    public override async Task<BiquadFilterNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, BiquadFilterOptions? options)
+        => await BiquadFilterNode.CreateAsync(jSRuntime, context, options);
 }

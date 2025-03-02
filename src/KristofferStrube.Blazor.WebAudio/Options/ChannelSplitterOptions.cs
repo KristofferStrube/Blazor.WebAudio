@@ -10,6 +10,22 @@ namespace KristofferStrube.Blazor.WebAudio;
 public class ChannelSplitterOptions : AudioNodeOptions
 {
     /// <summary>
+    /// <inheritdoc path="/summary"/>
+    /// </summary>
+    /// <remarks>
+    /// The default value is <see cref="ChannelCountMode.Explicit"/>.
+    /// </remarks>
+    [JsonPropertyName("channelCountMode")]
+    public override ChannelCountMode ChannelCountMode { get; set; } = ChannelCountMode.Explicit;
+
+    /// <inheritdoc path="/summary"/>
+    /// <remarks>
+    /// The default value is <see cref="ChannelInterpretation.Discrete"/>.
+    /// </remarks>
+    [JsonPropertyName("channelInterpretation")]
+    public override ChannelInterpretation ChannelInterpretation { get; set; } = ChannelInterpretation.Discrete;
+
+    /// <summary>
     /// The number inputs for the <see cref="ChannelSplitterNode"/>.
     /// </summary>
     /// <remarks>

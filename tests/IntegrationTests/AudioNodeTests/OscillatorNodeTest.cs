@@ -1,9 +1,9 @@
-﻿namespace IntegrationTests.AudioNodeTests;
+﻿using Microsoft.JSInterop;
 
-public class OscillatorNodeTest : AudioNodeTest<OscillatorNode>
+namespace IntegrationTests.AudioNodeTests;
+
+public class OscillatorNodeTest : AudioNodeWithAudioNodeOptions<OscillatorNode, OscillatorOptions>
 {
-    public override async Task<OscillatorNode> GetDefaultInstanceAsync()
-    {
-        return await OscillatorNode.CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext());
-    }
+    public override async Task<OscillatorNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, OscillatorOptions? options)
+        => await OscillatorNode.CreateAsync(jSRuntime, context, options);
 }

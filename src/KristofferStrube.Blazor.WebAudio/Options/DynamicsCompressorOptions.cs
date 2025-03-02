@@ -9,6 +9,13 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#DynamicsCompressorOptions">See the API definition here</see>.</remarks>
 public class DynamicsCompressorOptions : AudioNodeOptions
 {
+    /// <inheritdoc path="/summary"/>
+    /// <remarks>
+    /// The default value is <see cref="ChannelCountMode.ClampedMax"/>.
+    /// </remarks>
+    [JsonPropertyName("channelCountMode")]
+    public override ChannelCountMode ChannelCountMode { get; set; } = ChannelCountMode.ClampedMax;
+
     /// <summary>
     /// The initial value for the <see cref="DynamicsCompressorNode.GetAttackAsync"/> AudioParam.
     /// </summary>

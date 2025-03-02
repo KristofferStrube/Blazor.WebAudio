@@ -1,9 +1,9 @@
-﻿namespace IntegrationTests.AudioNodeTests;
+﻿using Microsoft.JSInterop;
 
-public class MediaStreamAudioDestinationNodeTest : AudioNodeTest<MediaStreamAudioDestinationNode>
+namespace IntegrationTests.AudioNodeTests;
+
+public class MediaStreamAudioDestinationNodeTest : AudioNodeWithAudioNodeOptions<MediaStreamAudioDestinationNode, AudioNodeOptions>
 {
-    public override async Task<MediaStreamAudioDestinationNode> GetDefaultInstanceAsync()
-    {
-        return await MediaStreamAudioDestinationNode.CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext());
-    }
+    public override async Task<MediaStreamAudioDestinationNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, AudioNodeOptions? options)
+        => await MediaStreamAudioDestinationNode.CreateAsync(jSRuntime, context, options);
 }

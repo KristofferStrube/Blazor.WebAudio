@@ -1,9 +1,9 @@
-﻿namespace IntegrationTests.AudioNodeTests;
+﻿using Microsoft.JSInterop;
 
-public class GainNodeTest : AudioNodeTest<GainNode>
+namespace IntegrationTests.AudioNodeTests;
+
+public class GainNodeTest : AudioNodeWithAudioNodeOptions<GainNode, GainOptions>
 {
-    public override async Task<GainNode> GetDefaultInstanceAsync()
-    {
-        return await GainNode.CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext());
-    }
+    public override async Task<GainNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, GainOptions? options)
+        => await GainNode.CreateAsync(jSRuntime, context, options);
 }

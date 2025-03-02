@@ -1,9 +1,9 @@
-﻿namespace IntegrationTests.AudioNodeTests;
+﻿using Microsoft.JSInterop;
 
-public class DynamicsCompressorNodeTest : AudioNodeTest<DynamicsCompressorNode>
+namespace IntegrationTests.AudioNodeTests;
+
+public class DynamicsCompressorNodeTest : AudioNodeWithAudioNodeOptions<DynamicsCompressorNode, DynamicsCompressorOptions>
 {
-    public override async Task<DynamicsCompressorNode> GetDefaultInstanceAsync()
-    {
-        return await DynamicsCompressorNode.CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext());
-    }
+    public override async Task<DynamicsCompressorNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, DynamicsCompressorOptions? options)
+        => await DynamicsCompressorNode.CreateAsync(jSRuntime, context, options);
 }

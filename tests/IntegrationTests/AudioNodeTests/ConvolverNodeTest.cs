@@ -1,9 +1,9 @@
-﻿namespace IntegrationTests.AudioNodeTests;
+﻿using Microsoft.JSInterop;
 
-public class ConvolverNodeTest : AudioNodeTest<ConvolverNode>
+namespace IntegrationTests.AudioNodeTests;
+
+public class ConvolverNodeTest : AudioNodeWithAudioNodeOptions<ConvolverNode, ConvolverOptions>
 {
-    public override async Task<ConvolverNode> GetDefaultInstanceAsync()
-    {
-        return await ConvolverNode.CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext());
-    }
+    public override async Task<ConvolverNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, ConvolverOptions? options)
+        => await ConvolverNode.CreateAsync(jSRuntime, context, options);
 }

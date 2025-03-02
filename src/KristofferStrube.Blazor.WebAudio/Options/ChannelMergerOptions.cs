@@ -19,6 +19,9 @@ public class ChannelMergerOptions : AudioNodeOptions
     [JsonPropertyName("numberOfInputs")]
     public ulong NumberOfInputs { get; set; } = 6;
 
-    /// <inheritdoc/>
+    /// <inheritdoc path="/summary"/>
+    /// <remarks>
+    /// The default value is <see cref="ChannelCountMode.Explicit"/>.
+    /// </remarks>
     public override ChannelCountMode ChannelCountMode { get; set; } = ChannelCountMode.Explicit;
 }

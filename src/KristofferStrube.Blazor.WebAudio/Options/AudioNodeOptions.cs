@@ -29,8 +29,10 @@ public class AudioNodeOptions
 
     /// <summary>
     /// <see cref="ChannelInterpretation"/> determines how individual channels will be treated when up-mixing and down-mixing connections to any inputs to the node.
-    /// The default value is <see cref="ChannelInterpretation.Speakers"/>. This attribute has no effect for nodes with no inputs.
     /// </summary>
+    /// <remarks>
+    /// The default value is <see cref="ChannelInterpretation.Speakers"/>. This attribute has no effect for nodes with no inputs.
+    /// </remarks>
     [JsonPropertyName("channelInterpretation")]
-    public ChannelInterpretation ChannelInterpretation { get; set; } = ChannelInterpretation.Speakers;
+    public virtual ChannelInterpretation ChannelInterpretation { get; set; } = ChannelInterpretation.Speakers;
 }

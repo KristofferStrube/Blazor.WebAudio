@@ -9,9 +9,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#PannerOptions">See the API definition here</see>.</remarks>
 public class PannerOptions : AudioNodeOptions
 {
-    /// <summary>
-    /// <see cref="ChannelCountMode"/> determines how channels will be counted when up-mixing and down-mixing connections to any inputs to the node.
-    /// </summary>
+    /// <inheritdoc path="/summary"/>
     /// <remarks>
     /// The default value is <see cref="ChannelCountMode.ClampedMax"/>.
     /// </remarks>

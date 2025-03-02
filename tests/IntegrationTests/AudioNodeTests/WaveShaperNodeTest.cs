@@ -1,9 +1,9 @@
-﻿namespace IntegrationTests.AudioNodeTests;
+﻿using Microsoft.JSInterop;
 
-public class WaveShaperNodeTest : AudioNodeTest<WaveShaperNode>
+namespace IntegrationTests.AudioNodeTests;
+
+public class WaveShaperNodeTest : AudioNodeWithAudioNodeOptions<WaveShaperNode, WaveShaperOptions>
 {
-    public override async Task<WaveShaperNode> GetDefaultInstanceAsync()
-    {
-        return await WaveShaperNode.CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext());
-    }
+    public override async Task<WaveShaperNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, WaveShaperOptions? options)
+        => await WaveShaperNode.CreateAsync(jSRuntime, context, options);
 }

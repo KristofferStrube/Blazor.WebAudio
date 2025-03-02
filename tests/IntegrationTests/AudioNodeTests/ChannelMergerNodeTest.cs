@@ -1,9 +1,9 @@
-﻿namespace IntegrationTests.AudioNodeTests;
+﻿using Microsoft.JSInterop;
 
-public class ChannelMergerNodeTest : AudioNodeTest<ChannelMergerNode>
+namespace IntegrationTests.AudioNodeTests;
+
+public class ChannelMergerNodeTest : AudioNodeWithAudioNodeOptions<ChannelMergerNode, ChannelMergerOptions>
 {
-    public override async Task<ChannelMergerNode> GetDefaultInstanceAsync()
-    {
-        return await ChannelMergerNode.CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext());
-    }
+    public override async Task<ChannelMergerNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, ChannelMergerOptions? options)
+        => await ChannelMergerNode.CreateAsync(jSRuntime, context, options);
 }

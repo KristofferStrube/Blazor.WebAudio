@@ -1,9 +1,9 @@
-﻿namespace IntegrationTests.AudioNodeTests;
+﻿using Microsoft.JSInterop;
 
-public class StereoPannerNodeTest : AudioNodeTest<StereoPannerNode>
+namespace IntegrationTests.AudioNodeTests;
+
+public class StereoPannerNodeTest : AudioNodeWithAudioNodeOptions<StereoPannerNode, StereoPannerOptions>
 {
-    public override async Task<StereoPannerNode> GetDefaultInstanceAsync()
-    {
-        return await StereoPannerNode.CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext());
-    }
+    public override async Task<StereoPannerNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, StereoPannerOptions? options)
+        => await StereoPannerNode.CreateAsync(jSRuntime, context, options);
 }
