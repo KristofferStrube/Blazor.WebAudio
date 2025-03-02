@@ -7,11 +7,9 @@ public abstract class AudioNodeWithAudioNodeOptions<TAudioNode, TAudioNodeOption
 {
     public abstract Task<TAudioNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, TAudioNodeOptions? options);
 
-    public virtual TAudioNodeOptions? CreateDefaultOptions() => null;
-
     public override async Task<TAudioNode> GetDefaultInstanceAsync()
     {
-        return await CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext(), CreateDefaultOptions() ?? null);
+        return await CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext(), null);
     }
 
     [Test]
@@ -20,7 +18,7 @@ public abstract class AudioNodeWithAudioNodeOptions<TAudioNode, TAudioNodeOption
         // Arrange
         AfterRenderAsync = async () =>
         {
-            return await CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext(), CreateDefaultOptions() ?? new TAudioNodeOptions());
+            return await CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext(), new TAudioNodeOptions());
         };
 
         // Act
@@ -29,5 +27,53 @@ public abstract class AudioNodeWithAudioNodeOptions<TAudioNode, TAudioNodeOption
         // Assert
         _ = EvaluationContext.Exception.Should().BeNull();
         _ = EvaluationContext.Result.Should().BeOfType<TAudioNode>();
+    }
+
+    [Test]
+    public async Task CreateAsync_WithEmptyOptions_HasSameChannelCountModeAsWhenNoOptionsAreUsed()
+    {
+        // Arrange
+        AfterRenderAsync = async () =>
+        {
+            await using TAudioNode emptyOptionsNode = await CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext(), new TAudioNodeOptions());
+            await using TAudioNode noOptionsNode = await CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext(), null);
+
+            ChannelCountMode emptyOptionsCountMode = await emptyOptionsNode.GetChannelCountModeAsync();
+            ChannelCountMode noOptionsCountMode = await noOptionsNode.GetChannelCountModeAsync();
+
+            return (emptyOptionsCountMode, noOptionsCountMode);
+        };
+
+        // Act
+        await OnAfterRerenderAsync();
+
+        // Assert
+        _ = EvaluationContext.Exception.Should().BeNull();
+        (ChannelCountMode emptyOptionsCountMode, ChannelCountMode noOptionsCountMode) = EvaluationContext.Result.Should().BeOfType<(ChannelCountMode, ChannelCountMode)>().Subject;
+        _ = emptyOptionsCountMode.Should().Be(noOptionsCountMode);
+    }
+
+    [Test]
+    public async Task CreateAsync_WithEmptyOptions_HasSameChannelInterpretationAsWhenNoOptionsAreUsed()
+    {
+        // Arrange
+        AfterRenderAsync = async () =>
+        {
+            await using TAudioNode emptyOptionsNode = await CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext(), new TAudioNodeOptions());
+            await using TAudioNode noOptionsNode = await CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext(), null);
+
+            ChannelInterpretation emptyOptionsChannelInterpretation = await emptyOptionsNode.GetChannelInterpretationAsync();
+            ChannelInterpretation noOptionsChannelInterpretation = await noOptionsNode.GetChannelInterpretationAsync();
+
+            return (emptyOptionsChannelInterpretation, noOptionsChannelInterpretation);
+        };
+
+        // Act
+        await OnAfterRerenderAsync();
+
+        // Assert
+        _ = EvaluationContext.Exception.Should().BeNull();
+        (ChannelInterpretation emptyOptionsChannelInterpretation, ChannelInterpretation noOptionsChannelInterpretation) = EvaluationContext.Result.Should().BeOfType<(ChannelInterpretation, ChannelInterpretation)>().Subject;
+        _ = emptyOptionsChannelInterpretation.Should().Be(noOptionsChannelInterpretation);
     }
 }
