@@ -1,5 +1,6 @@
 ﻿using KristofferStrube.Blazor.MediaCaptureStreams;
 using KristofferStrube.Blazor.WebAudio.Extensions;
+using KristofferStrube.Blazor.WebAudio.Options;
 using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 
@@ -31,7 +32,7 @@ public class MediaStreamAudioDestinationNode : AudioNode, IJSCreatable<MediaStre
     /// <param name="context">The <see cref="AudioContext"/> this new <see cref="MediaStreamAudioDestinationNode"/> will be associated with.</param>
     /// <param name="options">Optional initial parameter value for this <see cref="MediaStreamAudioDestinationNode"/>.</param>
     /// <returns>A new instance of a <see cref="MediaStreamAudioDestinationNode"/>.</returns>
-    public static async Task<MediaStreamAudioDestinationNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, AudioNodeOptions? options = null)
+    public static async Task<MediaStreamAudioDestinationNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, MediaStreamAudioDestinationOptions? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructMediaStreamAudioDestinationNode", context, options);
