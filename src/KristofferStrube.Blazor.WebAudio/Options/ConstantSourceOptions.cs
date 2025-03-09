@@ -6,7 +6,7 @@ namespace KristofferStrube.Blazor.WebAudio;
 /// This specifies options for constructing a <see cref="ConstantSourceNode"/>.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#ConstantSourceOptions">See the API definition here</see>.</remarks>
-public class ConstantSourceOptions : AudioNodeOptions
+public class ConstantSourceOptions
 {
     /// <summary>
     /// The initial value for the <see cref="ConstantSourceNode.GetOffsetAsync"/> <see cref="AudioParam"/> of this node.

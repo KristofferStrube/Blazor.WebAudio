@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebIDL;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.WebAudio.Extensions;
 
@@ -13,5 +14,10 @@ internal static class IJSRuntimeExtensions
     {
         return await jSRuntime.InvokeAsync<IJSInProcessObjectReference>(
             "import", "./_content/KristofferStrube.Blazor.WebAudio/KristofferStrube.Blazor.WebAudio.js");
+    }
+    internal static async Task<ErrorHandlingJSObjectReference> GetErrorHandlingHelperAsync(this IJSRuntime jSRuntime)
+    {
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        return new ErrorHandlingJSObjectReference(jSRuntime, helper);
     }
 }

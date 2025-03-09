@@ -44,8 +44,8 @@ public class ChannelMergerNode : AudioNode, IJSCreatable<ChannelMergerNode>
     /// <returns>A new instance of a <see cref="ChannelMergerNode"/>.</returns>
     public static async Task<ChannelMergerNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, ChannelMergerOptions? options = null)
     {
-        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructChannelMergerNode", context, options);
+        await using ErrorHandlingJSObjectReference errorHandlingHelper = await jSRuntime.GetErrorHandlingHelperAsync();
+        IJSObjectReference jSInstance = await errorHandlingHelper.InvokeAsync<IJSObjectReference>("constructChannelMergerNode", context, options);
         return new ChannelMergerNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 

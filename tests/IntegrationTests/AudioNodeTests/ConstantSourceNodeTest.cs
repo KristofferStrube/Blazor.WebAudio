@@ -1,9 +1,9 @@
-﻿using Microsoft.JSInterop;
+﻿namespace IntegrationTests.AudioNodeTests;
 
-namespace IntegrationTests.AudioNodeTests;
-
-public class ConstantSourceNodeTest : AudioNodeWithAudioNodeOptions<ConstantSourceNode, ConstantSourceOptions>
+public class ConstantSourceNodeTest : AudioNodeTest<ConstantSourceNode>
 {
-    public override async Task<ConstantSourceNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, ConstantSourceOptions? options)
-        => await ConstantSourceNode.CreateAsync(jSRuntime, context, options);
+    public override async Task<ConstantSourceNode> GetDefaultInstanceAsync()
+    {
+        return await ConstantSourceNode.CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext());
+    }
 }

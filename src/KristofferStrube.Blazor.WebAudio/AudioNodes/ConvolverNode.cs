@@ -37,8 +37,8 @@ public class ConvolverNode : AudioNode, IJSCreatable<ConvolverNode>
     /// <returns>A new instance of a <see cref="ConvolverNode"/>.</returns>
     public static async Task<ConvolverNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, ConvolverOptions? options = null)
     {
-        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructConvolverNode", context, options);
+        await using ErrorHandlingJSObjectReference errorHandlingHelper = await jSRuntime.GetErrorHandlingHelperAsync();
+        IJSObjectReference jSInstance = await errorHandlingHelper.InvokeAsync<IJSObjectReference>("constructConvolverNode", context, options);
         return new ConvolverNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 

@@ -36,8 +36,8 @@ public class StereoPannerNode : AudioNode, IJSCreatable<StereoPannerNode>
     /// <returns>A new instance of a <see cref="StereoPannerNode"/>.</returns>
     public static async Task<StereoPannerNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, StereoPannerOptions? options = null)
     {
-        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructStereoPannerNode", context, options);
+        await using ErrorHandlingJSObjectReference errorHandlingHelper = await jSRuntime.GetErrorHandlingHelperAsync();
+        IJSObjectReference jSInstance = await errorHandlingHelper.InvokeAsync<IJSObjectReference>("constructStereoPannerNode", context, options);
         return new StereoPannerNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 

@@ -43,8 +43,8 @@ public class ChannelSplitterNode : AudioNode, IJSCreatable<ChannelSplitterNode>
     /// <returns>A new instance of a <see cref="ChannelSplitterNode"/>.</returns>
     public static async Task<ChannelSplitterNode> CreateAsync(IJSRuntime jSRuntime, BaseAudioContext context, ChannelSplitterOptions? options = null)
     {
-        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructChannelSplitterNode", context, options);
+        await using ErrorHandlingJSObjectReference errorHandlingHelper = await jSRuntime.GetErrorHandlingHelperAsync();
+        IJSObjectReference jSInstance = await errorHandlingHelper.InvokeAsync<IJSObjectReference>("constructChannelSplitterNode", context, options);
         return new ChannelSplitterNode(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
