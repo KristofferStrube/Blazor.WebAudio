@@ -32,10 +32,14 @@ public abstract class AudioNode : EventTarget
     /// <inheritdoc cref="IJSCreatable{AudioNode}.CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
     protected AudioNode(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
-        webAudioHelperTask = new(jSRuntime.GetHelperAsync);
         if (jSRuntime is not IJSInProcessRuntime || ErrorHandlingJSInterop.ErrorHandlingJSInteropHasBeenSetup)
         {
             errorHandlingJSReference = new ErrorHandlingJSObjectReference(jSRuntime, jSReference);
+            webAudioHelperTask = new(async () => await jSRuntime.GetErrorHandlingHelperAsync());
+        }
+        else
+        {
+            webAudioHelperTask = new(jSRuntime.GetHelperAsync);
         }
     }
 
@@ -264,6 +268,10 @@ public abstract class AudioNode : EventTarget
     /// The default value is <see cref="ChannelCountMode.Max"/>.
     /// This attribute has no effect for nodes with no inputs.
     /// </summary>
+    /// <remarks>
+    /// Throws an <see cref="InvalidStateErrorException"/> if the audio node type does not support changing the channel count mode.<br />
+    /// Throws an <see cref="NotSupportedErrorException"/> if the channel count mode is not supported for the audio node type.<br />
+    /// </remarks>
     public async Task SetChannelCountModeAsync(ChannelCountMode value)
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
@@ -275,6 +283,9 @@ public abstract class AudioNode : EventTarget
     /// The default value is <see cref="ChannelInterpretation.Speakers"/>.
     /// This attribute has no effect for nodes with no inputs.
     /// </summary>
+    /// <remarks>
+    /// Throws an <see cref="InvalidStateErrorException"/> if the audio node type does not support changing the channel interpretation.<br />
+    /// </remarks>
     public async Task<ChannelInterpretation> GetChannelInterpretationAsync()
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;

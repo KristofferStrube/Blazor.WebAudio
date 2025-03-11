@@ -13,4 +13,9 @@ public class ChannelSplitterNodeTest : AudioNodeWithAudioNodeOptions<ChannelSpli
         [ChannelCountMode.Max] = typeof(InvalidStateErrorException),
         [ChannelCountMode.ClampedMax] = typeof(InvalidStateErrorException),
     };
+
+    public override Dictionary<ChannelInterpretation, Type> UnsupportedChannelInterpretations => new()
+    {
+        [ChannelInterpretation.Speakers] = typeof(InvalidStateErrorException),
+    };
 }

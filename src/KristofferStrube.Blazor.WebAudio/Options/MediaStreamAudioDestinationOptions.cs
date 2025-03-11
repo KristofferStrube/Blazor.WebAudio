@@ -1,7 +1,7 @@
 ﻿namespace KristofferStrube.Blazor.WebAudio.Options;
 
 /// <summary>
-/// This specifies the options to use in constructing an <see cref="MediaStreamAudioDestinationNode"/>.
+/// This specifies the options to use in constructing a <see cref="MediaStreamAudioDestinationNode"/>.
 /// </summary>
 /// <remarks>
 /// This type doesn't exist in the specs, but the <see cref="MediaStreamAudioDestinationNode"/> has a non-standard value for the <see cref="AudioNodeOptions.ChannelCountMode"/> attribute which is why this type is added in this wrapper.<br />

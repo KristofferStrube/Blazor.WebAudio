@@ -2,6 +2,15 @@
 
 <span data-testid="result">@result</span>
 
+<HeadContent>
+    <script>
+        function getAudioElement() {
+            let audioElement = document.createElement("audio");
+            return audioElement;
+        }
+    </script>
+</HeadContent>
+
 @code {
     string? result;
 

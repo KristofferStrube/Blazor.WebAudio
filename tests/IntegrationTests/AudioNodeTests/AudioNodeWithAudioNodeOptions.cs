@@ -12,8 +12,6 @@ public abstract class AudioNodeWithAudioNodeOptions<TAudioNode, TAudioNodeOption
         return await CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext(), null);
     }
 
-    public virtual Dictionary<ChannelCountMode, Type> UnsupportedChannelCountModes => [];
-
     [Test]
     public async Task CreateAsync_WithEmptyOptions_Succeeds()
     {
@@ -83,7 +81,7 @@ public abstract class AudioNodeWithAudioNodeOptions<TAudioNode, TAudioNodeOption
     [TestCase(ChannelCountMode.Explicit)]
     [TestCase(ChannelCountMode.ClampedMax)]
     [Test]
-    public async Task CreateAsync_WithDifferentChannelCountModes_SetsChannelCount_ExceptForUnsupportedValues(ChannelCountMode mode)
+    public async Task CreateAsync_WithDifferentChannelCountModes_SetsChannelCountMode_ExceptForUnsupportedValues(ChannelCountMode mode)
     {
         // Arrange
         AfterRenderAsync = async () =>
@@ -109,6 +107,38 @@ public abstract class AudioNodeWithAudioNodeOptions<TAudioNode, TAudioNodeOption
         {
             _ = EvaluationContext.Exception.Should().BeNull();
             _ = EvaluationContext.Result.Should().Be(mode);
+        }
+    }
+
+    [TestCase(ChannelInterpretation.Discrete)]
+    [TestCase(ChannelInterpretation.Speakers)]
+    [Test]
+    public async Task CreateAsync_WithDifferentChannelInterpretations_SetsChannelInterpretation_ExceptForUnsupportedValues(ChannelInterpretation interpretation)
+    {
+        // Arrange
+        AfterRenderAsync = async () =>
+        {
+            TAudioNodeOptions options = new();
+            options.ChannelInterpretation = interpretation;
+
+            await using TAudioNode node = await CreateAsync(EvaluationContext.JSRuntime, await EvaluationContext.GetAudioContext(), options);
+
+            return await node.GetChannelInterpretationAsync();
+        };
+
+        // Act
+        await OnAfterRerenderAsync();
+
+        // Assert
+        if (UnsupportedChannelInterpretations.TryGetValue(interpretation, out Type? exceptionType))
+        {
+            _ = EvaluationContext.Result.Should().Be(null);
+            _ = EvaluationContext.Exception.Should().BeOfType(exceptionType);
+        }
+        else
+        {
+            _ = EvaluationContext.Exception.Should().BeNull();
+            _ = EvaluationContext.Result.Should().Be(interpretation);
         }
     }
 }

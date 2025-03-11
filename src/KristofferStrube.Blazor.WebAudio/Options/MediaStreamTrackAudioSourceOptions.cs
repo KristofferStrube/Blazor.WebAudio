@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace KristofferStrube.Blazor.WebAudio;
 
 /// <summary>
-/// This specifies the options to use in constructing an <see cref="MediaStreamTrackAudioSourceNode"/>.
+/// This specifies the options to use in constructing a <see cref="MediaStreamTrackAudioSourceNode"/>.
 /// </summary>
 /// <remarks><see href="https://www.w3.org/TR/webaudio/#MediaStreamTrackAudioSourceOptions">See the API definition here</see>.</remarks>
 public class MediaStreamTrackAudioSourceOptions
