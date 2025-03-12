@@ -2,11 +2,29 @@
 
 public partial class PullAudioWorkletProcessor
 {
+    /// <summary>
+    /// Options for creating <see cref="PullAudioWorkletProcessor"/>.
+    /// </summary>
     public class Options
     {
+        /// <summary>
+        /// Low tide for when the processor should request more chunks.
+        /// </summary>
         public int LowTide { get; set; } = 10;
+
+        /// <summary>
+        /// High tide for when the processor should begin discarding chunks.
+        /// </summary>
         public int HighTide { get; set; } = 50;
+
+        /// <summary>
+        /// Size of each individual chunk.
+        /// </summary>
         public int BufferRequestSize { get; set; } = 10;
+
+        /// <summary>
+        /// Resolution used for transfering chunks.
+        /// </summary>
         public Resolution Resolution { get; set; } = Resolution.Double;
 
         /// <summary>
