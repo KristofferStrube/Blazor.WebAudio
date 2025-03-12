@@ -28,7 +28,7 @@ public class Analyser : Node
 
     public string Type
     {
-        get => Element.GetAttribute("data-type");
+        get => Element.GetAttribute("data-type")!;
         set
         {
             if (value is null)

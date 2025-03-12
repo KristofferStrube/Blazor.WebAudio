@@ -106,7 +106,7 @@
         {
             loadedTracks[currentTrack] = await HttpClient.GetByteArrayAsync(tracks[currentTrack]);
         }
-        AudioBuffer nextAudioBuffer = await context.DecodeAudioDataAsync(loadedTracks[currentTrack]);
+        AudioBuffer nextAudioBuffer = await context.DecodeAudioDataAsync(loadedTracks[currentTrack]!);
 
         currentAudioBuffer = nextAudioBuffer;
         trackDuration = await currentAudioBuffer.GetDurationAsync();
