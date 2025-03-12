@@ -1,9 +1,9 @@
 ﻿using FluentAssertions;
-using IntegrationTests.Infrastructure;
+using KristofferStrube.Blazor.WebIDL.Exceptions;
 
 namespace IntegrationTests.AudioNodeTests;
 
-public abstract class AudioNodeTest<TAudioNode> : AudioContextBlazorTest where TAudioNode : AudioNode
+public abstract class AudioNodeTest<TAudioNode> : BlazorTest where TAudioNode : AudioNode
 {
     public abstract Task<TAudioNode> GetDefaultInstanceAsync();
 
@@ -14,18 +14,11 @@ public abstract class AudioNodeTest<TAudioNode> : AudioContextBlazorTest where T
     [Test]
     public async Task CreateAsync_WithNoOptions_Succeeds()
     {
-        // Arrange
-        AfterRenderAsync = async () =>
-        {
-            return await GetDefaultInstanceAsync();
-        };
-
         // Act
-        await OnAfterRerenderAsync();
+        await using TAudioNode node = await GetDefaultInstanceAsync();
 
         // Assert
-        _ = EvaluationContext.Exception.Should().BeNull();
-        _ = EvaluationContext.Result.Should().BeOfType<TAudioNode>();
+        _ = node.Should().BeOfType<TAudioNode>();
     }
 
     [TestCase(ChannelCountMode.Max)]
@@ -34,29 +27,23 @@ public abstract class AudioNodeTest<TAudioNode> : AudioContextBlazorTest where T
     [Test]
     public async Task SettingChannelCountMode_SetsChannelCountMode_ExceptForUnsupportedValues(ChannelCountMode mode)
     {
-        // Arrange
-        AfterRenderAsync = async () =>
+        // Act
+        Func<Task<ChannelCountMode>> action = async () =>
         {
             await using TAudioNode node = await GetDefaultInstanceAsync();
-
             await node.SetChannelCountModeAsync(mode);
-
             return await node.GetChannelCountModeAsync();
         };
-
-        // Act
-        await OnAfterRerenderAsync();
 
         // Assert
         if (UnsupportedChannelCountModes.TryGetValue(mode, out Type? exceptionType))
         {
-            _ = EvaluationContext.Result.Should().Be(null);
-            _ = EvaluationContext.Exception.Should().BeOfType(exceptionType);
+            _ = (await action.Should().ThrowAsync<WebIDLException>()).And.Should().BeOfType(exceptionType);
         }
         else
         {
-            _ = EvaluationContext.Exception.Should().BeNull();
-            _ = EvaluationContext.Result.Should().Be(mode);
+            ChannelCountMode result = await action();
+            _ = result.Should().Be(mode);
         }
     }
 
@@ -65,29 +52,23 @@ public abstract class AudioNodeTest<TAudioNode> : AudioContextBlazorTest where T
     [Test]
     public async Task SettingChannelInterpretation_SetsInterpretation_ExceptForUnsupportedValues(ChannelInterpretation interpretation)
     {
-        // Arrange
-        AfterRenderAsync = async () =>
+        // Act
+        Func<Task<ChannelInterpretation>> action = async () =>
         {
             await using TAudioNode node = await GetDefaultInstanceAsync();
-
             await node.SetChannelInterpretationAsync(interpretation);
-
             return await node.GetChannelInterpretationAsync();
         };
-
-        // Act
-        await OnAfterRerenderAsync();
 
         // Assert
         if (UnsupportedChannelInterpretations.TryGetValue(interpretation, out Type? exceptionType))
         {
-            _ = EvaluationContext.Result.Should().Be(null);
-            _ = EvaluationContext.Exception.Should().BeOfType(exceptionType);
+            _ = (await action.Should().ThrowAsync<WebIDLException>()).And.Should().BeOfType(exceptionType);
         }
         else
         {
-            _ = EvaluationContext.Exception.Should().BeNull();
-            _ = EvaluationContext.Result.Should().Be(interpretation);
+            ChannelInterpretation result = await action();
+            _ = result.Should().Be(interpretation);
         }
     }
 

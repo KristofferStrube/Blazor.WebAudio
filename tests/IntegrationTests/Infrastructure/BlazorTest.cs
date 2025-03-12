@@ -1,16 +1,18 @@
 using BlazorServer;
+using IntegrationTests.Infrastructure;
 using KristofferStrube.Blazor.MediaCaptureStreams;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.JSInterop;
 using Microsoft.Playwright;
 
 namespace KristofferStrube.Blazor.WebAudio.IntegrationTests.Infrastructure;
 
 [TestFixture]
-public class BlazorTest<TEvaluationContext> where TEvaluationContext : EvaluationContext, IEvaluationContext<TEvaluationContext>
+public class BlazorTest
 {
     private IHost? _host;
 
@@ -18,14 +20,15 @@ public class BlazorTest<TEvaluationContext> where TEvaluationContext : Evaluatio
     protected virtual string[] Args => ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"];
 
 
-    protected TEvaluationContext EvaluationContext { get; set; } = default!;
-    protected TEvaluationContext EvaluationContextCreator(IServiceProvider sp)
+    protected AudioContextEvaluationContext EvaluationContext { get; set; } = default!;
+    protected AudioContextEvaluationContext EvaluationContextCreator(IServiceProvider sp)
     {
-        EvaluationContext = TEvaluationContext.Create(sp);
-        EvaluationContext.AfterRenderAsync = AfterRenderAsync;
+        EvaluationContext = AudioContextEvaluationContext.Create(sp);
         return EvaluationContext;
     }
-    protected Func<Task<object?>>? AfterRenderAsync { get; set; }
+
+    protected IJSRuntime JSRuntime => EvaluationContext.JSRuntime;
+    protected async Task<AudioContext> GetAudioContextAsync() => await GetAudioContextAsync();
 
     protected IPlaywright PlaywrightInstance { get; set; }
     protected IBrowser Browser { get; set; }
@@ -61,11 +64,10 @@ public class BlazorTest<TEvaluationContext> where TEvaluationContext : Evaluatio
             .Addresses.Single());
     }
 
-    [TearDown]
-    public void CleanupBetweenTestRuns()
+    [SetUp]
+    public async Task SetupBeforeEachTestRun()
     {
-        EvaluationContext.Exception = null;
-        EvaluationContext.Result = null;
+        await OnAfterRerenderAsync();
     }
 
     [OneTimeTearDown]

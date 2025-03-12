@@ -5,7 +5,7 @@ using Microsoft.JSInterop;
 
 namespace IntegrationTests.Infrastructure;
 
-public class AudioContextEvaluationContext(IJSRuntime jSRuntime, IMediaDevicesService mediaDevicesService) : EvaluationContext, IEvaluationContext<AudioContextEvaluationContext>
+public class AudioContextEvaluationContext(IJSRuntime jSRuntime, IMediaDevicesService mediaDevicesService) : EvaluationContext
 {
     public IJSRuntime JSRuntime => jSRuntime;
 
