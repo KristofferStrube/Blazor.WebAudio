@@ -38,6 +38,7 @@ public class MessagePortInProcess : MessagePort, IJSInProcessCreatable<MessagePo
     /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSInProcessObjectReference, CreationOptions)"/>
     protected MessagePortInProcess(IJSRuntime jSRuntime, IJSInProcessObjectReference inProcessHelper, IJSInProcessObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
+        this.inProcessHelper = inProcessHelper;
         JSReference = jSReference;
     }
 
