@@ -74,4 +74,26 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
         float tenthElement = await buffer.AtAsync(bufferLength - 1);
         _ = tenthElement.Should().NotBe(0);
     }
+
+    [Test]
+    public async Task GetByteTimeDomainDataAsync_ShouldPopulateBuffer()
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using OscillatorNode oscillator = await OscillatorNode.CreateAsync(JSRuntime, context);
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+        await oscillator.ConnectAsync(node);
+        await oscillator.StartAsync();
+
+        int bufferLength = (int)await node.GetFftSizeAsync();
+        await using Uint8Array buffer = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
+
+        // Act
+        await node.GetByteTimeDomainDataAsync(buffer);
+
+        // Assert
+        byte tenthElement = await buffer.AtAsync(bufferLength - 1);
+        _ = tenthElement.Should().NotBe(0);
+    }
 }
