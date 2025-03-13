@@ -248,4 +248,63 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
         // Assert
         _ = await action.Should().ThrowAsync<IndexSizeErrorException>();
     }
+
+    [Test]
+    [TestCase(-100)]
+    [TestCase(-50)]
+    public async Task GetMinDecibelsAsync_ShouldRetrieveMinDecibels(double minDecibels)
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context, new()
+        {
+            MinDecibels = minDecibels
+        });
+
+        // Act
+        double readMinDecibels = await node.GetMinDecibelsAsync();
+
+        // Assert
+        _ = readMinDecibels.Should().Be(minDecibels);
+    }
+
+    [Test]
+    [TestCase(-100)]
+    [TestCase(-50)]
+    public async Task SetMinDecibelsAsync_ShouldUpdateMinDecibels(double minDecibels)
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+
+        // Act
+        await node.SetMinDecibelsAsync(minDecibels);
+
+        // Assert
+        double readMinDecibels = await node.GetMinDecibelsAsync();
+        _ = readMinDecibels.Should().Be(minDecibels);
+    }
+
+    [Test]
+    [TestCase(-100, -110)]
+    [TestCase(50, 0)]
+    public async Task SetMinDecibelsAsync_ThrowsIndexSizeErrorException_WhenSetHigherThanMaxDecibels(double minDecibels, double maxDecibels)
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context, new()
+        {
+            MinDecibels = maxDecibels - 1,
+            MaxDecibels = maxDecibels,
+        });
+
+        // Act
+        Func<Task> action = async () => await node.SetMinDecibelsAsync(minDecibels);
+
+        // Assert
+        _ = await action.Should().ThrowAsync<IndexSizeErrorException>();
+    }
 }
