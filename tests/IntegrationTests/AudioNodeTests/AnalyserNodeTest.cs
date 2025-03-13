@@ -21,13 +21,13 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
         await oscillator.StartAsync();
 
         int bufferLength = (int)await node.GetFrequencyBinCountAsync();
-        await using Float32Array array = await Float32Array.CreateAsync(JSRuntime, bufferLength);
+        await using Float32Array buffer = await Float32Array.CreateAsync(JSRuntime, bufferLength);
 
         // Act
-        await node.GetFloatFrequencyDataAsync(array);
+        await node.GetFloatFrequencyDataAsync(buffer);
 
         // Assert
-        float lastElement = await array.AtAsync(bufferLength - 1);
+        float lastElement = await buffer.AtAsync(bufferLength - 1);
         _ = lastElement.Should().NotBe(0);
     }
 }
