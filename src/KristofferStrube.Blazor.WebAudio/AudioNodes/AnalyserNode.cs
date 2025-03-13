@@ -61,14 +61,16 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
 
     /// <summary>
     /// Gets a reference to the bytes held by the <see cref="Uint8Array"/> passed as an argument.
-    /// Copies the current time-domain data (waveform data) into those bytes.
+    /// Copies the current frequency data into those bytes.
     /// </summary>
     /// <remarks>
-    /// If the array has fewer elements than the value from <see cref="GetFftSizeAsync"/>, the excess elements will be dropped.
-    /// If the array has more elements than what <see cref="GetFftSizeAsync"/> returns, the excess elements will be ignored.
-    /// The most recent frames are used in computing the byte data defined by the value from <see cref="GetFftSizeAsync"/>.
+    /// If the array has fewer elements than <see cref="GetFrequencyBinCountAsync"/>, the excess elements will be dropped.
+    /// If the array has more elements than the <see cref="GetFrequencyBinCountAsync"/>, the excess elements will be ignored.
+    /// The most recent <see cref="GetFftSizeAsync"/> frames are used in computing the frequency data.<br />
+    /// If another call to <see cref="GetByteFrequencyDataAsync"/> or <see cref="GetFloatFrequencyDataAsync"/> occurs within the same render quantum as a previous call, the current frequency data is not updated with the same data.
+    /// Instead, the previously computed data is returned.
     /// </remarks>
-    /// <param name="array">This parameter is where the time-domain sample data will be copied.</param>
+    /// <param name="array">This parameter is where the frequency-domain analysis data will be copied.</param>
     public async Task GetByteFrequencyDataAsync(Uint8Array array)
     {
         await JSReference.InvokeVoidAsync("getByteFrequencyData", array);
