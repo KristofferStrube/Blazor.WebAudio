@@ -309,4 +309,59 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
         // Assert
         _ = await action.Should().ThrowAsync<IndexSizeErrorException>();
     }
+
+    [Test]
+    [TestCase(0.8)]
+    [TestCase(0)]
+    public async Task GetSmoothingTimeConstantAsync_ShouldRetrieveSmoothingTimeConstant(double smoothingTimeConstant)
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context, new()
+        {
+            SmoothingTimeConstant = smoothingTimeConstant
+        });
+
+        // Act
+        double readSmoothingTimeConstant = await node.GetSmoothingTimeConstantAsync();
+
+        // Assert
+        _ = readSmoothingTimeConstant.Should().Be(smoothingTimeConstant);
+    }
+
+    [Test]
+    [TestCase(0.8)]
+    [TestCase(0)]
+    public async Task SetSmoothingTimeConstantAsync_ShouldUpdateSmoothingTimeConstant(double smoothingTimeConstant)
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+
+        // Act
+        await node.SetSmoothingTimeConstantAsync(smoothingTimeConstant);
+
+        // Assert
+        double readSmoothingTimeConstant = await node.GetSmoothingTimeConstantAsync();
+        _ = readSmoothingTimeConstant.Should().Be(smoothingTimeConstant);
+    }
+
+    [Test]
+    [TestCase(-0.2)]
+    [TestCase(1.2)]
+    public async Task SetMinDecibelsAsync_ThrowsIndexSizeErrorException_WhenSetToValueOutsideRange(double smoothingTimeConstant)
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+
+        // Act
+        Func<Task> action = async () => await node.SetSmoothingTimeConstantAsync(smoothingTimeConstant);
+
+        // Assert
+        _ = await action.Should().ThrowAsync<IndexSizeErrorException>();
+    }
 }
