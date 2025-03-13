@@ -96,4 +96,42 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
         byte tenthElement = await buffer.AtAsync(bufferLength - 1);
         _ = tenthElement.Should().NotBe(0);
     }
+
+    [Test]
+    [TestCase(32ul)]
+    [TestCase(64ul)]
+    public async Task GetFftSizeAsync_ShouldRetrieveFftSize(ulong fftSize)
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context, new()
+        {
+            FftSize = fftSize
+        });
+        
+        // Act
+        ulong readFftSize = await node.GetFftSizeAsync();
+
+        // Assert
+        _ = readFftSize.Should().Be(fftSize);
+    }
+
+    [Test]
+    [TestCase(32ul)]
+    [TestCase(64ul)]
+    public async Task SetFftSizeAsync_ShouldUpdateFftSize(ulong fftSize)
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+
+        // Act
+        await node.SetFftSizeAsync(fftSize);
+
+        // Assert
+        ulong readFftSize = await node.GetFftSizeAsync();
+        _ = readFftSize.Should().Be(fftSize);
+    }
 }
