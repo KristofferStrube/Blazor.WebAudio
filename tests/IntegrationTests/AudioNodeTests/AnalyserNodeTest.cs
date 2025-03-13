@@ -227,4 +227,26 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
         double readMaxDecibels = await node.GetMaxDecibelsAsync();
         _ = readMaxDecibels.Should().Be(maxDecibels);
     }
+
+    [Test]
+    [TestCase(-100, -110)]
+    [TestCase(50, 0)]
+    public async Task SetMaxDecibelsAsync_ThrowsIndexSizeErrorException_WhenSetLowerThanMinDecibels(double minDecibels, double maxDecibels)
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context, new()
+        {
+            MinDecibels = minDecibels,
+            MaxDecibels = minDecibels + 1,
+        });
+
+        // Act
+        
+        Func<Task> action = async () => await node.SetMaxDecibelsAsync(maxDecibels);
+
+        // Assert
+        _ = await action.Should().ThrowAsync<IndexSizeErrorException>();
+    }
 }
