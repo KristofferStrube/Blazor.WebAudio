@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using KristofferStrube.Blazor.WebIDL;
+using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
 
 namespace IntegrationTests.AudioNodeTests;
@@ -133,5 +134,97 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
         // Assert
         ulong readFftSize = await node.GetFftSizeAsync();
         _ = readFftSize.Should().Be(fftSize);
+    }
+
+    [Test]
+    [TestCase(16ul)]
+    [TestCase(65536ul)]
+    public async Task SetFftSizeAsync_ThrowsIndexSizeErrorException_WhenFftSizeIsOutOfBounds(ulong fftSize)
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+
+        // Act
+        Func<Task> action = async () => await node.SetFftSizeAsync(fftSize);
+
+        // Assert
+        _ = await action.Should().ThrowAsync<IndexSizeErrorException>();
+    }
+
+    [Test]
+    [TestCase(33ul)]
+    [TestCase(32767ul)]
+    public async Task SetFftSizeAsync_ThrowsIndexSizeErrorException_WhenFftSizeIsNotAPowerOfTwo(ulong fftSize)
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+
+        // Act
+        Func<Task> action = async () => await node.SetFftSizeAsync(fftSize);
+
+        // Assert
+        _ = await action.Should().ThrowAsync<IndexSizeErrorException>();
+    }
+
+    [Test]
+    [TestCase(32ul)]
+    [TestCase(64ul)]
+    public async Task GetFrequencyBinCountAsync_ShouldRetrieveFrequncyBinCount(ulong fftSize)
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context, new()
+        {
+            FftSize = fftSize
+        });
+
+        // Act
+        ulong readBinCount = await node.GetFrequencyBinCountAsync();
+
+        // Assert
+        _ = readBinCount.Should().Be(fftSize / 2);
+    }
+
+    [Test]
+    [TestCase(-30)]
+    [TestCase(0)]
+    public async Task GetMaxDecibelsAsync_ShouldRetrieveMaxDecibels(double maxDecibels)
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context, new()
+        {
+            MaxDecibels = maxDecibels
+        });
+
+        // Act
+        double readMaxDecibels = await node.GetMaxDecibelsAsync();
+
+        // Assert
+        _ = readMaxDecibels.Should().Be(maxDecibels);
+    }
+
+    [Test]
+    [TestCase(-30)]
+    [TestCase(0)]
+    public async Task SetMaxDecibelsAsync_ShouldUpdateMaxDecibels(double maxDecibels)
+    {
+        // Arrange
+        await using AudioContext context = await GetAudioContextAsync();
+
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+
+        // Act
+        await node.SetMaxDecibelsAsync(maxDecibels);
+
+        // Assert
+        double readMaxDecibels = await node.GetMaxDecibelsAsync();
+        _ = readMaxDecibels.Should().Be(maxDecibels);
     }
 }

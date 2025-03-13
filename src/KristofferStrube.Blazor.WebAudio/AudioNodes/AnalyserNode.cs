@@ -112,7 +112,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     /// <returns>Sample frames size.</returns>
     public async Task<ulong> GetFftSizeAsync()
     {
-        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference helper = await webAudioHelperTask.Value;
         return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "fftSize");
     }
 
@@ -128,7 +128,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     /// <exception cref="IndexSizeErrorException"></exception>
     public async Task SetFftSizeAsync(ulong value)
     {
-        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference helper = await webAudioHelperTask.Value;
         await helper.InvokeVoidAsync("setAttribute", JSReference, "fftSize", value);
     }
 
@@ -137,7 +137,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     /// </summary>
     public async Task<ulong> GetFrequencyBinCountAsync()
     {
-        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference helper = await webAudioHelperTask.Value;
         return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "frequencyBinCount");
     }
 
@@ -146,7 +146,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     /// </summary>
     public async Task<double> GetMaxDecibelsAsync()
     {
-        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference helper = await webAudioHelperTask.Value;
         return await helper.InvokeAsync<double>("getAttribute", JSReference, "maxDecibels");
     }
 
@@ -160,7 +160,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     /// <exception cref="IndexSizeErrorException"></exception>
     public async Task SetMaxDecibelsAsync(double value)
     {
-        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference helper = await webAudioHelperTask.Value;
         await helper.InvokeVoidAsync("setAttribute", JSReference, "maxDecibels", value);
     }
 
@@ -169,7 +169,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     /// </summary>
     public async Task<double> GetMinDecibelsAsync()
     {
-        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference helper = await webAudioHelperTask.Value;
         return await helper.InvokeAsync<double>("getAttribute", JSReference, "minDecibels");
     }
 
@@ -183,7 +183,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     /// <exception cref="IndexSizeErrorException"></exception>
     public async Task SetMinDecibelsAsync(double value)
     {
-        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference helper = await webAudioHelperTask.Value;
         await helper.InvokeVoidAsync("setAttribute", JSReference, "minDecibels", value);
     }
 
@@ -192,7 +192,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     /// </summary>
     public async Task<double> GetSmoothingTimeConstantAsync()
     {
-        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference helper = await webAudioHelperTask.Value;
         return await helper.InvokeAsync<double>("getAttribute", JSReference, "smoothingTimeConstant");
     }
 
@@ -206,7 +206,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     /// <exception cref="IndexSizeErrorException"></exception>
     public async Task SetSmoothingTimeConstantAsync(double value)
     {
-        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference helper = await webAudioHelperTask.Value;
         await helper.InvokeVoidAsync("setAttribute", JSReference, "smoothingTimeConstant", value);
     }
 }
