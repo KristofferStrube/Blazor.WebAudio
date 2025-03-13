@@ -188,7 +188,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     }
 
     /// <summary>
-    /// Gets a value from <c>0</c>0 to <c>1</c> where <c>0</c> represents no time averaging with the last analysis frame. The default value is <c>0.8</c>.
+    /// Gets a value from <c>0</c> to <c>1</c> where <c>0</c> represents no time averaging with the last analysis frame. The default value is <c>0.8</c>.
     /// </summary>
     public async Task<double> GetSmoothingTimeConstantAsync()
     {
