@@ -25,6 +25,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
         await using Float32Array buffer = await Float32Array.CreateAsync(JSRuntime, bufferLength);
 
         // Act
+        await Task.Delay(100);
         await node.GetFloatFrequencyDataAsync(buffer);
 
         // Assert
@@ -72,8 +73,8 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
         await node.GetFloatTimeDomainDataAsync(buffer);
 
         // Assert
-        float tenthElement = await buffer.AtAsync(bufferLength - 1);
-        _ = tenthElement.Should().NotBe(0);
+        float lastElement = await buffer.AtAsync(bufferLength - 1);
+        _ = lastElement.Should().NotBe(0);
     }
 
     [Test]
@@ -91,6 +92,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
         await using Uint8Array buffer = await Uint8Array.CreateAsync(JSRuntime, bufferLength);
 
         // Act
+        await Task.Delay(100);
         await node.GetByteTimeDomainDataAsync(buffer);
 
         // Assert
