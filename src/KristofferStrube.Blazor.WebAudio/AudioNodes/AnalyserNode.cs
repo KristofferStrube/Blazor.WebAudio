@@ -120,7 +120,7 @@ public class AnalyserNode : AudioNode, IJSCreatable<AnalyserNode>
     /// Sets the size of the FFT used for frequency-domain analysis (in sample-frames).
     /// </summary>
     /// <remarks>
-    /// It throws an <see cref="IndexSizeErrorException"/> if <paramref name="value"/> is not in the range <c>32</c> to <c>32768</c>
+    /// It throws an <see cref="IndexSizeErrorException"/> if <paramref name="value"/> is not a power of <c>2</c> or if it is outside the range of <c>32</c> to <c>32768</c>
     /// The default value is <c>2048</c>.
     /// Note that large FFT sizes can be costly to compute.
     /// </remarks>
