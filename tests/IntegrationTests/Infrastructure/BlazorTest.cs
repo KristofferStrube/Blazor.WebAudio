@@ -28,7 +28,7 @@ public class BlazorTest
     }
 
     protected IJSRuntime JSRuntime => EvaluationContext.JSRuntime;
-    protected async Task<AudioContext> GetAudioContextAsync() => await GetAudioContextAsync();
+    protected async Task<AudioContext> GetAudioContextAsync() => await EvaluationContext.GetAudioContext();
 
     protected IPlaywright PlaywrightInstance { get; set; }
     protected IBrowser Browser { get; set; }

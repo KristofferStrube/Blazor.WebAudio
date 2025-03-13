@@ -15,13 +15,13 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
         // Arrange
         await using AudioContext context = await GetAudioContextAsync();
 
-        await using OscillatorNode oscillator = await OscillatorNode.CreateAsync(EvaluationContext.JSRuntime, context);
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(EvaluationContext.JSRuntime, context);
+        await using OscillatorNode oscillator = await OscillatorNode.CreateAsync(JSRuntime, context);
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
         await oscillator.ConnectAsync(node);
         await oscillator.StartAsync();
 
         int bufferLength = (int)await node.GetFrequencyBinCountAsync();
-        await using Float32Array array = await Float32Array.CreateAsync(EvaluationContext.JSRuntime, bufferLength);
+        await using Float32Array array = await Float32Array.CreateAsync(JSRuntime, bufferLength);
 
         // Act
         await node.GetFloatFrequencyDataAsync(array);

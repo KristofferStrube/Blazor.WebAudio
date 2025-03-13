@@ -11,14 +11,14 @@ public abstract class AudioNodeWithAudioNodeOptions<TAudioNode, TAudioNodeOption
 
     public override async Task<TAudioNode> GetDefaultInstanceAsync()
     {
-        return await CreateAsync(EvaluationContext.JSRuntime, await GetAudioContextAsync(), null);
+        return await CreateAsync(JSRuntime, await GetAudioContextAsync(), null);
     }
 
     [Test]
     public async Task CreateAsync_WithEmptyOptions_Succeeds()
     {
         // Act
-        await using TAudioNode node = await CreateAsync(EvaluationContext.JSRuntime, await GetAudioContextAsync(), new TAudioNodeOptions());
+        await using TAudioNode node = await CreateAsync(JSRuntime, await GetAudioContextAsync(), new TAudioNodeOptions());
 
         // Assert
         _ = node.Should().BeOfType<TAudioNode>();
@@ -28,8 +28,8 @@ public abstract class AudioNodeWithAudioNodeOptions<TAudioNode, TAudioNodeOption
     public async Task CreateAsync_WithEmptyOptions_HasSameChannelCountModeAsWhenNoOptionsAreUsed()
     {
         // Arrange
-        await using TAudioNode emptyOptionsNode = await CreateAsync(EvaluationContext.JSRuntime, await GetAudioContextAsync(), new TAudioNodeOptions());
-        await using TAudioNode noOptionsNode = await CreateAsync(EvaluationContext.JSRuntime, await GetAudioContextAsync(), null);
+        await using TAudioNode emptyOptionsNode = await CreateAsync(JSRuntime, await GetAudioContextAsync(), new TAudioNodeOptions());
+        await using TAudioNode noOptionsNode = await CreateAsync(JSRuntime, await GetAudioContextAsync(), null);
 
         // Act
         ChannelCountMode emptyOptionsCountMode = await emptyOptionsNode.GetChannelCountModeAsync();
@@ -43,8 +43,8 @@ public abstract class AudioNodeWithAudioNodeOptions<TAudioNode, TAudioNodeOption
     public async Task CreateAsync_WithEmptyOptions_HasSameChannelInterpretationAsWhenNoOptionsAreUsed()
     {
         // Arrange
-        await using TAudioNode emptyOptionsNode = await CreateAsync(EvaluationContext.JSRuntime, await GetAudioContextAsync(), new TAudioNodeOptions());
-        await using TAudioNode noOptionsNode = await CreateAsync(EvaluationContext.JSRuntime, await GetAudioContextAsync(), null);
+        await using TAudioNode emptyOptionsNode = await CreateAsync(JSRuntime, await GetAudioContextAsync(), new TAudioNodeOptions());
+        await using TAudioNode noOptionsNode = await CreateAsync(JSRuntime, await GetAudioContextAsync(), null);
 
         // Act
         ChannelInterpretation emptyOptionsChannelInterpretation = await emptyOptionsNode.GetChannelInterpretationAsync();
@@ -67,7 +67,7 @@ public abstract class AudioNodeWithAudioNodeOptions<TAudioNode, TAudioNodeOption
         // Act
         Func<Task<ChannelCountMode>> action = async () =>
         {
-            await using TAudioNode node = await CreateAsync(EvaluationContext.JSRuntime, await GetAudioContextAsync(), options);
+            await using TAudioNode node = await CreateAsync(JSRuntime, await GetAudioContextAsync(), options);
             return await node.GetChannelCountModeAsync();
         };
 
@@ -95,7 +95,7 @@ public abstract class AudioNodeWithAudioNodeOptions<TAudioNode, TAudioNodeOption
         // Act
         Func<Task<ChannelInterpretation>> action = async () =>
         {
-            await using TAudioNode node = await CreateAsync(EvaluationContext.JSRuntime, await GetAudioContextAsync(), options);
+            await using TAudioNode node = await CreateAsync(JSRuntime, await GetAudioContextAsync(), options);
             return await node.GetChannelInterpretationAsync();
         };
 
