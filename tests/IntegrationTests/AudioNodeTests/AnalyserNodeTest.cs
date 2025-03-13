@@ -243,7 +243,6 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
         });
 
         // Act
-        
         Func<Task> action = async () => await node.SetMaxDecibelsAsync(maxDecibels);
 
         // Assert
