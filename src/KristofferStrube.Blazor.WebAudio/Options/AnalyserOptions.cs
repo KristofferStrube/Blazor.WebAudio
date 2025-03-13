@@ -29,6 +29,6 @@ public class AnalyserOptions : AudioNodeOptions
     /// <summary>
     /// The desired initial smoothing constant for the FFT analysis.
     /// </summary>
-    [JsonPropertyName("SmoothingTimeConstant")]
+    [JsonPropertyName("smoothingTimeConstant")]
     public double SmoothingTimeConstant { get; set; } = 0.8;
 }
