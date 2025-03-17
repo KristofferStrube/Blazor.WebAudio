@@ -52,7 +52,14 @@ public class AudioBufferSourceNode : AudioScheduledSourceNode, IJSCreatable<Audi
     public async Task<AudioBuffer?> GetBufferAsync()
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
-        IJSObjectReference? jSInstance = await helper.InvokeAsync<IJSObjectReference?>("getAttribute", JSReference, "buffer");
+        await using ValueReference bufferAttribute = new(JSRuntime, JSReference, "buffer");
+
+        if (await bufferAttribute.GetTypeNameAsync() is "null")
+        {
+            return null;
+        }
+
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "buffer");
         return jSInstance is null ? null : await AudioBuffer.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
