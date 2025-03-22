@@ -41,6 +41,9 @@ public class AudioBufferSourceOptions
     /// <summary>
     /// The initial value for <see cref="AudioBufferSourceNode.GetPlaybackRateAsync"/>
     /// </summary>
+    /// <remarks>
+    /// Default is <c>1</c>.
+    /// </remarks>
     [JsonPropertyName("playbackRate")]
     public float PlaybackRate { get; set; } = 1;
 }
