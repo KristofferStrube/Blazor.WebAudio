@@ -188,8 +188,8 @@ public class AudioBufferSourceNode : AudioScheduledSourceNode, IJSCreatable<Audi
     /// </summary>
     /// <remarks>
     /// It throws an <see cref="InvalidStateErrorException"/> if it has already been started.<br />
-    /// It throws an <see cref="RangeErrorException"/> if <paramref name="offset"/> is negative.<br />
-    /// It throws an <see cref="RangeErrorException"/> if <paramref name="duration"/> is negative.
+    /// It throws a <see cref="RangeErrorException"/> if <paramref name="offset"/> is negative.<br />
+    /// It throws a <see cref="RangeErrorException"/> if <paramref name="duration"/> is negative.
     /// </remarks>
     /// <param name="when">The when parameter describes at what time (in seconds) the sound should start playing. It is in the same time coordinate system as the AudioContext's currentTime attribute.</param>
     /// <param name="offset">The offset parameter supplies a playhead position where playback will begin. If <c>0</c> is passed in for this value, then playback will start from the beginning of the buffer.</param>

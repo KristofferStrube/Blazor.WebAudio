@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using KristofferStrube.Blazor.DOM;
+using KristofferStrube.Blazor.WebIDL.Exceptions;
 
 namespace IntegrationTests.AudioNodeTests;
 
@@ -340,5 +341,75 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
         await Task.Delay(TimeSpan.FromSeconds(0.2));
         _ = eventListenerTriggered.Should().BeTrue();
         await node.RemoveOnEndedEventListenerAsync(onEndedListener);
+    }
+
+    [Test]
+    public async Task StartAsync_ThrowsInvalidStateErrorException_WhenItHasAlreadyBeenStarted()
+    {
+        // Arrange
+        await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
+
+        await using AudioBuffer buffer = await AudioBuffer.CreateAsync(JSRuntime, new AudioBufferOptions()
+        {
+            SampleRate = 8000,
+            Length = 1
+        });
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        {
+            Buffer = buffer
+        });
+        await node.StartAsync();
+
+        // Act
+        Func<Task> action = async () => await node.StartAsync();
+
+        // Assert
+        _ = await action.Should().ThrowAsync<InvalidStateErrorException>();
+    }
+
+    [Test]
+    public async Task StartAsync_WithNegativeOffset_ThrowsRangeErrorException()
+    {
+        // Arrange
+        await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
+
+        await using AudioBuffer buffer = await AudioBuffer.CreateAsync(JSRuntime, new AudioBufferOptions()
+        {
+            SampleRate = 8000,
+            Length = 1
+        });
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        {
+            Buffer = buffer
+        });
+
+        // Act
+        Func<Task> action = async () => await node.StartAsync(when: 0, offset: -1);
+
+        // Assert
+        _ = await action.Should().ThrowAsync<RangeErrorException>();
+    }
+
+    [Test]
+    public async Task StartAsync_WithNegativeDuration_ThrowsRangeErrorException()
+    {
+        // Arrange
+        await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
+
+        await using AudioBuffer buffer = await AudioBuffer.CreateAsync(JSRuntime, new AudioBufferOptions()
+        {
+            SampleRate = 8000,
+            Length = 1
+        });
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        {
+            Buffer = buffer
+        });
+
+        // Act
+        Func<Task> action = async () => await node.StartAsync(when: 0, offset: 0, duration: -1);
+
+        // Assert
+        _ = await action.Should().ThrowAsync<RangeErrorException>();
     }
 }
