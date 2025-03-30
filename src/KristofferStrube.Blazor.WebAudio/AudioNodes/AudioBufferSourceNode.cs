@@ -198,17 +198,18 @@ public class AudioBufferSourceNode : AudioScheduledSourceNode, IJSCreatable<Audi
     /// <exception cref="RangeErrorException"></exception>
     public async Task StartAsync(double when = 0, double? offset = null, double? duration = null)
     {
+        IJSObjectReference jSReference = errorHandlingJSReference ?? JSReference;
         if (offset is null && duration is null)
         {
-            await JSReference.InvokeVoidAsync("start", when);
+            await jSReference.InvokeVoidAsync("start", when);
         }
         else if (duration is null)
         {
-            await JSReference.InvokeVoidAsync("start", when, offset);
+            await jSReference.InvokeVoidAsync("start", when, offset);
         }
         else
         {
-            await JSReference.InvokeVoidAsync("start", when, offset, duration);
+            await jSReference.InvokeVoidAsync("start", when, offset, duration);
         }
     }
 }
