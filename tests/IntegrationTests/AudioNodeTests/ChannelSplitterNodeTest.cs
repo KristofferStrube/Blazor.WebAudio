@@ -1,4 +1,5 @@
-﻿using KristofferStrube.Blazor.WebIDL.Exceptions;
+﻿using FluentAssertions;
+using KristofferStrube.Blazor.WebIDL.Exceptions;
 using Microsoft.JSInterop;
 
 namespace IntegrationTests.AudioNodeTests;
@@ -18,4 +19,30 @@ public class ChannelSplitterNodeTest : AudioNodeWithAudioNodeOptions<ChannelSpli
     {
         [ChannelInterpretation.Speakers] = typeof(InvalidStateErrorException),
     };
+
+    [Test]
+    public async Task CreateAsync_WithNoOptions_DefaultsTo6Outputs()
+    {
+        // Arrange
+        await using ChannelSplitterNode node = await ChannelSplitterNode.CreateAsync(JSRuntime, AudioContext);
+
+        // Act
+        ulong numberOfOutputs = await node.GetNumberOfOutputsAsync();
+
+        // Assert
+        _ = numberOfOutputs.Should().Be(6);
+    }
+
+    [Test]
+    public async Task CreateAsync_WithEmptyOptions_DefaultsTo6Outputs()
+    {
+        // Arrange
+        await using ChannelSplitterNode node = await ChannelSplitterNode.CreateAsync(JSRuntime, AudioContext, new());
+
+        // Act
+        ulong numberOfOutputs = await node.GetNumberOfOutputsAsync();
+
+        // Assert
+        _ = numberOfOutputs.Should().Be(6);
+    }
 }

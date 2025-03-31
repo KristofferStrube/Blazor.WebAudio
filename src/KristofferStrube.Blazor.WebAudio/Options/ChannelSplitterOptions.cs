@@ -29,6 +29,7 @@ public class ChannelSplitterOptions : AudioNodeOptions
     /// The number inputs for the <see cref="ChannelSplitterNode"/>.
     /// </summary>
     /// <remarks>
+    /// The default value is <c>6</c>.<br />
     /// It throws an <see cref="IndexSizeErrorException"/> if it is less than <c>1</c> or larger than the supported number of channels when used for constructing a <see cref="ChannelSplitterNode"/>.
     /// </remarks>
     [JsonPropertyName("numberOfInputs")]
