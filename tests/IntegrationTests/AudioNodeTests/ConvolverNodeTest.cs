@@ -94,6 +94,47 @@ public class ConvolverNodeTest : AudioNodeWithAudioNodeOptions<ConvolverNode, Co
     }
 
     [Test]
+    [TestCase(3ul)]
+    [TestCase(5ul)]
+    public async Task SetBufferAsync_WithBufferThatHasUnsupportedNumberOfChannels_ThrowsNotSupportErrorException(ulong numberOfChannels)
+    {
+        // Arrange
+        await using ConvolverNode node = await ConvolverNode.CreateAsync(JSRuntime, AudioContext);
+
+        await using AudioBuffer buffer = await AudioBuffer.CreateAsync(JSRuntime, new AudioBufferOptions()
+        {
+            Length = 1,
+            SampleRate = await AudioContext.GetSampleRateAsync(),
+            NumberOfChannels = numberOfChannels
+        });
+
+        // Act
+        Func<Task> action = async () => await node.SetBufferAsync(buffer);
+
+        // Assert
+        _ = await action.Should().ThrowAsync<NotSupportedErrorException>();
+    }
+
+    [Test]
+    public async Task SetBufferAsync_WithBufferThatHasMismatchingSampleRate_ThrowsNotSupportErrorException()
+    {
+        // Arrange
+        await using ConvolverNode node = await ConvolverNode.CreateAsync(JSRuntime, AudioContext);
+
+        await using AudioBuffer buffer = await AudioBuffer.CreateAsync(JSRuntime, new AudioBufferOptions()
+        {
+            Length = 1,
+            SampleRate = await AudioContext.GetSampleRateAsync() + 100
+        });
+
+        // Act
+        Func<Task> action = async () => await node.SetBufferAsync(buffer);
+
+        // Assert
+        _ = await action.Should().ThrowAsync<NotSupportedErrorException>();
+    }
+
+    [Test]
     [TestCase(false)]
     [TestCase(true)]
     public async Task GetNormalizeAsync_ShouldRetrieveNormalize(bool normalize)
