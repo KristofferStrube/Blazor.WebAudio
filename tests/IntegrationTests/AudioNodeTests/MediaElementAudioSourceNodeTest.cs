@@ -8,7 +8,7 @@ public class MediaElementAudioSourceNodeTest : AudioNodeTest<MediaElementAudioSo
     public override async Task<MediaElementAudioSourceNode> GetDefaultInstanceAsync()
     {
         IJSObjectReference element = await EvaluationContext.GetAudioElementAyns();
-        return await MediaElementAudioSourceNode.CreateAsync(JSRuntime, await GetAudioContextAsync(), new MediaElementAudioSourceOptions()
+        return await MediaElementAudioSourceNode.CreateAsync(JSRuntime, AudioContext, new MediaElementAudioSourceOptions()
         {
             MediaElement = element
         });

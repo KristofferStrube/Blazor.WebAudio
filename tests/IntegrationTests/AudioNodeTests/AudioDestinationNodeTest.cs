@@ -1,10 +1,23 @@
-﻿namespace IntegrationTests.AudioNodeTests;
+﻿using FluentAssertions;
+
+namespace IntegrationTests.AudioNodeTests;
 
 public class AudioDestinationNodeTest : AudioNodeTest<AudioDestinationNode>
 {
     public override async Task<AudioDestinationNode> GetDefaultInstanceAsync()
     {
-        AudioContext context = await GetAudioContextAsync();
-        return await context.GetDestinationAsync();
+        return await AudioContext.GetDestinationAsync();
+    }
+
+    [Test]
+    public async Task GetMaxChannelCount_RetrievesMaxChannelCount()
+    {
+        // Arrange
+        await using AudioDestinationNode destination = await AudioContext.GetDestinationAsync();
+
+        // Act
+        ulong maxChannelCount = await destination.GetMaxChannelCountAsync();
+
+        _ = maxChannelCount.Should().BeGreaterThan(0);
     }
 }

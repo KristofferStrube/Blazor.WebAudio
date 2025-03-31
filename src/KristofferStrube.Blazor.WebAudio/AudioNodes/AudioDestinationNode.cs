@@ -35,7 +35,6 @@ public class AudioDestinationNode : AudioNode, IJSCreatable<AudioDestinationNode
     /// An <see cref="AudioDestinationNode"/> representing the audio hardware end-point (the normal case) can potentially output more than <c>2</c> channels of audio if the audio hardware is multi-channel.
     /// maxChannelCount is the maximum number of channels that this hardware is capable of supporting.
     /// </summary>
-    /// <returns></returns>
     public async Task<ulong> GetMaxChannelCountAsync()
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;

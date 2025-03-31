@@ -51,17 +51,18 @@ public class BiquadFilterNode : AudioNode, IJSCreatable<BiquadFilterNode>
     /// <summary>
     /// Gets the type of this <see cref="BiquadFilterNode"/>.
     /// Its default value is <see cref="BiquadFilterType.Lowpass"/>.
-    /// The exact meaning of the other parameters depend on the value of the this attribute.
+    /// The exact meaning of the other parameters depend on the value of this attribute.
     /// </summary>
     public async Task<BiquadFilterType> GetTypeAsync()
     {
         IJSObjectReference helper = await webAudioHelperTask.Value;
         return await helper.InvokeAsync<BiquadFilterType>("getAttribute", JSReference, "type");
     }
+
     /// <summary>
     /// Sets the type of this <see cref="BiquadFilterNode"/>.
     /// Its default value is <see cref="BiquadFilterType.Lowpass"/>.
-    /// The exact meaning of the other parameters depend on the value of the this attribute.
+    /// The exact meaning of the other parameters depend on the value of this attribute.
     /// </summary>
     public async Task SetTypeAsync(BiquadFilterType value)
     {
@@ -120,7 +121,7 @@ public class BiquadFilterNode : AudioNode, IJSCreatable<BiquadFilterNode>
     /// </summary>
     /// <remarks>
     /// It throws an <see cref="InvalidAccessErrorException"/> if the <see cref="Float32Array"/> parameters are not the same length.<br />
-    ///  If a value in <paramref name="frequencyHz"/> is not within <c>[0, sampleRate/2]</c>, where <c>sampleRate</c> is the same as <see cref="BaseAudioContext.GetSampleRateAsync"/>, the corresponding value at the same index of the <paramref name="magResponse"/> and <paramref name="phaseResponse"/> arrays will be <c>NaN</c>.
+    /// If a value in <paramref name="frequencyHz"/> is not within <c>[0, sampleRate/2]</c>, where <c>sampleRate</c> is the same as <see cref="BaseAudioContext.GetSampleRateAsync"/>, the corresponding value at the same index of the <paramref name="magResponse"/> and <paramref name="phaseResponse"/> arrays will be <c>NaN</c>.
     /// </remarks>
     /// <param name="frequencyHz">This parameter specifies an array of frequencies, in Hz, at which the response values will be calculated.</param>
     /// <param name="magResponse">This parameter specifies an output array receiving the linear magnitude response values.</param>

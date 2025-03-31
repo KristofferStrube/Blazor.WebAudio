@@ -19,7 +19,6 @@ public class BlazorTest
     protected Uri RootUri;
     protected virtual string[] Args => ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"];
 
-
     protected AudioContextEvaluationContext EvaluationContext { get; set; } = default!;
     protected AudioContextEvaluationContext EvaluationContextCreator(IServiceProvider sp)
     {
@@ -28,7 +27,7 @@ public class BlazorTest
     }
 
     protected IJSRuntime JSRuntime => EvaluationContext.JSRuntime;
-    protected async Task<AudioContext> GetAudioContextAsync() => await EvaluationContext.GetAudioContext();
+    protected AudioContext AudioContext { get; set; } = default!;
 
     protected IPlaywright PlaywrightInstance { get; set; }
     protected IBrowser Browser { get; set; }
@@ -68,6 +67,13 @@ public class BlazorTest
     public async Task SetupBeforeEachTestRun()
     {
         await OnAfterRerenderAsync();
+        AudioContext = await EvaluationContext.GetAudioContext();
+    }
+
+    [TearDown]
+    public async Task TearDownAfterEachTestRun()
+    {
+        await AudioContext.DisposeAsync();
     }
 
     [OneTimeTearDown]

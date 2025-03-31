@@ -8,16 +8,14 @@ namespace IntegrationTests.AudioNodeTests;
 public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, AnalyserOptions>
 {
     public override Task<AnalyserNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, AnalyserOptions? options)
-        => AnalyserNode.CreateAsync(jSRuntime, context, options);
+        => AnalyserNode.CreateAsync(JSRuntime, AudioContext, options);
 
     [Test]
     public async Task GetFloatFrequencyDataAsync_ShouldPopulateBuffer()
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using OscillatorNode oscillator = await OscillatorNode.CreateAsync(JSRuntime, context);
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+        await using OscillatorNode oscillator = await OscillatorNode.CreateAsync(JSRuntime, AudioContext);
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext);
         await oscillator.ConnectAsync(node);
         await oscillator.StartAsync();
 
@@ -37,10 +35,8 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task GetByteFrequencyDataAsync_ShouldPopulateBuffer()
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using OscillatorNode oscillator = await OscillatorNode.CreateAsync(JSRuntime, context);
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+        await using OscillatorNode oscillator = await OscillatorNode.CreateAsync(JSRuntime, AudioContext);
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext);
         await oscillator.ConnectAsync(node);
         await oscillator.StartAsync();
 
@@ -59,10 +55,8 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task GetFloatTimeDomainDataAsync_ShouldPopulateBuffer()
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using OscillatorNode oscillator = await OscillatorNode.CreateAsync(JSRuntime, context);
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+        await using OscillatorNode oscillator = await OscillatorNode.CreateAsync(JSRuntime, AudioContext);
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext);
         await oscillator.ConnectAsync(node);
         await oscillator.StartAsync();
 
@@ -81,10 +75,8 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task GetByteTimeDomainDataAsync_ShouldPopulateBuffer()
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using OscillatorNode oscillator = await OscillatorNode.CreateAsync(JSRuntime, context);
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+        await using OscillatorNode oscillator = await OscillatorNode.CreateAsync(JSRuntime, AudioContext);
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext);
         await oscillator.ConnectAsync(node);
         await oscillator.StartAsync();
 
@@ -106,13 +98,11 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task GetFftSizeAsync_ShouldRetrieveFftSize(ulong fftSize)
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context, new()
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             FftSize = fftSize
         });
-        
+
         // Act
         ulong readFftSize = await node.GetFftSizeAsync();
 
@@ -126,9 +116,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task SetFftSizeAsync_ShouldUpdateFftSize(ulong fftSize)
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext);
 
         // Act
         await node.SetFftSizeAsync(fftSize);
@@ -144,9 +132,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task SetFftSizeAsync_ThrowsIndexSizeErrorException_WhenFftSizeIsOutOfBounds(ulong fftSize)
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext);
 
         // Act
         Func<Task> action = async () => await node.SetFftSizeAsync(fftSize);
@@ -161,9 +147,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task SetFftSizeAsync_ThrowsIndexSizeErrorException_WhenFftSizeIsNotAPowerOfTwo(ulong fftSize)
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext);
 
         // Act
         Func<Task> action = async () => await node.SetFftSizeAsync(fftSize);
@@ -178,9 +162,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task GetFrequencyBinCountAsync_ShouldRetrieveFrequncyBinCount(ulong fftSize)
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context, new()
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             FftSize = fftSize
         });
@@ -198,9 +180,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task GetMaxDecibelsAsync_ShouldRetrieveMaxDecibels(double maxDecibels)
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context, new()
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             MaxDecibels = maxDecibels
         });
@@ -218,9 +198,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task SetMaxDecibelsAsync_ShouldUpdateMaxDecibels(double maxDecibels)
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext);
 
         // Act
         await node.SetMaxDecibelsAsync(maxDecibels);
@@ -236,9 +214,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task SetMaxDecibelsAsync_ThrowsIndexSizeErrorException_WhenSetLowerThanMinDecibels(double minDecibels, double maxDecibels)
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context, new()
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             MinDecibels = minDecibels,
             MaxDecibels = minDecibels + 1,
@@ -257,9 +233,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task GetMinDecibelsAsync_ShouldRetrieveMinDecibels(double minDecibels)
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context, new()
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             MinDecibels = minDecibels
         });
@@ -277,9 +251,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task SetMinDecibelsAsync_ShouldUpdateMinDecibels(double minDecibels)
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext);
 
         // Act
         await node.SetMinDecibelsAsync(minDecibels);
@@ -295,9 +267,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task SetMinDecibelsAsync_ThrowsIndexSizeErrorException_WhenSetHigherThanMaxDecibels(double minDecibels, double maxDecibels)
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context, new()
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             MinDecibels = maxDecibels - 1,
             MaxDecibels = maxDecibels,
@@ -316,9 +286,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task GetSmoothingTimeConstantAsync_ShouldRetrieveSmoothingTimeConstant(double smoothingTimeConstant)
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context, new()
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             SmoothingTimeConstant = smoothingTimeConstant
         });
@@ -336,9 +304,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task SetSmoothingTimeConstantAsync_ShouldUpdateSmoothingTimeConstant(double smoothingTimeConstant)
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext);
 
         // Act
         await node.SetSmoothingTimeConstantAsync(smoothingTimeConstant);
@@ -354,9 +320,7 @@ public class AnalyserNodeTest : AudioNodeWithAudioNodeOptions<AnalyserNode, Anal
     public async Task SetMinDecibelsAsync_ThrowsIndexSizeErrorException_WhenSetToValueOutsideRange(double smoothingTimeConstant)
     {
         // Arrange
-        await using AudioContext context = await GetAudioContextAsync();
-
-        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, context);
+        await using AnalyserNode node = await AnalyserNode.CreateAsync(JSRuntime, AudioContext);
 
         // Act
         Func<Task> action = async () => await node.SetSmoothingTimeConstantAsync(smoothingTimeConstant);

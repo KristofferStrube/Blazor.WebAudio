@@ -6,7 +6,7 @@ namespace IntegrationTests.AudioNodeTests;
 public class DynamicsCompressorNodeTest : AudioNodeWithAudioNodeOptions<DynamicsCompressorNode, DynamicsCompressorOptions>
 {
     public override async Task<DynamicsCompressorNode> CreateAsync(IJSRuntime jSRuntime, AudioContext context, DynamicsCompressorOptions? options)
-        => await DynamicsCompressorNode.CreateAsync(jSRuntime, context, options);
+        => await DynamicsCompressorNode.CreateAsync(JSRuntime, AudioContext, options);
 
     public override Dictionary<ChannelCountMode, Type> UnsupportedChannelCountModes => new()
     {

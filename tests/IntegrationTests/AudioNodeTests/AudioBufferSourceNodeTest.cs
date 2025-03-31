@@ -8,16 +8,14 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
 {
     public override async Task<AudioBufferSourceNode> GetDefaultInstanceAsync()
     {
-        return await AudioBufferSourceNode.CreateAsync(JSRuntime, await GetAudioContextAsync());
+        return await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext);
     }
 
     [Test]
     public async Task GetBufferAsync_ShouldReturnNull_WhenItHasNoBuffer()
     {
         // Arrange
-        await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
-
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context);
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext);
 
         // Act
         AudioBuffer? buffer = await node.GetBufferAsync();
@@ -30,10 +28,9 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
     public async Task GetBufferAsync_ShouldRetrieveBuffer_WhenItHasBuffer()
     {
         // Arrange
-        await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
         await using AudioBuffer buffer = await AudioBuffer.CreateAsync(JSRuntime, new AudioBufferOptions() { Length = 1, SampleRate = 8000 });
 
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             Buffer = buffer
         });
@@ -49,9 +46,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
     public async Task SetBufferAsync_ShouldUpdateBuffer_WhenItHasNotBeenSetAlready()
     {
         // Arrange
-        await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
-
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context);
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext);
         await using AudioBuffer buffer = await AudioBuffer.CreateAsync(JSRuntime, new AudioBufferOptions() { Length = 1, SampleRate = 8000 });
 
         // Act
@@ -66,10 +61,8 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
     public async Task SetBufferAsync_WithNullArgument_ShouldUpdateBuffer_WhenItHasAlreadyBeenSet()
     {
         // Arrange
-        await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
-
         await using AudioBuffer buffer = await AudioBuffer.CreateAsync(JSRuntime, new AudioBufferOptions() { Length = 1, SampleRate = 8000 });
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             Buffer = buffer
         });
@@ -88,9 +81,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
     public async Task GetPlaybackRateAsync_RetrievesPlaybackRate(float playbackRate)
     {
         // Arrange
-        await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
-
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             PlaybackRate = playbackRate
         });
@@ -109,9 +100,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
     public async Task GetDetuneAsync_RetrievesDetune(float detune)
     {
         // Arrange
-        await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
-
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             Detune = detune
         });
@@ -130,9 +119,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
     public async Task GetLoopAsync_RetrievesLoop(bool loop)
     {
         // Arrange
-        await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
-
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             Loop = loop
         });
@@ -152,7 +139,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
         // Arrange
         await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
 
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             Loop = !loop
         });
@@ -175,7 +162,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
         // Arrange
         await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
 
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             LoopStart = loopStart
         });
@@ -195,7 +182,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
         // Arrange
         await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
 
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context);
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext);
 
         // Act
         await node.SetLoopStartAsync(loopStart);
@@ -213,7 +200,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
         // Arrange
         await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
 
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             LoopEnd = loopEnd
         });
@@ -233,7 +220,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
         // Arrange
         await using AudioContext context = await AudioContext.CreateAsync(JSRuntime);
 
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context);
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext);
 
         // Act
         await node.SetLoopEndAsync(loopEnd);
@@ -254,7 +241,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
             SampleRate = 8000,
             Length = 1
         });
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             Buffer = buffer
         });
@@ -285,7 +272,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
             SampleRate = 8000,
             Length = 1
         });
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             Buffer = buffer
         });
@@ -323,7 +310,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
 
         var a = await buffer.GetDurationAsync();
 
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             Buffer = buffer
         });
@@ -354,7 +341,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
             SampleRate = 8000,
             Length = 1
         });
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             Buffer = buffer
         });
@@ -378,7 +365,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
             SampleRate = 8000,
             Length = 1
         });
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             Buffer = buffer
         });
@@ -401,7 +388,7 @@ public class AudioBufferSourceNodeTest : AudioNodeTest<AudioBufferSourceNode>
             SampleRate = 8000,
             Length = 1
         });
-        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+        await using AudioBufferSourceNode node = await AudioBufferSourceNode.CreateAsync(JSRuntime, AudioContext, new()
         {
             Buffer = buffer
         });
