@@ -11,6 +11,9 @@ public class ConstantSourceOptions
     /// <summary>
     /// The initial value for the <see cref="ConstantSourceNode.GetOffsetAsync"/> <see cref="AudioParam"/> of this node.
     /// </summary>
+    /// <remarks>
+    /// The default value is <c>1</c>.
+    /// </remarks>
     [JsonPropertyName("offset")]
     public float Offset { get; set; } = 1;
 }
