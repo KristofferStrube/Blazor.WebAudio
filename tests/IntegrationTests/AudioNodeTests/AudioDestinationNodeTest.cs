@@ -10,7 +10,7 @@ public class AudioDestinationNodeTest : AudioNodeTest<AudioDestinationNode>
     }
 
     [Test]
-    public async Task GetMaxChannelCount_RetrievesMaxChannelCount()
+    public async Task GetMaxChannelCountAsync_RetrievesMaxChannelCount()
     {
         // Arrange
         await using AudioDestinationNode destination = await AudioContext.GetDestinationAsync();
@@ -18,6 +18,7 @@ public class AudioDestinationNodeTest : AudioNodeTest<AudioDestinationNode>
         // Act
         ulong maxChannelCount = await destination.GetMaxChannelCountAsync();
 
+        // Assert
         _ = maxChannelCount.Should().BeGreaterThan(0);
     }
 }
