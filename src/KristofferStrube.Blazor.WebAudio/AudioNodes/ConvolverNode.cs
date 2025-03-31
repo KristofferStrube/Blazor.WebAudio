@@ -50,8 +50,14 @@ public class ConvolverNode : AudioNode, IJSCreatable<ConvolverNode>
     /// </summary>
     public async Task<AudioBuffer?> GetBufferAsync()
     {
+        await using ValueReference bufferAttribute = new(JSRuntime, JSReference, "buffer");
+        if (await bufferAttribute.GetTypeNameAsync() is "null")
+        {
+            return null;
+        }
+
         IJSObjectReference helper = await webAudioHelperTask.Value;
-        IJSObjectReference? jSInstance = await helper.InvokeAsync<IJSObjectReference?>("getAttribute", JSReference, "buffer");
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "buffer");
         return jSInstance is null ? null : await AudioBuffer.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
@@ -70,7 +76,7 @@ public class ConvolverNode : AudioNode, IJSCreatable<ConvolverNode>
     }
 
     /// <summary>
-    /// Gets the flag for whether the impulse response from the buffer will be scaled by an equal-power normalization when the buffer atttribute is set.<br />
+    /// Gets the flag for whether the impulse response from the buffer will be scaled by an equal-power normalization when the buffer attribute is set.<br />
     /// </summary>
     /// <remarks>
     /// Its default value is <see langword="true"/> in order to achieve a more uniform output level from the convolver when loaded with diverse impulse responses.
@@ -87,7 +93,7 @@ public class ConvolverNode : AudioNode, IJSCreatable<ConvolverNode>
     }
 
     /// <summary>
-    /// Sets the flag for whether the impulse response from the buffer will be scaled by an equal-power normalization when the buffer atttribute is set.<br />
+    /// Sets the flag for whether the impulse response from the buffer will be scaled by an equal-power normalization when the buffer attribute is set.<br />
     /// </summary>
     /// <remarks>
     /// Its default value is <see langword="true"/> in order to achieve a more uniform output level from the convolver when loaded with diverse impulse responses.

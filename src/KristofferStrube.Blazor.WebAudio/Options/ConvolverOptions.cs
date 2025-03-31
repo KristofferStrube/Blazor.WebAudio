@@ -17,6 +17,9 @@ public class ConvolverOptions : AudioNodeOptions
     /// <summary>
     /// The opposite of the desired initial value for <see cref="ConvolverNode.GetNormalizeAsync"/>.
     /// </summary>
+    /// <remarks>
+    /// The default value is <see langword="false"/>.
+    /// </remarks>
     [JsonPropertyName("disableNormalization")]
     public bool DisableNormalization { get; set; } = false;
 
