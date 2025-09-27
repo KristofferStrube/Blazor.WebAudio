@@ -36,8 +36,12 @@ public class MediaStreamAudioSource : Node
             NoiseSuppression = NoiseSuppresion,
             EchoCancellation = EchoCancellation,
             AutoGainControl = false,
-            DeviceId = SelectedAudioSource is null ? null : new ConstrainDomString(SelectedAudioSource)
         };
+        if (SelectedAudioSource is not null)
+        {
+            mediaTrackConstraints.DeviceId = new ConstrainDOMStringParameters() { Exact = SelectedAudioSource };
+        }
+
         MediaStream mediaStream = await mediaDevices.GetUserMediaAsync(new MediaStreamConstraints() { Audio = mediaTrackConstraints });
 
         MediaDeviceInfo[] deviceInfos = await mediaDevices.EnumerateDevicesAsync();
