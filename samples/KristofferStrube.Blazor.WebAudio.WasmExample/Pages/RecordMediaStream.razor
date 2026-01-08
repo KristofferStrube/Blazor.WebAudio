@@ -36,7 +36,8 @@ else if (peakFrequencyCount > 0)
     <button class="btn btn-primary btn-sm" @onclick="() => MakePlaybackMatchFrequency(3520)">Match 3520 Hz</button>
     <br />
     
-    <span>Average Max Peak: @(Math.Round(peakFrequencySum / peakFrequencyCount, 0)) Hz</span><br />
+    <span>Average Max Peak: @(Math.Round(peakFrequencySum / peakFrequencyCount, 0)) Hz</span>
+    <br />
     <Plot Data="frequencyMeasurements" />
 }
 else if (audioBuffer is not null)
@@ -208,15 +209,8 @@ else
         if (context is null || audioBuffer is null)
             return;
 
-        await using AudioBufferSourceNode sourceNode = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
-        {
-            Buffer = audioBuffer,
-            PlaybackRate = playbackRate
-        });
-
         analyser = await context.CreateAnalyserAsync();
         await using AudioDestinationNode destination = await context.GetDestinationAsync();
-        await sourceNode.ConnectAsync(analyser);
         await analyser.ConnectAsync(destination);
 
         int bufferLength = (int)await analyser.GetFrequencyBinCountAsync();
@@ -230,9 +224,24 @@ else
         {
             makeMeasurements = false;
         });
-        await sourceNode.AddOnEndedEventListenerAsync(endedListener);
 
-        await sourceNode.StartAsync(when: 0, offset, duration);
+        double currentTime = await context.GetCurrentTimeAsync();
+
+        int repeats = 5;
+        for (int i = 0; i < repeats; i++)
+        {
+            await using AudioBufferSourceNode sourceNode = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
+            {
+                Buffer = audioBuffer,
+                PlaybackRate = playbackRate
+            });
+            await sourceNode.ConnectAsync(analyser);
+            await sourceNode.StartAsync(when: currentTime + i * duration / playbackRate, offset, duration);
+            if (i == repeats - 1)
+            {
+                await sourceNode.AddOnEndedEventListenerAsync(endedListener);
+            }
+        }
 
         peakFrequencySum = 0;
         peakFrequencyCount = 1;
