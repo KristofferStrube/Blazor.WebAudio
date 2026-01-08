@@ -132,7 +132,7 @@ else
         while (!disposed)
         {
             await Task.Delay(50);
-            if (speakerLight is null || context is null) continue;
+            if (speakerLight is null || speakerDark is null || context is null) continue;
 
             await UpdatePannerPositionAndOrientation(pannerLight, speakerLight);
             await UpdatePannerPositionAndOrientation(pannerDark, speakerDark);
