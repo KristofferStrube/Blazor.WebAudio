@@ -13,12 +13,10 @@
     @foreach (var i in whiteKeyIndices)
     {
         var k = i;
-        <rect @onmousedown="e => Start(keys[k].Octave, keys[k].Pitch, e)"
-              @onmouseenter="e => Start(keys[k].Octave, keys[k].Pitch, e)"
-              @onmouseup="End"
-              @onmouseout="End"
-              @ontouchstart="e => Start(keys[k].Octave, keys[k].Pitch, e)"
-              @ontouchend="End"
+        <rect @onpointerdown="e => Start(keys[k].Octave, keys[k].Pitch, e)"
+              @onpointerenter="e => Start(keys[k].Octave, keys[k].Pitch, e)"
+              @onpointerup="End"
+              @onpointerout="End"
               x="@(keys.GetRange(0, i).Count(k => k.Color == "white") * 100)"
               y="0"
               width="100"
@@ -42,12 +40,10 @@
     @foreach (var i in blackKeyIndices)
     {
         var k = i;
-        <rect @onmousedown="e => Start(keys[k].Octave, keys[k].Pitch, e)"
-              @onmouseenter="e => Start(keys[k].Octave, keys[k].Pitch, e)"
-              @onmouseup="End"
-              @onmouseout="End"
-              @ontouchstart="e => Start(keys[k].Octave, keys[k].Pitch, e)"
-              @ontouchend="End"
+        <rect @onpointerdown="e => Start(keys[k].Octave, keys[k].Pitch, e)"
+              @onpointerenter="e => Start(keys[k].Octave, keys[k].Pitch, e)"
+              @onpointerup="End"
+              @onpointerout="End"
               x="@(keys.GetRange(0, i).Count(k => k.Color == "white") * 100 - 30 - (keys[k].Pitch is 2 or 7 ? 10 : 0) + (keys[k].Pitch is 4 or 11 ? 10 : 0))"
               y="0"
               width="60"
@@ -57,7 +53,7 @@
               stroke-width="1"></rect>
     }
 </svg>
-<GainSlider GainNode="mainNode" />
+<GainSlider GainNode="mainNode" InteractiveBeforeGainNodeIsPresent="true" />
 
 <div style="height:30vh;width:100%;">
     <ADSREditor @ref=ADSREditor />
