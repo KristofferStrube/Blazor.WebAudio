@@ -21,17 +21,16 @@ Status:
     {
         <button class="btn btn-warning" @onclick="() => context.SuspendAsync()">Suspend</button>
         <button class="btn btn-danger" @onclick="() => context.CloseAsync()">Close</button>
-
-        @if (oscillator is null)
-        {
-            <button class="btn btn-success" @onclick=PlaySound>Play Sound 🔊</button>
-        }
-        else
-        {
-            <button class="btn btn-warning" @onclick=StopSound>Stop Sound 🔊</button>
-        }
-        <EnumSelector @bind-Value=oscillatorType Disabled=@(oscillator is not null) />
     }
+    @if (oscillator is null)
+    {
+        <button class="btn btn-success" @onclick=PlaySound>Play Sound 🔊</button>
+    }
+    else
+    {
+        <button class="btn btn-warning" @onclick=StopSound>Stop Sound 🔊</button>
+    }
+    <EnumSelector @bind-Value=oscillatorType Disabled=@(oscillator is not null) />
 </div>
 @if (oscillatorType is OscillatorType.Custom)
 {
@@ -87,7 +86,7 @@ Status:
     GainNode gainNode = default!;
     AnalyserNode analyser = default!;
     EventListener<Event> stateChangeListener = default!;
-    AudioContextState state = AudioContextState.Closed;
+    AudioContextState? state;
     OscillatorNode? oscillator;
     OscillatorType oscillatorType = OscillatorType.Sine;
     PeriodicWave? customWave;
@@ -101,32 +100,10 @@ Status:
     float[] imagCoefficients = new float[10];
     int coefficientSeriesLength = 10;
 
-    protected override async Task OnInitializedAsync()
-    {
-        nIdentifier = new Identifier("n", () => n);
-        identifiers = [nIdentifier];
-        CustomWavePresetUpdated();
-        CalculateCoefficients();
-
-        context = await AudioContext.CreateAsync(JSRuntime);
-
-        AudioDestinationNode destination = await context.GetDestinationAsync();
-        gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.1f });
-        analyser = await AnalyserNode.CreateAsync(JSRuntime, context);
-
-        await gainNode.ConnectAsync(destination);
-        await gainNode.ConnectAsync(analyser);
-
-        stateChangeListener = await context.AddOnStateChangeEventListener(async (e) =>
-        {
-            state = await context.GetStateAsync();
-            StateHasChanged();
-        });
-        state = await context.GetStateAsync();
-    }
-
     public async Task PlaySound()
     {
+        await InitializeContext();
+
         if (oscillatorType is OscillatorType.Custom)
         {
             customWave = await PeriodicWave.CreateAsync(JSRuntime, context, new()
@@ -165,6 +142,33 @@ Status:
         }
     }
 
+    public async Task InitializeContext()
+    {
+        if (context is not null)
+            return;
+
+        nIdentifier = new Identifier("n", () => n);
+        identifiers = [nIdentifier];
+        CustomWavePresetUpdated();
+        CalculateCoefficients();
+
+        context = await AudioContext.CreateAsync(JSRuntime);
+
+        AudioDestinationNode destination = await context.GetDestinationAsync();
+        gainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.1f });
+        analyser = await AnalyserNode.CreateAsync(JSRuntime, context);
+
+        await gainNode.ConnectAsync(destination);
+        await gainNode.ConnectAsync(analyser);
+
+        stateChangeListener = await context.AddOnStateChangeEventListener(async (e) =>
+        {
+            state = await context.GetStateAsync();
+            StateHasChanged();
+        });
+        state = await context.GetStateAsync();
+    }
+
     public void CustomWavePresetUpdated()
     {
         customFormula = selectedFormulaPreset switch
@@ -196,6 +200,9 @@ Status:
 
     public async ValueTask DisposeAsync()
     {
+        if (context is null)
+            return;
+
         await context.RemoveOnStateChangeEventListener(stateChangeListener);
         await StopSound();
         if (context is not null)

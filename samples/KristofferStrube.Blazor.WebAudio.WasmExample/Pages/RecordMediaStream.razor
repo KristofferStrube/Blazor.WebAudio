@@ -103,8 +103,6 @@ else
     {
         await StopAudioTrack();
 
-        await InvokeAsync(StateHasChanged);
-
         try
         {
             if (context is null)

@@ -8,7 +8,7 @@
 
 <svg width="100%"
      height="40vh"
-     viewBox="0 0 @(keys.Count(k => k.Color == "white")*100) 600"
+     viewBox="0 -1 @(keys.Count(k => k.Color == "white") * 100) 602"
      style="user-select:none;touch-action:none;">
     @foreach (var i in whiteKeyIndices)
     {
@@ -19,7 +19,7 @@
               @onmouseout="End"
               @ontouchstart="e => Start(keys[k].Octave, keys[k].Pitch, e)"
               @ontouchend="End"
-              x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100)"
+              x="@(keys.GetRange(0, i).Count(k => k.Color == "white") * 100)"
               y="0"
               width="100"
               height="600"
@@ -27,7 +27,7 @@
               stroke="black"
               stroke-width="1"></rect>
         <text>
-            <text x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100+20)"
+            <text x="@(keys.GetRange(0, i).Count(k => k.Color == "white") * 100 + 20)"
                   y="580"
                   width="100"
                   height="600"
@@ -48,7 +48,7 @@
               @onmouseout="End"
               @ontouchstart="e => Start(keys[k].Octave, keys[k].Pitch, e)"
               @ontouchend="End"
-              x="@(keys.GetRange(0, i).Count(k => k.Color == "white")*100-30 - (keys[k].Pitch is 2 or 7 ? 10 : 0) + (keys[k].Pitch is 4 or 11 ? 10 : 0))"
+              x="@(keys.GetRange(0, i).Count(k => k.Color == "white") * 100 - 30 - (keys[k].Pitch is 2 or 7 ? 10 : 0) + (keys[k].Pitch is 4 or 11 ? 10 : 0))"
               y="0"
               width="60"
               height="400"
@@ -80,22 +80,18 @@
     GainNode? keyboardMain;
     AudioScheduledSourceNode? audioSource;
 
-    double decayEndTime;
-
     List<(string Name, int Octave, int Pitch, string Color)> keys = new();
     int[] whiteKeyIndices = Array.Empty<int>();
     int[] blackKeyIndices = Array.Empty<int>();
 
     (string name, int attack, int decay, int sustain, int release)[] adsrPresets =
     [("Glockenspiel", 2, 2, 50, 100),
-    ("Piano", 2, 40, 0, 0),
+    ("Piano", 2, 40, 0, 20),
     ("Organ", 2, 2, 100, 2),
     ("Flute", 40, 2, 70, 20)];
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await InitializeContext();
-
         var letters = new List<string>() { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
         keys = Enumerable
             .Range(3, 3)
@@ -124,15 +120,15 @@
 
     public async Task InitializeContext()
     {
-        if (context is null || mainNode is null || compressor is null)
-        {
-            context = await AudioContext.CreateAsync(JSRuntime);
-            mainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.1f });
-            compressor = await DynamicsCompressorNode.CreateAsync(JSRuntime, context);
-            await using AudioDestinationNode destination = await context.GetDestinationAsync();
-            await compressor.ConnectAsync(mainNode);
-            await mainNode.ConnectAsync(destination);
-        }
+        if (context is not null)
+            return;
+
+        context = await AudioContext.CreateAsync(JSRuntime);
+        mainNode = await GainNode.CreateAsync(JSRuntime, context, new() { Gain = 0.1f });
+        compressor = await DynamicsCompressorNode.CreateAsync(JSRuntime, context);
+        await using AudioDestinationNode destination = await context.GetDestinationAsync();
+        await compressor.ConnectAsync(mainNode);
+        await mainNode.ConnectAsync(destination);
     }
 
     private SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
@@ -163,8 +159,7 @@
         await using var amplifierGain = await keyboardMain.GetGainAsync();
         var attackEndTime = time + ADSREditor.Attack;
         await amplifierGain.LinearRampToValueAtTimeAsync(1f, attackEndTime);
-        decayEndTime = attackEndTime + ADSREditor.Decay;
-        await amplifierGain.LinearRampToValueAtTimeAsync(ADSREditor.Sustain, decayEndTime);
+        await amplifierGain.SetTargetAtTimeAsync(ADSREditor.Sustain, attackEndTime, (float)ADSREditor.Decay);
 
         semaphoreSlim.Release();
     }
@@ -176,20 +171,20 @@
         if (AudioBufferSource is { } recordedBufferSource)
         {
             AudioBufferSourceNode bufferSource = await AudioBufferSourceNode.CreateAsync(JSRuntime, context, new()
-                {
-                    Buffer = recordedBufferSource.buffer,
-                    PlaybackRate = recordedBufferSource.playbackRateToMatch440 * frequency / 440
-                });
+            {
+                Buffer = recordedBufferSource.buffer,
+                PlaybackRate = recordedBufferSource.playbackRateToMatch440 * frequency / 440
+            });
 
             await bufferSource.StartAsync(when: 0, recordedBufferSource.offset, recordedBufferSource.duration);
             return bufferSource;
         }
 
         var oscillator = await OscillatorNode.CreateAsync(JSRuntime, context, new()
-            {
-                Type = OscillatorType.Sine,
-                Frequency = frequency
-            });
+        {
+            Type = OscillatorType.Sine,
+            Frequency = frequency
+        });
         await oscillator.StartAsync();
         return oscillator;
     }
@@ -204,10 +199,12 @@
             return;
         }
 
+        await InitializeContext();
+
         var time = await context.GetCurrentTimeAsync();
         await using var amplifierGain = await keyboardMain.GetGainAsync();
-        await amplifierGain.CancelScheduledValuesAsync(0);
-        await amplifierGain.LinearRampToValueAtTimeAsync(0, Math.Max(time, decayEndTime) + ADSREditor.Release);
+        await amplifierGain.CancelAndHoldAtTimeAsync(0);
+        await amplifierGain.SetTargetAtTimeAsync(0, 0, (float)ADSREditor.Release);
 
         var localKeyboardMain = keyboardMain;
         keyboardMain = null;
@@ -217,7 +214,7 @@
 
         semaphoreSlim.Release();
 
-        await Task.Delay((int)((Math.Max(0, decayEndTime - time) + ADSREditor.Release) * 1000) + 100);
+        await Task.Delay(5000);
         await localKeyboardMain.DisconnectAsync();
         await localKeyboardMain.DisposeAsync();
         await localOscillator.DisconnectAsync();
